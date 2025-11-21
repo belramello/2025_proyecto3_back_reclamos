@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repository/usuario-repository.interface';
 import { UsersMapper } from './mappers/usuario.mapper';
 import { Usuario } from './entity/usuario.entity';
+import { IUsuarioAuth } from '../auth/interface/usuario-auth.interface';
 
 @Injectable()
 export class UsuarioService {
   constructor(
+    @Inject('IUsuarioRepository')
     private readonly usuariosRepository: IUsuarioRepository,
     private readonly usuarioMappers: UsersMapper,
   ) {}
@@ -57,5 +59,13 @@ export class UsuarioService {
 
   async remove(id: string): Promise<void> {
     await this.usuariosRepository.remove(id);
+  }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return await this.usuariosRepository.findByEmail(email);
+  }
+
+  async findByEmailForAuth(email: string): Promise<IUsuarioAuth | null> {
+    return this.usuariosRepository.findByEmailForAuth(email);
   }
 }

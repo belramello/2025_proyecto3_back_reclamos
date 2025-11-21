@@ -10,6 +10,7 @@ import { UsuarioDocument } from '../schema/usuario.schema';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UsersMapper } from '../mappers/usuario.mapper';
 import { Usuario } from '../entity/usuario.entity';
+import { IUsuarioAuth } from '../../auth/interface/usuario-auth.interface';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
@@ -107,5 +108,18 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         `Error al eliminar el usuario con ID ${id}.`,
       );
     }
+  }
+
+  async findByEmailForAuth(email: string): Promise<IUsuarioAuth | null> {
+    const doc = await this.userModel.findOne({ email }).exec();
+    if (!doc) {
+      return null;
+    }
+    return {
+      id: doc._id.toString(),
+      email: doc.email,
+      contraseña: doc.contraseña,
+      nombre: doc.nombre,
+    } as IUsuarioAuth;
   }
 }
