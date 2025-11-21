@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type UserDocumentType = UserDocument & Document;
+export type UsuarioDocumentType = UsuarioDocument & Document;
 
 @Schema({ collection: 'usuarios' })
-export class UserDocument {
+export class UsuarioDocument {
   @Prop({ required: true })
   nombreUsuario: string;
 
@@ -39,4 +39,4 @@ export class UserDocument {
   //passwordResetExpiration?: Date;
 }
 
-export const UsuarioSchema = SchemaFactory.createForClass(UserDocument);
+export const UsuarioSchema = SchemaFactory.createForClass(UsuarioDocument);
