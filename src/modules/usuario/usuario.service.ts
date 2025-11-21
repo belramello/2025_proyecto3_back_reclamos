@@ -1,26 +1,61 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
+import type { IUsuarioRepository } from './repository/usuario-repository.interface';
+import { UsersMapper } from './mappers/usuario.mapper';
+import { Usuario } from './entity/usuario.entity';
 
 @Injectable()
 export class UsuarioService {
-  create(createUsuarioDto: CreateUsuarioDto) {
-    return 'This action adds a new usuario';
+  constructor(
+    private readonly usuariosRepository: IUsuarioRepository,
+    private readonly usuarioMappers: UsersMapper,
+  ) {}
+
+  async create(
+    createUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    const usuarioEntity: Usuario =
+      await this.usuariosRepository.create(createUsuarioDto);
+    return this.usuarioMappers.toResponseDto(usuarioEntity);
   }
 
-  findAll() {
-    return `This action returns all usuario`;
+  async findAll(): Promise<RespuestaUsuarioDto[]> {
+    const usuarios: Usuario[] = await this.usuariosRepository.findAll();
+    return usuarios.map((usuario) =>
+      this.usuarioMappers.toResponseDto(usuario),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
+  async findOne(id: string): Promise<RespuestaUsuarioDto> {
+    const usuario: Usuario | null = await this.usuariosRepository.findOne(id);
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
+    }
+    return this.usuarioMappers.toResponseDto(usuario);
   }
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} usuario`;
+  async update(
+    id: string,
+    updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    const partialEntity = this.usuarioMappers.toPartialEntity(updateUsuarioDto);
+    const usuarioActualizado: Usuario = await this.usuariosRepository.update(
+      id,
+      partialEntity,
+    );
+
+    if (!usuarioActualizado) {
+      throw new NotFoundException(
+        `Usuario con ID "${id}" no encontrado para actualizar.`,
+      );
+    }
+    return this.usuarioMappers.toResponseDto(usuarioActualizado);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
+  async remove(id: string): Promise<void> {
+    await this.usuariosRepository.remove(id);
   }
 }
