@@ -3,18 +3,17 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Inject,
 } from '@nestjs/common';
 import { Usuario } from '../../usuario/entity/usuario.entity';
 import { IUsuarioAuth } from '../interface/usuario-auth.interface';
 import { comparePasswords } from './password-helper';
 import { UsuarioService } from 'src/modules/usuario/usuario.service';
-
+@Injectable()
 export class AuthValidator {
   constructor(private readonly usuarioservice: UsuarioService) {}
 
   async validarEmailSinUsar(email: string): Promise<null> {
-    const existingUser = await this.usuarioservice.findOne(email);
+    const existingUser = await this.usuarioservice.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('El email ya está en uso');
     }

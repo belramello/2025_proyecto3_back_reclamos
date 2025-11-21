@@ -14,12 +14,13 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 
+  @Post('register')
   async register(
     @Body() createUsuarioDto: CreateUsuarioDto,
   ): Promise<LoginResponseDto> {
     return await this.authService.register(createUsuarioDto);
   }
-
+  @Post('refresh')
   async refresh(
     @Body('refreshToken') refreshToken: string,
   ): Promise<LoginResponseDto> {
