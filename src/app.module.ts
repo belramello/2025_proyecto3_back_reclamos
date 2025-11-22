@@ -1,35 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-import { ReclamosModule } from './modules/reclamos/reclamos.module';
-import { TipoReclamoModule } from './modules/tipo-reclamo/tipo-reclamo.module';
-import { NivelCriticidadModule } from './modules/nivel-criticidad/nivel-criticidad.module';
-import { PrioridadModule } from './modules/prioridad/prioridad.module';
+import { UsuarioSchema } from './modules/usuario/schema/usuario.schema';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
 
 @Module({
   imports: [
-
-    ConfigModule.forRoot({ isGlobal: true }),
-
-
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get<string>('MONGO_URI'),
-        dbName: config.get<string>('MONGO_DB'),
-      }),
-    }),
-
-    // Tus módulos
-    ReclamosModule,
-    TipoReclamoModule,
-    NivelCriticidadModule,
-    PrioridadModule,
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    MongooseModule.forRoot(
+      process.env.MONGO_URI || 'mongodb://localhost:27017',
+      {
+        dbName: 'R3cl4mos',
+      },
+    ),
+    MongooseModule.forFeature([{ name: 'Usuario', schema: UsuarioSchema }]),
+    AuthModule,
+    UsuarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
