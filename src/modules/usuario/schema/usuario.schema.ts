@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Rol } from 'src/modules/roles/schema/rol.schema';
 
-export type UsuarioDocumentType = UsuarioDocument & Document;
+export type UsuarioDocumentType = Usuario & Document;
 
 @Schema({ collection: 'usuarios' })
-export class UsuarioDocument {
+export class Usuario {
   @Prop({ required: true })
   nombreUsuario: string;
 
@@ -14,8 +15,8 @@ export class UsuarioDocument {
   @Prop({ required: true })
   contraseña: string;
 
-  @Prop({ required: true })
-  rol: string; //CAMBIAR A ROL CUANDO ESTÉ EL ROL
+  @Prop({ type: Types.ObjectId, ref: 'Rol', required: true, default: null })
+  rol: Rol;
 
   @Prop()
   nombre?: string;
@@ -39,4 +40,4 @@ export class UsuarioDocument {
   //passwordResetExpiration?: Date;
 }
 
-export const UsuarioSchema = SchemaFactory.createForClass(UsuarioDocument);
+export const UsuarioSchema = SchemaFactory.createForClass(Usuario);

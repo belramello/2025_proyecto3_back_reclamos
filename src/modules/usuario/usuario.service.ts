@@ -5,8 +5,9 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repository/usuario-repository.interface';
 import { UsersMapper } from './mappers/usuario.mapper';
-import { Usuario } from './entity/usuario.entity';
 import { IUsuarioAuth } from '../auth/interface/usuario-auth.interface';
+import { Usuario } from './schema/usuario.schema';
+import { RolesValidator } from '../roles/helpers/roles-validator';
 
 @Injectable()
 export class UsuarioService {
@@ -14,14 +15,17 @@ export class UsuarioService {
     @Inject('IUsuarioRepository')
     private readonly usuariosRepository: IUsuarioRepository,
     private readonly usuarioMappers: UsersMapper,
+    private readonly rolesValidator: RolesValidator,
   ) {}
 
   async create(
     createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    const usuarioEntity: Usuario =
-      await this.usuariosRepository.create(createUsuarioDto);
-    return this.usuarioMappers.toResponseDto(usuarioEntity);
+    const rol = await this.rolesValidator.validateRolExistente(
+      createUsuarioDto.rol,
+    );
+    const usuario = await this.usuariosRepository.create(createUsuarioDto);
+    return this.usuarioMappers.toResponseDto(usuario);
   }
 
   async findAll(): Promise<RespuestaUsuarioDto[]> {

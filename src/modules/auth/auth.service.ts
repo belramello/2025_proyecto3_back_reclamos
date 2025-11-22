@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
@@ -36,7 +33,7 @@ export class AuthService {
         usuario,
       );
     } catch (error) {
-      const usuario = await this.authValidator
+      await this.authValidator
         .validarEmailExistente(loginDto.email)
         .catch(() => null);
       throw error;
@@ -50,7 +47,7 @@ export class AuthService {
       ...createUserDto,
       contraseña: hashedPassword,
     });
-    
+
     const payload = {
       email: nuevoUsuario.email,
       sub: nuevoUsuario.id.toString(),
@@ -70,9 +67,7 @@ export class AuthService {
       sub: string;
       email: string;
     };
-    const user = await this.authValidator.validarUsuarioExistente(
-      payload.sub, // Corregido: Eliminado parseInt()
-    );
+    const user = await this.authValidator.validarUsuarioExistente(payload.sub);
     return this.authMapper.toLoginResponseDto(
       tokens.accessToken,
       tokens.refreshToken || refreshToken,

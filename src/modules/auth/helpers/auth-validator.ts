@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Usuario } from '../../usuario/entity/usuario.entity';
 import { IUsuarioAuth } from '../interface/usuario-auth.interface';
 import { comparePasswords } from './password-helper';
 import { UsuarioService } from 'src/modules/usuario/usuario.service';
+import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { RespuestaUsuarioDto } from 'src/modules/usuario/dto/respuesta-usuario.dto';
 @Injectable()
 export class AuthValidator {
   constructor(private readonly usuarioservice: UsuarioService) {}
@@ -41,8 +41,7 @@ export class AuthValidator {
     }
   }
 
-  async validarUsuarioExistente(id: string): Promise<Usuario> {
-    // Para el token refresh, solo necesitamos la entidad limpia (sin contraseña)
+  async validarUsuarioExistente(id: string): Promise<RespuestaUsuarioDto> {
     const user = await this.usuarioservice.findOne(id);
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');

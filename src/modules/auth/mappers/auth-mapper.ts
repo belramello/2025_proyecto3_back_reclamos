@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RespuestaUsuarioDto } from '../../../modules/usuario/dto/respuesta-usuario.dto';
-import { Usuario } from '../../usuario/entity/usuario.entity';
 import { IUsuarioAuth } from '../interface/usuario-auth.interface';
+import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 
 type LoginUsuario = RespuestaUsuarioDto | Usuario | IUsuarioAuth;
 
@@ -18,8 +18,10 @@ export class AuthMapper {
       usuario: {
         nombre: usuario.nombre,
         email: usuario.email,
-        // rol: usuario.rol.nombre,
-        // permisos: usuario.rol.permisos.map((permiso) => permiso.id),
+        rol: usuario.rol,
+        permisos: usuario.rol.permisos.map((permiso) =>
+          (permiso as any)._id?.toString(),
+        ),
       },
     };
   }

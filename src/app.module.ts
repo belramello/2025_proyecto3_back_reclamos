@@ -7,6 +7,8 @@ import { UsuarioSchema } from './modules/usuario/schema/usuario.schema';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { EstadosModule } from './modules/estados/estados.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { EstadosModule } from './modules/estados/estados.module';
     AuthModule,
     UsuarioModule,
     EstadosModule,
+    RolesModule,
+    PermisosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   IsString,
   IsNotEmpty,
@@ -22,7 +21,7 @@ export class CreateUsuarioDto {
 
   @IsString({ message: 'El rol debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El rol es obligatorio.' })
-  readonly rol: string; //CAMBIAR A ROL CUANDO ESTÉ EL ROL
+  readonly rol: string;
 
   @IsString({ message: 'El nombre debe ser una cadena de texto.' })
   @IsOptional()

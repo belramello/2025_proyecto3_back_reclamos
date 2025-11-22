@@ -1,5 +1,5 @@
 import { IUsuarioAuth } from '../../auth/interface/usuario-auth.interface';
-import { Usuario } from '../entity/usuario.entity';
+import { Usuario } from '../schema/usuario.schema';
 
 export interface IUsuarioRepository {
   create(usuario: any): Promise<Usuario>;

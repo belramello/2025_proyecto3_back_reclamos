@@ -1,8 +1,6 @@
-// src/usuario/dto/respuesta-usuario.dto.ts
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Exclude, Expose } from 'class-transformer';
 import { IsString, IsOptional, IsEmail, IsNotEmpty } from 'class-validator';
+import { Rol } from 'src/modules/roles/schema/rol.schema';
 
 @Exclude()
 export class RespuestaUsuarioDto {
@@ -24,7 +22,7 @@ export class RespuestaUsuarioDto {
   @Expose()
   @IsString()
   @IsNotEmpty()
-  readonly rol: string;
+  readonly rol: Rol;
 
   @Expose()
   @IsString()

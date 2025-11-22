@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEstadoDto } from './dto/create-estado.dto';
-import { UpdateEstadoDto } from './dto/update-estado.dto';
 
 @Injectable()
 export class EstadosService {
-  create(createEstadoDto: CreateEstadoDto) {
+  create() {
     return 'This action adds a new estado';
   }
 
@@ -12,15 +10,15 @@ export class EstadosService {
     return `This action returns all estados`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} estado`;
+  findOne() {
+    return `This action returns a # estado`;
   }
 
-  update(id: number, updateEstadoDto: UpdateEstadoDto) {
-    return `This action updates a #${id} estado`;
+  update() {
+    return `This action updates a # estado`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} estado`;
+  remove() {
+    return `This action removes a #estado`;
   }
 }
