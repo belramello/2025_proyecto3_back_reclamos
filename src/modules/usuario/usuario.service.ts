@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -24,7 +23,9 @@ export class UsuarioService {
     const rol = await this.rolesValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
-    const usuario = await this.usuariosRepository.create(createUsuarioDto);
+    console.log('rol:', rol);
+    const usuario = await this.usuariosRepository.create(createUsuarioDto, rol);
+    console.log('usuario creado:', usuario);
     return this.usuarioMappers.toResponseDto(usuario);
   }
 
@@ -41,6 +42,14 @@ export class UsuarioService {
       throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
     }
     return this.usuarioMappers.toResponseDto(usuario);
+  }
+
+  async findOneForAuth(id: string): Promise<Usuario> {
+    const usuario: Usuario | null = await this.usuariosRepository.findOne(id);
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
+    }
+    return usuario;
   }
 
   async update(

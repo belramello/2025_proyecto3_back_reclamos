@@ -10,6 +10,7 @@ import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UsersMapper } from '../mappers/usuario.mapper';
 import { IUsuarioAuth } from '../../auth/interface/usuario-auth.interface';
 import { Usuario } from '../schema/usuario.schema';
+import { Rol } from 'src/modules/roles/schema/rol.schema';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
@@ -18,14 +19,22 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     private readonly mapper: UsersMapper,
   ) {}
 
-  async create(userData: CreateUsuarioDto): Promise<Usuario> {
+  async create(userData: CreateUsuarioDto, rol: Rol): Promise<Usuario> {
     try {
-      const userDoc = new this.userModel({ ...userData });
-      const saved = await userDoc.save();
-      return saved;
+      const userDoc = new this.userModel({
+        ...userData,
+        rol: rol._id,
+      });
+      const created = await userDoc.save();
+      const user = await this.findOne(created._id.toString());
+      if (!user) {
+        throw new InternalServerErrorException(`Error al crear el usuario`);
+      }
+      return user;
     } catch (error) {
-      // IDEA GEMINI --> Considera usar un logger en lugar de lanzar directamente InternalServerErrorException para el error original
-      throw new InternalServerErrorException(`Error al crear el usuario.`);
+      throw new InternalServerErrorException(
+        `Error al crear el usuario: ${error.message}`,
+      );
     }
   }
 
@@ -42,7 +51,11 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
   async findOne(id: string): Promise<Usuario | null> {
     try {
-      const doc = await this.userModel.findById(id).exec();
+      const doc = await this.userModel
+        .findById(id)
+        .populate('rol')
+        .populate('rol.permisos')
+        .exec();
       if (!doc) {
         return null;
       }
@@ -56,7 +69,11 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     try {
-      const doc = await this.userModel.findOne({ email }).exec();
+      const doc = await this.userModel
+        .findOne({ email })
+        .populate('rol')
+        .populate('rol.permisos')
+        .exec();
       if (!doc) {
         return null;
       }
