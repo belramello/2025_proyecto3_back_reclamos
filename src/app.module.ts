@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsuarioSchema } from './modules/usuario/schema/usuario.schema';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
+import { EstadosModule } from './modules/estados/estados.module';
 
 @Module({
   imports: [
@@ -21,6 +20,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
     MongooseModule.forFeature([{ name: 'Usuario', schema: UsuarioSchema }]),
     AuthModule,
     UsuarioModule,
+    EstadosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
