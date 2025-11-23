@@ -9,6 +9,9 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 import { EstadosModule } from './modules/estados/estados.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermisosModule } from './modules/permisos/permisos.module';
+import { HistorialAsignacionModule } from './modules/historial-asignacion/historial-asignacion.module';
+import { AreasModule } from './modules/areas/areas.module';
+import { SubareasModule } from './modules/subareas/subareas.module';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { PermisosModule } from './modules/permisos/permisos.module';
     EstadosModule,
     RolesModule,
     PermisosModule,
+    HistorialAsignacionModule,
+    AreasModule,
+    SubareasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
