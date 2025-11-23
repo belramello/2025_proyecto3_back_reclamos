@@ -12,6 +12,7 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { HistorialAsignacionModule } from './modules/historial-asignacion/historial-asignacion.module';
 import { AreasModule } from './modules/areas/areas.module';
 import { SubareasModule } from './modules/subareas/subareas.module';
+import { HistorialEstadoModule } from './modules/historial-estado/historial-estado.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SubareasModule } from './modules/subareas/subareas.module';
     HistorialAsignacionModule,
     AreasModule,
     SubareasModule,
+    HistorialEstadoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
