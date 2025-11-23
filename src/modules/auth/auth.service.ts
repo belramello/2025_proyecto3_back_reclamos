@@ -26,7 +26,7 @@ export class AuthService {
         loginDto.password,
         usuario.contraseña,
       );
-      const payload = { email: usuario.email, sub: usuario.id.toString() };
+      const payload = { email: usuario.email, sub: usuario._id.toString() };
       return this.authMapper.toLoginResponseDto(
         this.jwtService.generateToken(payload, 'auth'),
         this.jwtService.generateToken(payload, 'refresh'),

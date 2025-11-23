@@ -114,17 +114,4 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       );
     }
   }
-
-  async findByEmailForAuth(email: string): Promise<IUsuarioAuth | null> {
-    const doc = await this.userModel.findOne({ email }).exec();
-    if (!doc) {
-      return null;
-    }
-    return {
-      id: doc._id.toString(),
-      email: doc.email,
-      contraseña: doc.contraseña,
-      nombre: doc.nombre,
-    } as IUsuarioAuth;
-  }
 }

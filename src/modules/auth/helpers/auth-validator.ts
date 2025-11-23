@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IUsuarioAuth } from '../interface/usuario-auth.interface';
 import { comparePasswords } from './password-helper';
 import { UsuarioService } from 'src/modules/usuario/usuario.service';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
@@ -20,8 +19,8 @@ export class AuthValidator {
     return null;
   }
 
-  async validarEmailExistente(email: string): Promise<IUsuarioAuth> {
-    const usuario = await this.usuarioservice.findByEmailForAuth(email);
+  async validarEmailExistente(email: string): Promise<Usuario> {
+    const usuario = await this.usuarioservice.findByEmail(email);
     if (!usuario) {
       throw new NotFoundException('Usuario con email no encontrado');
     }

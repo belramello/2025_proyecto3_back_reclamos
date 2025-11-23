@@ -6,6 +6,9 @@ export type UsuarioDocumentType = Usuario & Document;
 
 @Schema({ collection: 'usuarios' })
 export class Usuario {
+  @Prop({ type: Types.ObjectId, required: true, default: Types.ObjectId })
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   nombreUsuario: string;
 

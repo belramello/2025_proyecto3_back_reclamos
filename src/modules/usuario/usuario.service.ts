@@ -77,8 +77,4 @@ export class UsuarioService {
   async findByEmail(email: string): Promise<Usuario | null> {
     return await this.usuariosRepository.findByEmail(email);
   }
-
-  async findByEmailForAuth(email: string): Promise<IUsuarioAuth | null> {
-    return this.usuariosRepository.findByEmailForAuth(email);
-  }
 }

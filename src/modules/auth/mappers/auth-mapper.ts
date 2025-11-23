@@ -20,9 +20,6 @@ export class AuthMapper {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
-        permisos: usuario.rol.permisos.map((permiso) =>
-          (permiso as any)._id?.toString(),
-        ),
       },
     };
   }
