@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ReclamosService } from './reclamos.service';
 import { ReclamosController } from './reclamos.controller';
-import ReclamoSchema from './schemas/reclamo.schema';
+import { Reclamo, ReclamoSchema } from './schemas/reclamo.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Reclamo', schema: ReclamoSchema }]),
+    MongooseModule.forFeature([{ name: Reclamo.name, schema: ReclamoSchema }]),
   ],
   controllers: [ReclamosController],
   providers: [ReclamosService],

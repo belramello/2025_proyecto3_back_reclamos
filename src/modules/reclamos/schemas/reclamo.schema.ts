@@ -1,26 +1,43 @@
-import { Schema, Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 
-export const ReclamoSchema = new Schema(
-  {
-    nroTicket: { type: String, required: true },
+export type ReclamoDocument = Reclamo & Document;
 
-    // Relaciones con otras colecciones
-    tipoReclamo: { type: Types.ObjectId, ref: 'TipoReclamo', required: true },
-    prioridad: { type: Types.ObjectId, ref: 'Prioridad', required: true },
-    nivelCriticidad: { type: Types.ObjectId, ref: 'NivelCriticidad', required: true },
+@Schema({ collection: 'reclamos', timestamps: true })
+export class Reclamo {
+  @Prop({ required: true })
+  nroTicket: string;
 
-    proyecto: { type: Number }, // luego podés cambiarlo a ObjectId con ref: 'Proyecto'
+  @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: true })
+  tipoReclamo: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
 
-    descripcion: { type: String },
-    imagenUrl: { type: String },
-    resumenResolucion: { type: String },
+  @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: true })
+  prioridad: Types.ObjectId; //cambiar a Prioridad cuando exista el schema de Prioridad
 
-    fechaCreacion: { type: Date, default: Date.now },
-    fechaEliminacion: { type: Date, default: null },
-  },
-  {
-    collection: 'reclamos',
-    timestamps: true, // crea automáticamente createdAt y updatedAt
-  }
-);
-export default ReclamoSchema;
+  @Prop({ type: Types.ObjectId, ref: 'NivelCriticidad', required: true })
+  nivelCriticidad: Types.ObjectId; //cambiar a NivelCriticidad cuando exista el schema de NivelCriticidad
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
+  historialAsignacion?: HistorialAsignacion[];
+
+  @Prop()
+  proyecto?: number; //cambiar a Proyecto cuando exista el schema de Proyecto
+
+  @Prop()
+  descripcion?: string;
+
+  @Prop()
+  imagenUrl?: string;
+
+  @Prop()
+  resumenResolucion?: string;
+
+  @Prop({ default: Date.now })
+  fechaCreacion: Date;
+
+  @Prop({ default: null })
+  fechaEliminacion?: Date;
+}
+
+export const ReclamoSchema = SchemaFactory.createForClass(Reclamo);
