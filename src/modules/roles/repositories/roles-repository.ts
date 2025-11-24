@@ -5,15 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { IRolesRepository } from './roles-repository.interface';
-import { Rol, RolDocument } from '../schema/rol.schema';
+import { Rol, RolDocumentType } from '../schema/rol.schema';
 
 export class RolesRepository implements IRolesRepository {
   constructor(
     @InjectModel(Rol.name)
-    private readonly rolModel: Model<RolDocument>,
+    private readonly rolModel: Model<RolDocumentType>,
   ) {}
 
-  async findAll(): Promise<Rol[]> {
+  async findAll(): Promise<RolDocumentType[]> {
     try {
       return await this.rolModel.find().populate('permisos').exec();
     } catch (error) {
@@ -23,8 +23,9 @@ export class RolesRepository implements IRolesRepository {
     }
   }
 
-  async findOne(rolId: string): Promise<Rol | null> {
+  async findOne(rolId: string): Promise<RolDocumentType | null> {
     try {
+      console.log('ID ROL:', rolId);
       const rol = await this.rolModel
         .findById(rolId)
         .populate('permisos')
@@ -32,6 +33,7 @@ export class RolesRepository implements IRolesRepository {
       if (!rol) {
         throw new NotFoundException(`No existe rol con ID ${rolId}`);
       }
+      console.log('Rol encontrado:', rol);
       return rol;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

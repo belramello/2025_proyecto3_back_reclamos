@@ -13,6 +13,7 @@ import { HistorialAsignacionModule } from './modules/historial-asignacion/histor
 import { AreasModule } from './modules/areas/areas.module';
 import { SubareasModule } from './modules/subareas/subareas.module';
 import { HistorialEstadoModule } from './modules/historial-estado/historial-estado.module';
+import { ReclamosModule } from './modules/reclamos/reclamos.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HistorialEstadoModule } from './modules/historial-estado/historial-esta
     UsuarioModule,
     EstadosModule,
     RolesModule,
+    ReclamosModule,
     PermisosModule,
     HistorialAsignacionModule,
     AreasModule,

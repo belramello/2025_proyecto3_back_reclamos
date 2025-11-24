@@ -1,14 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { Area } from 'src/modules/areas/schemas/area.schema';
 import { Rol } from 'src/modules/roles/schema/rol.schema';
+import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 
 export type UsuarioDocumentType = Usuario & Document;
 
 @Schema({ collection: 'usuarios' })
 export class Usuario {
-  @Prop({ type: Types.ObjectId, required: true, default: Types.ObjectId })
-  _id: Types.ObjectId;
-
   @Prop({ required: true })
   nombreUsuario: string;
 
@@ -30,11 +29,16 @@ export class Usuario {
   @Prop()
   telefono?: string;
 
-  @Prop()
-  subarea?: string; //CAMBIAR
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Subarea',
+    required: false,
+    default: null,
+  })
+  subarea?: Subarea;
 
-  @Prop()
-  area?: string; //CAMBIAR
+  @Prop({ type: Types.ObjectId, ref: 'Area', required: false, default: null })
+  area?: Area;
 
   //@Prop()
   //passwordResetToken?: string;

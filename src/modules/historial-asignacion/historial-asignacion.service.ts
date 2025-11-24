@@ -1,11 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { CreateHistorialAsignacionDto } from './dto/create-historial-asignacion.dto';
-import { UpdateHistorialAsignacionDto } from './dto/update-historial-asignacion.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { IAsignacionStrategy } from './asignacion-strategies/asignacion-strategy.interface';
+import { CrearAsignacionDto } from './dto/create-asignacion.dto';
+import type { IHistorialAsignacionRepository } from './repositories/historial-asignacion.repository';
 
 @Injectable()
 export class HistorialAsignacionService {
-  create(createHistorialAsignacionDto: CreateHistorialAsignacionDto) {
-    return 'This action adds a new historialAsignacion';
+  constructor(
+    @Inject('ASIGNACION_STRATEGIES')
+    private readonly strategies: IAsignacionStrategy[],
+
+    @Inject('IHistorialAsignacionRepository')
+    private readonly historialAsignacionRepository: IHistorialAsignacionRepository,
+  ) {}
+
+  async create(crearAsignacionDto: CrearAsignacionDto) {
+    const estrategia = this.strategies.find(
+      (s) => s.tipo === crearAsignacionDto.tipoAsignacion,
+    );
+    if (!estrategia) {
+      throw new Error(
+        `No hay strategy para el tipo: ${crearAsignacionDto.tipoAsignacion}`,
+      );
+    }
+    const historial = estrategia.crearHistorial(crearAsignacionDto);
+    return await this.historialAsignacionRepository.create(historial);
   }
 
   findAll() {
@@ -14,10 +32,6 @@ export class HistorialAsignacionService {
 
   findOne(id: number) {
     return `This action returns a #${id} historialAsignacion`;
-  }
-
-  update(id: number, updateHistorialAsignacionDto: UpdateHistorialAsignacionDto) {
-    return `This action updates a #${id} historialAsignacion`;
   }
 
   remove(id: number) {

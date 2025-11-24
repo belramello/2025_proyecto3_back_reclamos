@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { comparePasswords } from './password-helper';
 import { UsuarioService } from 'src/modules/usuario/usuario.service';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import {
+  Usuario,
+  UsuarioDocumentType,
+} from 'src/modules/usuario/schema/usuario.schema';
 import { RespuestaUsuarioDto } from 'src/modules/usuario/dto/respuesta-usuario.dto';
 @Injectable()
 export class AuthValidator {
@@ -19,8 +22,9 @@ export class AuthValidator {
     return null;
   }
 
-  async validarEmailExistente(email: string): Promise<Usuario> {
-    const usuario = await this.usuarioservice.findByEmail(email);
+  async validarEmailExistente(email: string): Promise<UsuarioDocumentType> {
+    const usuario: UsuarioDocumentType | null =
+      await this.usuarioservice.findByEmail(email);
     if (!usuario) {
       throw new NotFoundException('Usuario con email no encontrado');
     }

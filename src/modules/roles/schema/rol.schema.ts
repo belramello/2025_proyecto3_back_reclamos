@@ -2,12 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, Types } from 'mongoose';
 import { Permiso } from 'src/modules/permisos/schemas/permiso.schema';
 
-export type RolDocument = Rol & Document;
+export type RolDocumentType = Rol & Document;
 
 @Schema({ collection: 'roles' })
 export class Rol {
-  _id: Types.ObjectId;
-
   @Prop({ required: true })
   nombre: string;
 

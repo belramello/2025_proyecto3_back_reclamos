@@ -7,6 +7,8 @@ import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { hashPassword } from './helpers/password-helper';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
+import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
+import { UsuarioController } from '../usuario/usuario.controller';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +21,8 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     try {
-      const usuario = await this.authValidator.validarEmailExistente(
-        loginDto.email,
-      );
+      const usuario: UsuarioDocumentType =
+        await this.authValidator.validarEmailExistente(loginDto.email);
       await this.authValidator.validarContraseñaCorrecta(
         loginDto.password,
         usuario.contraseña,

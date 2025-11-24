@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Usuario } from '../schema/usuario.schema';
+import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UpdateUsuarioDto } from '../dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from '../dto/respuesta-usuario.dto';
@@ -14,22 +14,22 @@ export class UsersMapper {
       nombre: dto.nombre,
       direccion: dto.direccion,
       telefono: dto.telefono,
-      subarea: dto.subarea,
-      area: dto.area,
+      //subarea: dto.subarea,
+      //area: dto.area,
     };
   }
 
-  public toResponseDto(usuario: Usuario): RespuestaUsuarioDto {
+  public toResponseDto(usuario: UsuarioDocumentType): RespuestaUsuarioDto {
     return new RespuestaUsuarioDto({
-      id: (usuario as any)._id?.toString(),
+      id: String(usuario._id),
       nombreUsuario: usuario.nombreUsuario,
       email: usuario.email,
       rol: usuario.rol,
       nombre: usuario.nombre,
       direccion: usuario.direccion,
       telefono: usuario.telefono,
-      subarea: usuario.subarea,
-      area: usuario.area,
+      //subarea?: usuario.subarea?.nombre,
+      //area: usuario.area,
     });
   }
   public toPartialEntity(dto: UpdateUsuarioDto): Partial<Usuario> {
@@ -38,8 +38,8 @@ export class UsersMapper {
       nombre: dto.nombre,
       direccion: dto.direccion,
       telefono: dto.telefono,
-      subarea: dto.subarea,
-      area: dto.area,
+      //subarea?: dto.subarea,
+      //area?: dto.area,
     };
   }
 }

@@ -17,7 +17,7 @@ export class RolesService {
       await this.rolesRepository.findAll(),
     );
   }
-
+  //agregar mapper
   async findOne(id: string): Promise<Rol | null> {
     return await this.rolesRepository.findOne(id);
   }

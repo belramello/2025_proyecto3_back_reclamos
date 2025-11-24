@@ -7,7 +7,7 @@ export type AreaDocumentType = Area & Document;
 @Schema({ collection: 'areas' })
 export class Area {
   @Prop({ required: true })
-  nombreUsuario: string;
+  nombre: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Subarea', required: true, default: null })
   subareas: Subarea[];

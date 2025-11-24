@@ -1,6 +1,6 @@
-import { Rol } from '../schema/rol.schema';
+import { Rol, RolDocumentType } from '../schema/rol.schema';
 
 export interface IRolesRepository {
-  findAll(): Promise<Rol[]>;
-  findOne(rolId: string): Promise<Rol | null>;
+  findAll(): Promise<RolDocumentType[]>;
+  findOne(rolId: string): Promise<RolDocumentType | null>;
 }

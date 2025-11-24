@@ -4,8 +4,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repository/usuario-repository.interface';
 import { UsersMapper } from './mappers/usuario.mapper';
-import { IUsuarioAuth } from '../auth/interface/usuario-auth.interface';
-import { Usuario } from './schema/usuario.schema';
+import { Usuario, UsuarioDocumentType } from './schema/usuario.schema';
 import { RolesValidator } from '../roles/helpers/roles-validator';
 
 @Injectable()
@@ -23,29 +22,29 @@ export class UsuarioService {
     const rol = await this.rolesValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
-    console.log('rol:', rol);
     const usuario = await this.usuariosRepository.create(createUsuarioDto, rol);
     console.log('usuario creado:', usuario);
     return this.usuarioMappers.toResponseDto(usuario);
   }
 
   async findAll(): Promise<RespuestaUsuarioDto[]> {
-    const usuarios: Usuario[] = await this.usuariosRepository.findAll();
+    const usuarios: UsuarioDocumentType[] =
+      await this.usuariosRepository.findAll();
     return usuarios.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
   }
 
   async findOne(id: string): Promise<RespuestaUsuarioDto> {
-    const usuario: Usuario | null = await this.usuariosRepository.findOne(id);
+    const usuario = await this.usuariosRepository.findOne(id);
     if (!usuario) {
       throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
     }
     return this.usuarioMappers.toResponseDto(usuario);
   }
 
-  async findOneForAuth(id: string): Promise<Usuario> {
-    const usuario: Usuario | null = await this.usuariosRepository.findOne(id);
+  async findOneForAuth(id: string): Promise<UsuarioDocumentType> {
+    const usuario = await this.usuariosRepository.findOne(id);
     if (!usuario) {
       throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
     }
@@ -57,7 +56,7 @@ export class UsuarioService {
     updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
     const partialEntity = this.usuarioMappers.toPartialEntity(updateUsuarioDto);
-    const usuarioActualizado: Usuario = await this.usuariosRepository.update(
+    const usuarioActualizado = await this.usuariosRepository.update(
       id,
       partialEntity,
     );
@@ -74,7 +73,7 @@ export class UsuarioService {
     await this.usuariosRepository.remove(id);
   }
 
-  async findByEmail(email: string): Promise<Usuario | null> {
+  async findByEmail(email: string): Promise<UsuarioDocumentType | null> {
     return await this.usuariosRepository.findByEmail(email);
   }
 }

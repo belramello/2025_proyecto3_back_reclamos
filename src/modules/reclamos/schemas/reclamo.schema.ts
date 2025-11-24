@@ -1,11 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
+import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
 
-export type ReclamoDocument = Reclamo & Document;
+export type ReclamoDocumentType = Reclamo & Document;
 
 @Schema({ collection: 'reclamos', timestamps: true })
 export class Reclamo {
+  @Prop({ type: Types.ObjectId, required: true, default: Types.ObjectId })
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   nroTicket: string;
 
@@ -20,6 +24,15 @@ export class Reclamo {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignacion?: HistorialAsignacion[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialEstado' }] })
+  historialEstados: HistorialEstado[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
+  ultimoHistorialAsignacion: HistorialAsignacion;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialEstado' }] })
+  ultimoHistorialEstado: HistorialEstado;
 
   @Prop()
   proyecto?: number; //cambiar a Proyecto cuando exista el schema de Proyecto

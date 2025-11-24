@@ -13,10 +13,10 @@ export class HistorialAsignacion {
   reclamo: Reclamo;
 
   @Prop({ type: Types.ObjectId, ref: 'Area', required: false, default: null })
-  desdeArea: Area;
+  desdeArea?: Area;
 
   @Prop({ type: Types.ObjectId, ref: 'Area', required: false, default: null })
-  haciaArea: Area;
+  haciaArea?: Area;
 
   @Prop({
     type: Types.ObjectId,
@@ -24,7 +24,7 @@ export class HistorialAsignacion {
     required: false,
     default: null,
   })
-  desdeSubarea: Subarea;
+  desdeSubarea?: Subarea;
 
   @Prop({
     type: Types.ObjectId,
@@ -32,7 +32,7 @@ export class HistorialAsignacion {
     required: false,
     default: null,
   })
-  haciaSubarea: Subarea;
+  haciaSubarea?: Subarea;
 
   @Prop({
     type: Types.ObjectId,
@@ -40,7 +40,7 @@ export class HistorialAsignacion {
     required: false,
     default: null,
   })
-  deEmpleado: Usuario;
+  deEmpleado?: Usuario;
 
   @Prop({
     type: Types.ObjectId,
@@ -48,16 +48,16 @@ export class HistorialAsignacion {
     required: false,
     default: null,
   })
-  haciaEmpleado: Usuario;
+  haciaEmpleado?: Usuario;
 
   @Prop({ default: Date.now })
-  fechaAsignacion: Date;
+  fechaAsignacion?: Date;
 
   @Prop({ required: true })
   tipoAsignacion: string;
 
   @Prop({ required: false, default: null })
-  comentario: string;
+  comentario?: string;
 }
 
 export const HistorialAsignacionSchema =

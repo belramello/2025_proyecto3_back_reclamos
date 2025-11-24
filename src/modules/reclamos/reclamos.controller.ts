@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ReclamosService } from './reclamos.service';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
 import { UpdateReclamoDto } from './dto/update-reclamo.dto';
+import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import { AuthGuard } from 'src/middlewares/auth.middleware';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enums/permisos-enum';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -19,7 +34,7 @@ export class ReclamosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.reclamosService.findOne(+id);
+    return this.reclamosService.findOne(id);
   }
 
   @Patch(':id')
@@ -30,5 +45,16 @@ export class ReclamosController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reclamosService.remove(+id);
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.AUTO_ASIGNAR_RECLAMO)
+  @Patch('autoasignar/:id')
+  autoasignarReclamo(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+  ) {
+    console.log('Usuario en request:', req.usuario);
+    return this.reclamosService.autoasignarReclamo(id, req.usuario);
   }
 }

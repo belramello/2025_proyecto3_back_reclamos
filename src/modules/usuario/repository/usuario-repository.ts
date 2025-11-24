@@ -7,23 +7,24 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IUsuarioRepository } from './usuario-repository.interface';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
-import { UsersMapper } from '../mappers/usuario.mapper';
-import { IUsuarioAuth } from '../../auth/interface/usuario-auth.interface';
-import { Usuario } from '../schema/usuario.schema';
-import { Rol } from 'src/modules/roles/schema/rol.schema';
+import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
+import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
   constructor(
-    @InjectModel('Usuario') private userModel: Model<Usuario>,
-    private readonly mapper: UsersMapper,
+    @InjectModel(Usuario.name)
+    private readonly userModel: Model<UsuarioDocumentType>,
   ) {}
 
-  async create(userData: CreateUsuarioDto, rol: Rol): Promise<Usuario> {
+  async create(
+    userData: CreateUsuarioDto,
+    rol: RolDocumentType,
+  ): Promise<UsuarioDocumentType> {
     try {
       const userDoc = new this.userModel({
         ...userData,
-        rol: rol._id,
+        rol: rol,
       });
       const created = await userDoc.save();
       const user = await this.findOne(created._id.toString());
@@ -38,7 +39,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async findAll(): Promise<Usuario[]> {
+  async findAll(): Promise<UsuarioDocumentType[]> {
     try {
       const docs = await this.userModel.find().exec();
       return docs;
@@ -49,13 +50,9 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async findOne(id: string): Promise<Usuario | null> {
+  async findOne(id: string): Promise<UsuarioDocumentType | null> {
     try {
-      const doc = await this.userModel
-        .findById(id)
-        .populate('rol')
-        .populate('rol.permisos')
-        .exec();
+      const doc = await this.userModel.findById(id).populate('rol').exec();
       if (!doc) {
         return null;
       }
@@ -67,7 +64,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<Usuario | null> {
+  async findByEmail(email: string): Promise<UsuarioDocumentType | null> {
     try {
       const doc = await this.userModel
         .findOne({ email })
@@ -85,7 +82,10 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async update(id: string, updateData: Partial<Usuario>): Promise<Usuario> {
+  async update(
+    id: string,
+    updateData: Partial<UsuarioDocumentType>,
+  ): Promise<UsuarioDocumentType> {
     try {
       const updatedDoc = await this.userModel
         .findOneAndUpdate({ _id: id }, updateData, { new: true })
