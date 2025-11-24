@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ReclamosService } from '../reclamos.service';
-import { Reclamo } from '../schemas/reclamo.schema';
+import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
@@ -13,7 +13,7 @@ export class ReclamosValidator {
     private readonly reclamosService: ReclamosService,
   ) {}
 
-  async validateReclamoExistente(id: string): Promise<Reclamo> {
+  async validateReclamoExistente(id: string): Promise<ReclamoDocumentType> {
     const reclamo = await this.reclamosService.findOne(id);
     if (!reclamo) {
       throw new Error(`El reclamo con ID ${id} no existe`);

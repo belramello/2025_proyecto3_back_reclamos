@@ -54,7 +54,6 @@ export class ReclamosController {
     @Param('id', ParseMongoIdPipe) id: string,
     @Req() req: RequestWithUsuario,
   ) {
-    console.log('Usuario en request:', req.usuario);
     return this.reclamosService.autoasignarReclamo(id, req.usuario);
   }
 }

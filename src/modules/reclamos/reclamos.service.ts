@@ -2,9 +2,10 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
 import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
-import { Reclamo, ReclamoDocumentType } from './schemas/reclamo.schema';
+import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
-import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
+import { Usuario } from '../usuario/schema/usuario.schema';
+import { HistorialEstado } from '../historial-estado/schema/historial-estado.schema';
 
 @Injectable()
 export class ReclamosService {
@@ -16,6 +17,7 @@ export class ReclamosService {
   ) {}
 
   create(createReclamoDto: CreateReclamoDto) {
+    //cuando se crea un estado, entonces hay que crear tamb un historial estado y un historial asignación (inicial).
     return 'This action adds a new reclamo';
   }
 
@@ -47,7 +49,18 @@ export class ReclamosService {
       empleado,
       subarea,
     );
-    //Crear historial asignación de la reclamo a autoasignar
     //Actualizar estado de PendieteAAsignar a EnProceso.
+  }
+
+  async actualizarHistorialEstadoActual(
+    historial: HistorialEstado,
+    reclamoId: string,
+  ): Promise<void> {
+    const reclamo =
+      await this.reclamosValidator.validateReclamoExistente(reclamoId);
+    return await this.reclamosRepository.actualizarHistorialEstadoActual(
+      historial,
+      reclamo,
+    );
   }
 }

@@ -14,15 +14,16 @@ export class HistorialEstado {
   @Prop({
     type: Types.ObjectId,
     ref: 'Usuario',
-    required: true,
+    required: false,
+    default: null,
   })
-  usuarioResponsable: Usuario;
+  usuarioResponsable?: Usuario;
 
   @Prop({ default: Date.now })
   fechaHoraInicio: Date;
 
-  @Prop({ default: Date.now })
-  fechaHoraFin: Date;
+  @Prop({ required: false, default: null })
+  fechaHoraFin?: Date;
 
   @Prop({ required: true })
   estado: Estado;

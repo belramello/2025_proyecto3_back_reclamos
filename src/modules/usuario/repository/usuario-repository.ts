@@ -52,7 +52,12 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
   async findOne(id: string): Promise<UsuarioDocumentType | null> {
     try {
-      const doc = await this.userModel.findById(id).populate('rol').exec();
+      const doc = await this.userModel
+        .findById(id)
+        .populate('rol')
+        .populate('area')
+        .populate('subarea')
+        .exec();
       if (!doc) {
         return null;
       }

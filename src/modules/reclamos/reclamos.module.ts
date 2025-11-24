@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ReclamosService } from './reclamos.service';
 import { ReclamosController } from './reclamos.controller';
@@ -8,12 +8,14 @@ import { ReclamosValidator } from './helpers/reclamos-validator';
 import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { HistorialAsignacionModule } from '../historial-asignacion/historial-asignacion.module';
+import { HistorialEstadoModule } from '../historial-estado/historial-estado.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Reclamo.name, schema: ReclamoSchema }]),
     JwtModule,
     UsuarioModule,
+    forwardRef(() => HistorialEstadoModule),
     HistorialAsignacionModule,
   ],
   controllers: [ReclamosController],
@@ -25,5 +27,6 @@ import { HistorialAsignacionModule } from '../historial-asignacion/historial-asi
     },
     ReclamosValidator,
   ],
+  exports: [ReclamosService],
 })
 export class ReclamosModule {}
