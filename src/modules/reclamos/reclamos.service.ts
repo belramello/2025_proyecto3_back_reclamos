@@ -5,7 +5,7 @@ import type { IReclamosRepository } from './repositories/reclamos-repository.int
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
-import { HistorialEstado } from '../historial-estado/schema/historial-estado.schema';
+import { HistorialEstadoDocumentType } from '../historial-estado/schema/historial-estado.schema';
 
 @Injectable()
 export class ReclamosService {
@@ -49,17 +49,16 @@ export class ReclamosService {
       empleado,
       subarea,
     );
-    //Actualizar estado de PendieteAAsignar a EnProceso.
   }
 
   async actualizarHistorialEstadoActual(
-    historial: HistorialEstado,
+    historial: HistorialEstadoDocumentType,
     reclamoId: string,
   ): Promise<void> {
     const reclamo =
       await this.reclamosValidator.validateReclamoExistente(reclamoId);
     return await this.reclamosRepository.actualizarHistorialEstadoActual(
-      historial,
+      String(historial._id),
       reclamo,
     );
   }

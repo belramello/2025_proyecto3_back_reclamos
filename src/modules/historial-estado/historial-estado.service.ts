@@ -14,7 +14,9 @@ export class HistorialEstadoService {
     private readonly historialEstadoRepository: IHistorialEstadoRepository,
   ) {}
 
-  async create(crearHistorialEstadoDto: CrearHistorialEstadoDto) {
+  async create(
+    crearHistorialEstadoDto: CrearHistorialEstadoDto,
+  ): Promise<HistorialEstadoDocumentType> {
     const estrategia = this.strategies.find(
       (s) => s.tipo === crearHistorialEstadoDto.tipo,
     );

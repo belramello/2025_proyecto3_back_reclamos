@@ -15,7 +15,7 @@ import { AsignacionEmpleadoEmpleadoStrategy } from './asignacion-strategies/asig
 import { AsignacionEmpleadoAreaStrategy } from './asignacion-strategies/asignacion-empleado-area.strategy';
 import { AsignacionEmpleadoSubareaStrategy } from './asignacion-strategies/asignacion-empleado-subarea.strategy';
 import { IAsignacionStrategy } from './asignacion-strategies/asignacion-strategy.interface';
-import { HistorialAsignacionRepository } from './repositories/historial-asignacion-interface.repository';
+import { HistorialAsignacionRepository } from './repositories/historial-asignacion.repository';
 
 @Module({
   imports: [

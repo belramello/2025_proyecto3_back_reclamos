@@ -1,16 +1,18 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { IReclamosRepository } from './reclamos-repository.interface';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { HistorialAsignacionService } from 'src/modules/historial-asignacion/historial-asignacion.service';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from 'src/modules/historial-asignacion/enums/tipoAsignacionesEnum';
-import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
-import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 import { HistorialEstadoService } from 'src/modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import { forwardRef, Inject } from '@nestjs/common';
+import {
+  HistorialEstado,
+  HistorialEstadoDocumentType,
+} from 'src/modules/historial-estado/schema/historial-estado.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -34,24 +36,25 @@ export class ReclamosRepository implements IReclamosRepository {
         haciaSubarea: subarea,
         desdeArea: subarea.area,
         haciaArea: subarea.area,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.AUTOASIGNACION,
       };
       const nuevoHistorialAsignacion =
         await this.historialAsignacionService.create(nuevoHistorial);
       await this.actualizarHistorialAsignacionActual(
-        nuevoHistorialAsignacion,
+        String(nuevoHistorialAsignacion._id),
         reclamo,
       );
       const nuevoHistorialEstado = await this.historialEstadoService.create({
         reclamo: reclamo,
         usuarioResponsable: empleado,
+        historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
         tipo: TipoCreacionHistorialEnum.EN_PROCESO,
       });
-      await this.actualizarHistorialEstadoActual(nuevoHistorialEstado, reclamo);
-
-      //Tengo que crear un nuevo historial de asignacion.
-      //Tengo que actualizar el último historial de estado del reclamo (setearle la fecha fin).
-      //Tengo que crear un nuevo historial de estado con el estado de "En Proceso".
+      await this.actualizarHistorialEstadoActual(
+        String(nuevoHistorialEstado._id),
+        reclamo,
+      );
     } catch (error) {
       throw new Error(`Error al autoasignar reclamo: ${error.message}`);
     }
@@ -59,14 +62,18 @@ export class ReclamosRepository implements IReclamosRepository {
 
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     try {
-      //agregar populate de otros campos si es necesario
       const reclamo = await this.reclamoModel
         .findById(id)
-        .populate('ultimoHistorialAsignacion')
-        .populate('ultimoHistorialAsignacion.haciaArea')
-        .populate('ultimoHistorialAsignacion.haciaSubarea')
-        .populate('ultimoHistorialEstado')
-        .populate('ultimoHistorialEstado.estado')
+        .populate({
+          path: 'ultimoHistorialEstado',
+          populate: {
+            path: 'estado',
+          },
+        })
+        .populate({
+          path: 'ultimoHistorialAsignacion',
+          populate: [{ path: 'haciaArea' }, { path: 'haciaSubarea' }],
+        })
         .exec();
       return reclamo;
     } catch (error) {
@@ -77,11 +84,12 @@ export class ReclamosRepository implements IReclamosRepository {
   }
 
   async actualizarHistorialEstadoActual(
-    historial: HistorialEstado,
+    historialId: string,
     reclamo: ReclamoDocumentType,
   ) {
     try {
-      reclamo.ultimoHistorialEstado = historial;
+      reclamo.historialEstados.push(new Types.ObjectId(historialId));
+      reclamo.ultimoHistorialEstado = new Types.ObjectId(historialId);
       await reclamo.save();
     } catch (error) {
       throw new Error(
@@ -91,11 +99,12 @@ export class ReclamosRepository implements IReclamosRepository {
   }
 
   async actualizarHistorialAsignacionActual(
-    historial: HistorialAsignacion,
+    historialId: string,
     reclamo: ReclamoDocumentType,
   ) {
     try {
-      reclamo.ultimoHistorialAsignacion = historial;
+      reclamo.historialAsignaciones.push(new Types.ObjectId(historialId));
+      reclamo.ultimoHistorialAsignacion = new Types.ObjectId(historialId);
       await reclamo.save();
     } catch (error) {
       throw new Error(

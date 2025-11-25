@@ -1,10 +1,19 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ReclamosService } from '../reclamos.service';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { Types } from 'mongoose';
+import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 
 @Injectable()
 export class ReclamosValidator {
@@ -16,20 +25,26 @@ export class ReclamosValidator {
   async validateReclamoExistente(id: string): Promise<ReclamoDocumentType> {
     const reclamo = await this.reclamosService.findOne(id);
     if (!reclamo) {
-      throw new Error(`El reclamo con ID ${id} no existe`);
+      throw new NotFoundException(`El reclamo con ID ${id} no existe`);
     }
     return reclamo;
   }
 
-  async validateReclamoPendienteAAsignar(reclamo: Reclamo): Promise<void> {
+  async validateReclamoPendienteAAsignar(
+    reclamo: ReclamoDocumentType,
+  ): Promise<void> {
+    if (reclamo.ultimoHistorialEstado instanceof Types.ObjectId) {
+      throw new BadRequestException('No se puede validar el estado actual');
+    }
     if (
-      reclamo.ultimoHistorialEstado.estado.nombre !==
+      reclamo.ultimoHistorialEstado.estado?.nombre !==
       EstadosEnum.PENDIENTE_A_ASIGNAR
     ) {
-      throw new Error(
-        `El reclamo con ID ${reclamo._id} no está en estado Pendiente A Asignar`,
+      throw new BadRequestException(
+        'El reclamo no está en estado Pendiente A Asignar',
       );
     }
+
     return;
   }
 
@@ -41,16 +56,19 @@ export class ReclamosValidator {
       empleado.rol.nombre !== RolesEnum.EMPLEADO ||
       empleado.subarea == null
     ) {
-      throw new Error(
+      throw new UnauthorizedException(
         `El usuario no es un empleado o no tiene subarea asignada`,
       );
     } else if (
+      reclamo.ultimoHistorialAsignacion instanceof HistorialAsignacion &&
       empleado.subarea.nombre !==
-      reclamo.ultimoHistorialAsignacion.haciaSubarea?.nombre
+        reclamo.ultimoHistorialAsignacion.haciaSubarea?.nombre
     ) {
-      throw new Error(
-        `El usuario no pertenece a la subárea asignada del reclamo`,
-      );
+      if (reclamo.ultimoHistorialAsignacion.haciaSubarea !== null) {
+        throw new UnauthorizedException(
+          `El usuario no pertenece a la subárea asignada del reclamo`,
+        );
+      }
     }
     return empleado.subarea;
   }

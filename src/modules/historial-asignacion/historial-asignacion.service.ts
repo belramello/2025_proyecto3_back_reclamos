@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IAsignacionStrategy } from './asignacion-strategies/asignacion-strategy.interface';
 import { CrearAsignacionDto } from './dto/create-asignacion.dto';
-import type { IHistorialAsignacionRepository } from './repositories/historial-asignacion.repository';
+import type { IHistorialAsignacionRepository } from './repositories/historial-asignacion-interface.repository';
+import { HistorialAsignacionDocumentType } from './schemas/historial-asignacion.schema';
 
 @Injectable()
 export class HistorialAsignacionService {
@@ -13,7 +14,9 @@ export class HistorialAsignacionService {
     private readonly historialAsignacionRepository: IHistorialAsignacionRepository,
   ) {}
 
-  async create(crearAsignacionDto: CrearAsignacionDto) {
+  async create(
+    crearAsignacionDto: CrearAsignacionDto,
+  ): Promise<HistorialAsignacionDocumentType> {
     const estrategia = this.strategies.find(
       (s) => s.tipo === crearAsignacionDto.tipoAsignacion,
     );
@@ -23,7 +26,12 @@ export class HistorialAsignacionService {
       );
     }
     const historial = estrategia.crearHistorial(crearAsignacionDto);
-    return await this.historialAsignacionRepository.create(historial);
+    const historialDoc =
+      await this.historialAsignacionRepository.create(historial);
+    await this.historialAsignacionRepository.cerrarHistorial(
+      crearAsignacionDto.historialACerrarId,
+    );
+    return historialDoc;
   }
 
   findAll() {

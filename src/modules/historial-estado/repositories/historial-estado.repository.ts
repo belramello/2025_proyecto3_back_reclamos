@@ -24,13 +24,7 @@ export class HistorialEstadoRepository implements IHistorialEstadoRepository {
         ...historial,
         fechaHoraInicio: historial.fechaHoraInicio ?? new Date(),
       });
-      //No tengo que popular el historial que está llegando.
-      const historialDoc = await historialEstadoDoc.save();
-      await this.reclamoService.actualizarHistorialEstadoActual(
-        historialDoc,
-        historialDoc.reclamo.toString(),
-      );
-      return historialDoc;
+      return await historialEstadoDoc.save();
     } catch (error) {
       throw new Error(
         `Error al crear historial de asignacion: ${error.message}`,

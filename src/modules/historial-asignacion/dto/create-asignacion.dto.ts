@@ -13,4 +13,5 @@ export class CrearAsignacionDto {
   haciaArea: Area;
   haciaSubarea?: Subarea;
   tipoAsignacion: TipoAsignacionesEnum;
+  historialACerrarId: string;
 }

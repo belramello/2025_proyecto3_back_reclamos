@@ -25,7 +25,7 @@ export class HistorialEstado {
   @Prop({ required: false, default: null })
   fechaHoraFin?: Date;
 
-  @Prop({ required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Estado', required: true })
   estado: Estado;
 }
 

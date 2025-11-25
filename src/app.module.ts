@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsuarioSchema } from './modules/usuario/schema/usuario.schema';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { EstadosModule } from './modules/estados/estados.module';

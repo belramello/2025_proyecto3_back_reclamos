@@ -7,32 +7,36 @@ export type ReclamoDocumentType = Reclamo & Document;
 
 @Schema({ collection: 'reclamos', timestamps: true })
 export class Reclamo {
-  @Prop({ type: Types.ObjectId, required: true, default: Types.ObjectId })
-  _id: Types.ObjectId;
-
   @Prop({ required: true })
   nroTicket: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: true })
-  tipoReclamo: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
+  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
+  @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: false })
+  tipoReclamo?: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
 
-  @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: true })
-  prioridad: Types.ObjectId; //cambiar a Prioridad cuando exista el schema de Prioridad
+  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
+  @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: false })
+  prioridad?: Types.ObjectId; //cambiar a Prioridad cuando exista el schema de Prioridad
 
-  @Prop({ type: Types.ObjectId, ref: 'NivelCriticidad', required: true })
-  nivelCriticidad: Types.ObjectId; //cambiar a NivelCriticidad cuando exista el schema de NivelCriticidad
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
-  historialAsignacion?: HistorialAsignacion[];
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialEstado' }] })
-  historialEstados: HistorialEstado[];
+  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
+  @Prop({ type: Types.ObjectId, ref: 'NivelCriticidad', required: false })
+  nivelCriticidad?: Types.ObjectId; //cambiar a NivelCriticidad cuando exista el schema de NivelCriticidad
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
-  ultimoHistorialAsignacion: HistorialAsignacion;
+  historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialEstado' }] })
-  ultimoHistorialEstado: HistorialEstado;
+  historialEstados: (Types.ObjectId | HistorialEstado)[];
+
+  @Prop({ type: Types.ObjectId, ref: 'HistorialAsignacion' })
+  ultimoHistorialAsignacion:
+    | Types.ObjectId
+    | (HistorialAsignacion & { _id: Types.ObjectId });
+
+  @Prop({ type: Types.ObjectId, ref: 'HistorialEstado' })
+  ultimoHistorialEstado:
+    | Types.ObjectId
+    | (HistorialEstado & { _id: Types.ObjectId });
 
   @Prop()
   proyecto?: number; //cambiar a Proyecto cuando exista el schema de Proyecto

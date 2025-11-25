@@ -53,6 +53,9 @@ export class HistorialAsignacion {
   @Prop({ default: Date.now })
   fechaAsignacion?: Date;
 
+  @Prop({ required: false, default: null })
+  fechaHoraFin?: Date;
+
   @Prop({ required: true })
   tipoAsignacion: string;
 
