@@ -6,9 +6,9 @@ import { TipoAsignacionesEnum } from '../enums/tipoAsignacionesEnum';
 
 export class CrearAsignacionDto {
   reclamo: Reclamo;
-  desdeEmpleado: Usuario;
+  desdeEmpleado?: Usuario;
   desdeArea: Area;
-  desdeSubarea: Subarea;
+  desdeSubarea?: Subarea;
   haciaEmpleado?: Usuario;
   haciaArea: Area;
   haciaSubarea?: Subarea;

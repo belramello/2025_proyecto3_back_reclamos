@@ -9,12 +9,14 @@ import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { HistorialAsignacionModule } from '../historial-asignacion/historial-asignacion.module';
 import { HistorialEstadoModule } from '../historial-estado/historial-estado.module';
+import { SubareasModule } from '../subareas/subareas.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Reclamo.name, schema: ReclamoSchema }]),
     JwtModule,
     UsuarioModule,
+    SubareasModule,
     forwardRef(() => HistorialEstadoModule),
     HistorialAsignacionModule,
   ],

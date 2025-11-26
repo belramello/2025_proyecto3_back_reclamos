@@ -9,10 +9,7 @@ import { TipoAsignacionesEnum } from 'src/modules/historial-asignacion/enums/tip
 import { HistorialEstadoService } from 'src/modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import { forwardRef, Inject } from '@nestjs/common';
-import {
-  HistorialEstado,
-  HistorialEstadoDocumentType,
-} from 'src/modules/historial-estado/schema/historial-estado.schema';
+import { Area } from 'src/modules/areas/schemas/area.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -79,6 +76,32 @@ export class ReclamosRepository implements IReclamosRepository {
     } catch (error) {
       throw new Error(
         `Error al obtener el reclamo con ID ${id}: ${error.message}`,
+      );
+    }
+  }
+
+  async asignarReclamoASubarea(
+    reclamo: ReclamoDocumentType,
+    subarea: Subarea,
+  ): Promise<void> {
+    try {
+      const nuevoHistorialA = {
+        reclamo: reclamo,
+        haciaSubarea: subarea,
+        desdeArea: subarea.area,
+        haciaArea: subarea.area,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
+        tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_SUBAREA,
+      };
+      const nuevoHistorialAsignacion =
+        await this.historialAsignacionService.create(nuevoHistorialA);
+      await this.actualizarHistorialAsignacionActual(
+        String(nuevoHistorialAsignacion._id),
+        reclamo,
+      );
+    } catch (error) {
+      throw new Error(
+        `Error al asignar el reclamo a la subarea: ${error.message}`,
       );
     }
   }

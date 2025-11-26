@@ -51,6 +51,28 @@ export class ReclamosService {
     );
   }
 
+  async asignarReclamoASubarea(
+    id: string,
+    empleado: Usuario,
+    subareaId: string,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
+    const area = await this.reclamosValidator.validateAreaReclamo(
+      reclamo,
+      empleado,
+    );
+    const subarea =
+      await this.reclamosValidator.validateSubareaExistenteYValida(
+        subareaId,
+        area,
+      );
+    return await this.reclamosRepository.asignarReclamoASubarea(
+      reclamo,
+      subarea,
+    );
+  }
+
   async actualizarHistorialEstadoActual(
     historial: HistorialEstadoDocumentType,
     reclamoId: string,

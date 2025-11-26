@@ -13,4 +13,8 @@ export interface IReclamosRepository {
     historialId: string,
     reclamo: ReclamoDocumentType,
   );
+  asignarReclamoASubarea(
+    reclamo: ReclamoDocumentType,
+    subarea: Subarea,
+  ): Promise<void>;
 }

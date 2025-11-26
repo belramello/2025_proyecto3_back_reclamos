@@ -56,4 +56,19 @@ export class ReclamosController {
   ) {
     return this.reclamosService.autoasignarReclamo(id, req.usuario);
   }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('asignar-subarea/:id')
+  asignarReclamoASubarea(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() subareaAAsignarDto: { subareaId: string },
+  ) {
+    return this.reclamosService.asignarReclamoASubarea(
+      id,
+      req.usuario,
+      subareaAAsignarDto.subareaId,
+    );
+  }
 }

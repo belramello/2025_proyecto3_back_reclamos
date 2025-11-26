@@ -25,7 +25,6 @@ export class RolesRepository implements IRolesRepository {
 
   async findOne(rolId: string): Promise<RolDocumentType | null> {
     try {
-      console.log('ID ROL:', rolId);
       const rol = await this.rolModel
         .findById(rolId)
         .populate('permisos')
@@ -33,7 +32,6 @@ export class RolesRepository implements IRolesRepository {
       if (!rol) {
         throw new NotFoundException(`No existe rol con ID ${rolId}`);
       }
-      console.log('Rol encontrado:', rol);
       return rol;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SubareasService } from './subareas.service';
 import { CreateSubareaDto } from './dto/create-subarea.dto';
 import { UpdateSubareaDto } from './dto/update-subarea.dto';
@@ -15,11 +23,6 @@ export class SubareasController {
   @Get()
   findAll() {
     return this.subareasService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subareasService.findOne(+id);
   }
 
   @Patch(':id')
