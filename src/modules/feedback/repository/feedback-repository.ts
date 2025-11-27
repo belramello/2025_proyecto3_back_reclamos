@@ -55,4 +55,11 @@ export class FeedbackRepository implements IFeedbackRepository {
       );
     }
   }
+
+  async findByReclamoYCliente(reclamoId: string, clienteId: string) {
+    return this.feedbackModel.findOne({
+      reclamo: reclamoId,
+      cliente: clienteId,
+    });
+  }
 }
