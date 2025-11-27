@@ -71,4 +71,19 @@ export class ReclamosController {
       subareaAAsignarDto.subareaId,
     );
   }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('asignar-empleado/:id')
+  asignarReclamoAEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() empleadoAAsignarDto: { empleadoId: string },
+  ) {
+    return this.reclamosService.asignarReclamoAEmpleado(
+      id,
+      req.usuario,
+      empleadoAAsignarDto.empleadoId,
+    );
+  }
 }

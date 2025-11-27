@@ -106,6 +106,45 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
+  async asignarReclamoAEmpleado(
+    reclamo: ReclamoDocumentType,
+    encargado: Usuario,
+    subareaDeEmpleado: Subarea,
+    empleado: Usuario,
+  ): Promise<void> {
+    try {
+      const nuevoHistorialA = {
+        reclamo: reclamo,
+        haciaSubarea: subareaDeEmpleado,
+        desdeArea: subareaDeEmpleado.area,
+        haciaArea: subareaDeEmpleado.area,
+        haciaEmpleado: empleado,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
+        tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_EMPLEADO,
+      };
+      const nuevoHistorialAsignacion =
+        await this.historialAsignacionService.create(nuevoHistorialA);
+      await this.actualizarHistorialAsignacionActual(
+        String(nuevoHistorialAsignacion._id),
+        reclamo,
+      );
+      const nuevoHistorialEstado = await this.historialEstadoService.create({
+        reclamo: reclamo,
+        usuarioResponsable: encargado,
+        historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
+        tipo: TipoCreacionHistorialEnum.EN_PROCESO,
+      });
+      await this.actualizarHistorialEstadoActual(
+        String(nuevoHistorialEstado._id),
+        reclamo,
+      );
+    } catch (error) {
+      throw new Error(
+        `Error al asignar el reclamo a la subarea: ${error.message}`,
+      );
+    }
+  }
+
   async actualizarHistorialEstadoActual(
     historialId: string,
     reclamo: ReclamoDocumentType,

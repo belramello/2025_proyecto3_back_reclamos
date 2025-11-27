@@ -16,6 +16,7 @@ import { AsignacionEmpleadoAreaStrategy } from './asignacion-strategies/asignaci
 import { AsignacionEmpleadoSubareaStrategy } from './asignacion-strategies/asignacion-empleado-subarea.strategy';
 import { IAsignacionStrategy } from './asignacion-strategies/asignacion-strategy.interface';
 import { HistorialAsignacionRepository } from './repositories/historial-asignacion.repository';
+import { AsignacionAreaEmpleadoStrategy } from './asignacion-strategies/asignacion-area-empleado.strategy';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { HistorialAsignacionRepository } from './repositories/historial-asignaci
     AsignacionInicialStrategy,
     AsignacionAreaAreaStrategy,
     AsignacionAreaSubareaStrategy,
+    AsignacionAreaEmpleadoStrategy,
     AsignacionAutoasignacionStrategy,
     AsignacionEmpleadoEmpleadoStrategy,
     AsignacionEmpleadoAreaStrategy,
@@ -45,6 +47,7 @@ import { HistorialAsignacionRepository } from './repositories/historial-asignaci
         AsignacionInicialStrategy,
         AsignacionAreaAreaStrategy,
         AsignacionAreaSubareaStrategy,
+        AsignacionAreaEmpleadoStrategy,
         AsignacionAutoasignacionStrategy,
         AsignacionEmpleadoEmpleadoStrategy,
         AsignacionEmpleadoAreaStrategy,

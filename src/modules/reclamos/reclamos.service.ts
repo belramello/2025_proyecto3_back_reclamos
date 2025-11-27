@@ -73,6 +73,30 @@ export class ReclamosService {
     );
   }
 
+  async asignarReclamoAEmpleado(
+    id: string,
+    encargado: Usuario,
+    empleadoId: string,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
+    const area = await this.reclamosValidator.validateAreaReclamo(
+      reclamo,
+      encargado,
+    );
+    const [subareaDeEmpleado, empleado] =
+      await this.reclamosValidator.validateEmpleadoExistenteYValido(
+        empleadoId,
+        area,
+      );
+    return await this.reclamosRepository.asignarReclamoAEmpleado(
+      reclamo,
+      encargado,
+      subareaDeEmpleado,
+      empleado,
+    );
+  }
+
   async actualizarHistorialEstadoActual(
     historial: HistorialEstadoDocumentType,
     reclamoId: string,

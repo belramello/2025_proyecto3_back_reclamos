@@ -15,6 +15,7 @@ import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { Types } from 'mongoose';
 import { Area } from 'src/modules/areas/schemas/area.schema';
 import { SubareasValidator } from 'src/modules/subareas/helpers/subareas-validator';
+import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
 
 @Injectable()
 export class ReclamosValidator {
@@ -22,6 +23,7 @@ export class ReclamosValidator {
     @Inject(forwardRef(() => ReclamosService))
     private readonly reclamosService: ReclamosService,
     private readonly subareasValidator: SubareasValidator,
+    private readonly usuariosValidator: UsuariosValidator,
   ) {}
 
   async validateReclamoExistente(id: string): Promise<ReclamoDocumentType> {
@@ -63,6 +65,7 @@ export class ReclamosValidator {
     return subarea;
   }
 
+  //valida que el reclamo esté asignado al reclamo al que pertenece el encargado. Falla si está asignado a subarea.
   async validateAreaReclamo(
     reclamo: Reclamo,
     encargado: Usuario,
@@ -93,6 +96,25 @@ export class ReclamosValidator {
       );
     }
     return encargado.area;
+  }
+  //validateEmpleadoExistenteYValida(empleadoId, area)
+  async validateEmpleadoExistenteYValido(
+    empleadoId: string,
+    area: Area,
+  ): Promise<[Subarea, Usuario]> {
+    const empleado =
+      await this.usuariosValidator.validateEmpleadoExistente(empleadoId);
+    if (!empleado.subarea) {
+      throw new UnauthorizedException(
+        `El empleado no tiene una subarea asignada`,
+      );
+    }
+    if (empleado.subarea.area.nombre !== area.nombre) {
+      throw new UnauthorizedException(
+        `El usuario no pertenece al área asignada del reclamo`,
+      );
+    }
+    return [empleado.subarea, empleado];
   }
 
   //verificar que no tome reclamos que no tienen una subarea asignada

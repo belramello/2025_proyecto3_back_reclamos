@@ -56,12 +56,15 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         .findById(id)
         .populate('rol')
         .populate('area')
-        .populate('subarea')
+        .populate({
+          path: 'subarea',
+          populate: {
+            path: 'area',
+          },
+        })
         .exec();
-      if (!doc) {
-        return null;
-      }
-      return doc;
+
+      return doc ?? null;
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al buscar el usuario con ID ${id}.`,

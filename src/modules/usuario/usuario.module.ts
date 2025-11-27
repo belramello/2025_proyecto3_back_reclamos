@@ -7,6 +7,7 @@ import { UsersMapper } from './mappers/usuario.mapper';
 import { Rol, RolSchema } from '../roles/schema/rol.schema';
 import { Usuario, UsuarioSchema } from './schema/usuario.schema';
 import { RolesModule } from '../roles/roles.module';
+import { UsuariosValidator } from './helpers/usuarios-validator';
 
 @Module({
   imports: [
@@ -19,12 +20,13 @@ import { RolesModule } from '../roles/roles.module';
   controllers: [UsuarioController],
   providers: [
     UsuarioService,
+    UsuariosValidator,
     {
       provide: 'IUsuarioRepository',
       useClass: UsuarioMongoRepository,
     },
     UsersMapper,
   ],
-  exports: [UsuarioService],
+  exports: [UsuarioService, UsuariosValidator],
 })
 export class UsuarioModule {}

@@ -17,4 +17,10 @@ export interface IReclamosRepository {
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
   ): Promise<void>;
+  asignarReclamoAEmpleado(
+    reclamo: ReclamoDocumentType,
+    encargado: Usuario,
+    subareaDeEmpleado: Subarea,
+    haciaEmpleado: Usuario,
+  );
 }
