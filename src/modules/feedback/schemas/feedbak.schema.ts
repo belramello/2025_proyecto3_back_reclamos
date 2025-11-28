@@ -18,6 +18,9 @@ export class Feedback {
 
   @Prop({ type: Types.ObjectId, ref: Usuario.name, required: true })
   cliente: Usuario | Types.ObjectId;
+
+  @Prop({ type: Date, default: Date.now })
+  fechaCreacion: Date;
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);

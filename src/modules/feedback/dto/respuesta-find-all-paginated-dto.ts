@@ -1,9 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsInt } from 'class-validator';
+import { RespuestaFeedbackDto } from './respuesta-feedback.dto';
 
 export class RespuestaFindAllPaginatedFeedbackDTO {
-  feedback: RespuestaFindAllPaginatedFeedbackDTO[];
+  @ApiProperty({
+    description: 'Lista de prodcutos del usuario',
+    type: [RespuestaFeedbackDto],
+  })
+  @Type(() => RespuestaFeedbackDto)
+  feedback: RespuestaFeedbackDto[];
 
   @ApiProperty({
     description: 'Número total de productos',
