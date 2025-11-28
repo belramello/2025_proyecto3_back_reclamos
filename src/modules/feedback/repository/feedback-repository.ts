@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateFeedbackDto } from '../dto/create-feedback.dto';
-import { Feedback, FeedbackDocument } from '../schemas/feedbak.schema';
+import { Feedback, FeedbackDocument } from '../schemas/feedback.schema';
 import { IFeedbackRepository } from './feedback-repository.interface';
 import { Model } from 'mongoose';
 import { InternalServerErrorException } from '@nestjs/common';

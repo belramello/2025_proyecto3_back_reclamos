@@ -1,5 +1,5 @@
 import { CreateFeedbackDto } from '../dto/create-feedback.dto';
-import { Feedback, FeedbackDocument } from '../schemas/feedbak.schema';
+import { Feedback, FeedbackDocument } from '../schemas/feedback.schema';
 
 export interface IFeedbackRepository {
   findByReclamoYCliente(

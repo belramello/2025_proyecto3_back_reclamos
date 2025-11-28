@@ -22,8 +22,4 @@ export class CreateFeedbackDto {
 
   @IsMongoId()
   cliente: string;
-
-  @IsOptional()
-  @IsString()
-  fechaCreacion?: string;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   BadRequestException,
   Inject,
@@ -44,15 +45,29 @@ export class FeedbackValidator {
 
   /** 3. Validar que el usuario es el cliente del reclamo */
   validateUsuarioEsCliente(reclamo: any, usuarioId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (reclamo.cliente instanceof Types.ObjectId) {
-      throw new BadRequestException('El reclamo no está completamente poblado');
+    if (!reclamo.proyecto) {
+      throw new BadRequestException(
+        'El reclamo no contiene el proyecto asociado',
+      );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    if (reclamo.cliente._id.toString() !== usuarioId) {
+    if (!reclamo.proyecto.cliente) {
+      throw new BadRequestException(
+        'El proyecto no contiene el cliente asociado',
+      );
+    }
+
+    // Si no está poblado, da error
+    if (reclamo.proyecto.cliente instanceof Types.ObjectId) {
+      throw new BadRequestException(
+        'El reclamo no está completamente poblado (cliente no poblado)',
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (reclamo.proyecto.cliente._id.toString() !== usuarioId) {
       throw new UnauthorizedException(
-        `El usuario no puede dejar feedback de un reclamo que no le pertenece`,
+        'El usuario no puede dejar feedback de un reclamo que no le pertenece',
       );
     }
   }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
-import { Feedback } from '../schemas/feedbak.schema';
+import { Feedback } from '../schemas/feedback.schema';
 import { RespuestaCreateFeedbackDto } from '../dto/respuesta-create-feedback.dto';
 import { RespuestaFeedbackDto } from '../dto/respuesta-feedback.dto';
 import { RespuestaFindAllPaginatedFeedbackDTO } from '../dto/respuesta-find-all-paginated-dto';
