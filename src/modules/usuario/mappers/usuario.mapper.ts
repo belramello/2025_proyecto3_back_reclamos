@@ -10,7 +10,7 @@ export class UsersMapper {
     return {
       nombreUsuario: dto.nombreUsuario,
       email: dto.email,
-      contraseña: dto.contraseña,
+      password: dto.password,
       nombre: dto.nombre,
       direccion: dto.direccion,
       telefono: dto.telefono,

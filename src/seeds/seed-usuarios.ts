@@ -49,7 +49,7 @@ async function runSeed() {
       {
         nombreUsuario: { type: String, required: true },
         email: { type: String, required: true, unique: true },
-        contraseña: { type: String, required: true },
+        password: { type: String, required: true },
         rol: { type: Types.ObjectId, ref: 'Rol', required: true },
         nombre: String,
         area: { type: Types.ObjectId, ref: 'Area', default: null },

@@ -17,7 +17,7 @@ export class CreateUsuarioDto {
   @IsString({ message: 'La contraseña debe ser una cadena de texto.' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres.' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
-  readonly contraseña: string;
+  readonly password: string;
 
   @IsString({ message: 'El rol debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El rol es obligatorio.' })

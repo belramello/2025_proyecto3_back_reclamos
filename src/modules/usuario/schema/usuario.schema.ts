@@ -15,7 +15,7 @@ export class Usuario {
   email: string;
 
   @Prop({ required: true })
-  contraseña: string;
+  password: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Rol', required: true, default: null })
   rol: Rol;

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { Feedback } from '../schemas/feedback.schema';
-import { RespuestaCreateFeedbackDto } from '../dto/respuesta-create-feedback.dto';
 import { RespuestaFeedbackDto } from '../dto/respuesta-feedback.dto';
 import { RespuestaFindAllPaginatedFeedbackDTO } from '../dto/respuesta-find-all-paginated-dto';
 import { Reclamo } from 'src/modules/reclamos/schemas/reclamo.schema';
@@ -13,13 +12,13 @@ import { Types } from 'mongoose';
 export class FeedbackMapper {
   constructor() {}
 
-  // --- CREATE ---
-  toRespuestaCreateFeedback(feedback: Feedback): RespuestaCreateFeedbackDto {
+  // --- CREATE --- RespuestaCreateFeedbackDto
+  toRespuestaCreateFeedback(feedback: Feedback) {
     return {
       valoracion: feedback.valoracion,
       comentario: feedback.comentario,
-      reclamo: this.mapReclamo(feedback.reclamo),
-      cliente: this.mapUsuario(feedback.cliente),
+      //reclamo: this.mapReclamo(feedback.reclamo),
+      //cliente: this.mapUsuario(feedback.cliente),
       fechaCreacion: feedback.fechaCreacion,
     };
   }

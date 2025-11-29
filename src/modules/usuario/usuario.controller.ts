@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -10,7 +9,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto'; // Asumimos que este DTO existe
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
@@ -18,15 +16,6 @@ import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
-
-  // POST /usuarios
-  @Post()
-  async create(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-  ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioService.create(createUsuarioDto);
-  }
-
   // GET /usuarios
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {

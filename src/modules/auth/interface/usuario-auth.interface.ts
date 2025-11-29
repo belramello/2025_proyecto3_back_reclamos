@@ -4,7 +4,7 @@ import { Rol } from 'src/modules/roles/schema/rol.schema';
 export interface IUsuarioAuth {
   id: string;
   email: string;
-  contraseña: string;
+  password: string;
   nombre?: string;
   rol: Rol;
   permisos: Permiso[];

@@ -4,7 +4,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repository/usuario-repository.interface';
 import { UsersMapper } from './mappers/usuario.mapper';
-import { Usuario, UsuarioDocumentType } from './schema/usuario.schema';
+import { UsuarioDocumentType } from './schema/usuario.schema';
 import { RolesValidator } from '../roles/helpers/roles-validator';
 
 @Injectable()

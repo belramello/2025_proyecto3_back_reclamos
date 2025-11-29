@@ -7,8 +7,7 @@ import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { hashPassword } from './helpers/password-helper';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
-import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
-import { UsuarioController } from '../usuario/usuario.controller';
+import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +24,7 @@ export class AuthService {
         await this.authValidator.validarEmailExistente(loginDto.email);
       await this.authValidator.validarContraseñaCorrecta(
         loginDto.password,
-        usuario.contraseña,
+        usuario.password,
       );
       const payload = { email: usuario.email, sub: usuario._id.toString() };
       return this.authMapper.toLoginResponseDto(
@@ -43,10 +42,10 @@ export class AuthService {
 
   async register(createUserDto: CreateUsuarioDto): Promise<LoginResponseDto> {
     await this.authValidator.validarEmailSinUsar(createUserDto.email);
-    const hashedPassword = await hashPassword(createUserDto.contraseña);
+    const hashedPassword = await hashPassword(createUserDto.password);
     const nuevoUsuario = await this.userService.create({
       ...createUserDto,
-      contraseña: hashedPassword,
+      password: hashedPassword,
     });
 
     const payload = {
