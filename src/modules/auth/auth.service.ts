@@ -24,7 +24,7 @@ export class AuthService {
       const usuario: UsuarioDocumentType =
         await this.authValidator.validarEmailExistente(loginDto.email);
       await this.authValidator.validarContraseñaCorrecta(
-        loginDto.password,
+        loginDto.contraseña,
         usuario.contraseña,
       );
       const payload = { email: usuario.email, sub: usuario._id.toString() };
