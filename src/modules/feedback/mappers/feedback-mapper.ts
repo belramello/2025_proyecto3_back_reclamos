@@ -18,8 +18,8 @@ export class FeedbackMapper {
     return {
       valoracion: feedback.valoracion,
       comentario: feedback.comentario,
-      reclamo: this.mapReclamo(feedback.reclamo),
-      cliente: this.mapUsuario(feedback.cliente),
+      reclamo: this.mapReclamo(feedback.reclamo) as Reclamo,
+      cliente: this.mapUsuario(feedback.cliente) as Usuario,
       fechaCreacion: feedback.fechaCreacion,
     };
   }

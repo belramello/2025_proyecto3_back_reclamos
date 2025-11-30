@@ -14,6 +14,7 @@ import { SubareasModule } from './modules/subareas/subareas.module';
 import { HistorialEstadoModule } from './modules/historial-estado/historial-estado.module';
 import { ReclamosModule } from './modules/reclamos/reclamos.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
+import { ProyectosModule } from './modules/proyectos/proyectos.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
     HistorialEstadoModule,
     ReclamosModule,
     FeedbackModule,
+    ProyectosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
