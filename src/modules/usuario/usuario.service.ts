@@ -84,7 +84,9 @@ export class UsuarioService {
     createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
     // 1. Validar que el email no exista previamente
-    const existe = await this.usuariosRepository.findByEmail(createUsuarioDto.email);
+    const existe = await this.usuariosRepository.findByEmail(
+      createUsuarioDto.email,
+    );
     if (existe) {
       throw new ConflictException('El correo electrónico ya está registrado.');
     }
@@ -118,7 +120,9 @@ export class UsuarioService {
     console.log('================================================');
     console.log(`📧 SIMULANDO ENVÍO DE EMAIL A: ${email}`);
     console.log(`ℹ️ Asunto: Bienvenido al Sistema de Reclamos`);
-    console.log(`🔗 Link de activación: http://localhost:3000/auth/set-password?email=${email}`);
+    console.log(
+      `🔗 Link de activación: http://localhost:3000/auth/set-password?email=${email}`,
+    );
     console.log(`🔑 Contraseña temporal generada: ${tempPass}`);
     console.log('================================================');
   }

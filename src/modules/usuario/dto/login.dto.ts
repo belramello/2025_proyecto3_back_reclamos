@@ -8,5 +8,5 @@ export class LoginDto {
   @IsNotEmpty({ message: 'La contraseña no debe estar vacía' })
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-  password: string;
+  contraseña: string;
 }
