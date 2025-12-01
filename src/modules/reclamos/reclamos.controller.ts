@@ -72,6 +72,7 @@ export class ReclamosController {
       id,
       req.usuario,
       subareaAAsignarDto.subareaId,
+      subareaAAsignarDto.comentario,
     );
   }
 

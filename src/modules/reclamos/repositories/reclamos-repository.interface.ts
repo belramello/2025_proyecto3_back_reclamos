@@ -17,29 +17,34 @@ export interface IReclamosRepository {
   asignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
+    comentario?: string,
   ): Promise<void>;
   asignarReclamoAEmpleado(
     reclamo: ReclamoDocumentType,
     encargado: Usuario,
     subareaDeEmpleado: Subarea,
     haciaEmpleado: Usuario,
+    comentario?: string,
   ): Promise<void>;
   reasignarReclamoAEmpleado(
     reclamo: ReclamoDocumentType,
     empleadoOrigen: Usuario,
     empleadoDestino: Usuario,
     subarea: Subarea,
+    comentario?: string,
   ): Promise<void>;
   reasignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
     subareaOrigen: Subarea,
     subareaDestino: Subarea,
+    comentario?: string,
   ): Promise<void>;
   reasignarReclamoAArea(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
     subareaOrigen: Subarea,
     areaDestino: Area,
-  );
+    comentario?: string,
+  ): Promise<void>;
 }

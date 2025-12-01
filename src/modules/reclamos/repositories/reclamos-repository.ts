@@ -88,6 +88,7 @@ export class ReclamosRepository implements IReclamosRepository {
   async asignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
+    comentario?: string,
   ): Promise<void> {
     try {
       const nuevoHistorialA = {
@@ -95,6 +96,7 @@ export class ReclamosRepository implements IReclamosRepository {
         haciaSubarea: subarea,
         desdeArea: subarea.area,
         haciaArea: subarea.area,
+        comentario: comentario,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_SUBAREA,
       };
@@ -116,6 +118,7 @@ export class ReclamosRepository implements IReclamosRepository {
     encargado: Usuario,
     subareaDeEmpleado: Subarea,
     empleado: Usuario,
+    comentario?: string,
   ): Promise<void> {
     try {
       const nuevoHistorialA = {
@@ -124,6 +127,7 @@ export class ReclamosRepository implements IReclamosRepository {
         desdeArea: subareaDeEmpleado.area,
         haciaArea: subareaDeEmpleado.area,
         haciaEmpleado: empleado,
+        comentario: comentario,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_EMPLEADO,
       };
@@ -155,6 +159,7 @@ export class ReclamosRepository implements IReclamosRepository {
     empleadoOrigen: Usuario,
     empleadoDestino: Usuario,
     subarea: Subarea,
+    comentario?: string,
   ): Promise<void> {
     try {
       const nuevoHistorialA = {
@@ -165,6 +170,7 @@ export class ReclamosRepository implements IReclamosRepository {
         haciaArea: subarea.area,
         desdeEmpleado: empleadoOrigen,
         haciaEmpleado: empleadoDestino,
+        comentario: comentario,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_EMPLEADO,
       };
@@ -186,6 +192,7 @@ export class ReclamosRepository implements IReclamosRepository {
     empleado: Usuario,
     subareaOrigen: Subarea,
     subareaDestino: Subarea,
+    comentario?: string,
   ): Promise<void> {
     try {
       const nuevoHistorialA = {
@@ -195,6 +202,7 @@ export class ReclamosRepository implements IReclamosRepository {
         desdeArea: subareaOrigen.area,
         haciaArea: subareaOrigen.area,
         desdeEmpleado: empleado,
+        comentario: comentario,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_SUBAREA,
       };
@@ -216,6 +224,7 @@ export class ReclamosRepository implements IReclamosRepository {
     empleado: Usuario,
     subareaOrigen: Subarea,
     areaDestino: Area,
+    comentario?: string,
   ): Promise<void> {
     try {
       const nuevoHistorialA = {
@@ -224,6 +233,7 @@ export class ReclamosRepository implements IReclamosRepository {
         desdeArea: subareaOrigen.area,
         haciaArea: areaDestino,
         desdeEmpleado: empleado,
+        comentario: comentario,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_AREA,
       };

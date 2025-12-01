@@ -61,6 +61,7 @@ export class ReclamosService {
     id: string,
     empleado: Usuario,
     subareaId: string,
+    comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
@@ -76,6 +77,7 @@ export class ReclamosService {
     return await this.reclamosRepository.asignarReclamoASubarea(
       reclamo,
       subarea,
+      comentario,
     );
   }
 
@@ -83,6 +85,7 @@ export class ReclamosService {
     id: string,
     encargado: Usuario,
     empleadoId: string,
+    comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
@@ -100,6 +103,7 @@ export class ReclamosService {
       encargado,
       subareaDeEmpleado,
       empleado,
+      comentario,
     );
   }
 
@@ -107,6 +111,7 @@ export class ReclamosService {
     id: string,
     empleadoOrigen: Usuario,
     empleadoDestinoId: string,
+    comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
@@ -121,6 +126,7 @@ export class ReclamosService {
       empleadoOrigen,
       empleadoDestino,
       subarea,
+      comentario,
     );
   }
 
@@ -128,6 +134,7 @@ export class ReclamosService {
     id: string,
     empleado: Usuario,
     subareaId: string,
+    comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
@@ -144,10 +151,16 @@ export class ReclamosService {
       empleado,
       subareaOrigen,
       subareaDestino,
+      comentario,
     );
   }
 
-  async reasignarReclamoAArea(id: string, empleado: Usuario, areaId: string) {
+  async reasignarReclamoAArea(
+    id: string,
+    empleado: Usuario,
+    areaId: string,
+    comentario?: string,
+  ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
     const subareaOrigen =
@@ -160,18 +173,7 @@ export class ReclamosService {
       empleado,
       subareaOrigen,
       areaDestino,
-    );
-  }
-
-  async actualizarHistorialEstadoActual(
-    historial: HistorialEstadoDocumentType,
-    reclamoId: string,
-  ): Promise<void> {
-    const reclamo =
-      await this.reclamosValidator.validateReclamoExistente(reclamoId);
-    return await this.reclamosRepository.actualizarHistorialEstadoActual(
-      String(historial._id),
-      reclamo,
+      comentario,
     );
   }
 }
