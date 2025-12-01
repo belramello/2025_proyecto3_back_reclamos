@@ -19,6 +19,7 @@ import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decora
 import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
+import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -116,6 +117,21 @@ export class ReclamosController {
       id,
       req.usuario,
       subareaAAsignarDto.subareaId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('reasignar-area/:id')
+  reasignacionReclamoAArea(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() areaAAsignarDto: AreaAAsignarDto,
+  ) {
+    return this.reclamosService.reasignarReclamoAArea(
+      id,
+      req.usuario,
+      areaAAsignarDto.areaId,
     );
   }
 }

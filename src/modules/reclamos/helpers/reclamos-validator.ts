@@ -16,7 +16,7 @@ import { Types } from 'mongoose';
 import { Area } from 'src/modules/areas/schemas/area.schema';
 import { SubareasValidator } from 'src/modules/subareas/helpers/subareas-validator';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
-import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
+import { AreasValidator } from 'src/modules/areas/helpers/areas-validator';
 
 @Injectable()
 export class ReclamosValidator {
@@ -25,6 +25,7 @@ export class ReclamosValidator {
     private readonly reclamosService: ReclamosService,
     private readonly subareasValidator: SubareasValidator,
     private readonly usuariosValidator: UsuariosValidator,
+    private readonly areasValidator: AreasValidator,
   ) {}
 
   async validateReclamoExistente(id: string): Promise<ReclamoDocumentType> {
@@ -50,6 +51,11 @@ export class ReclamosValidator {
       );
     }
     return;
+  }
+
+  async validateAreaExistente(areaId: string): Promise<Area> {
+    const area = await this.areasValidator.validateAreaExistente(areaId);
+    return area;
   }
 
   async validateReclamoEnProceso(reclamo: ReclamoDocumentType): Promise<void> {
@@ -188,10 +194,10 @@ export class ReclamosValidator {
     }
   }
 
-  async validateEmpleadoAsignado(
+  validateEmpleadoAsignado(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
-  ): Promise<void> {
+  ): void {
     if (reclamo.ultimoHistorialAsignacion instanceof Types.ObjectId) {
       throw new BadRequestException(
         `No es posible acceder a la ultima asignación del reclamo`,

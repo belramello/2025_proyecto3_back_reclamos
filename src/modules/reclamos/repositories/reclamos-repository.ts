@@ -9,6 +9,7 @@ import { TipoAsignacionesEnum } from 'src/modules/historial-asignacion/enums/tip
 import { HistorialEstadoService } from 'src/modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import { forwardRef, Inject } from '@nestjs/common';
+import { Area } from 'src/modules/areas/schemas/area.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -28,6 +29,7 @@ export class ReclamosRepository implements IReclamosRepository {
       const nuevoHistorial = {
         reclamo: reclamo,
         desdeEmpleado: empleado,
+        haciaEmpleado: empleado,
         desdeSubarea: subarea,
         haciaSubarea: subarea,
         desdeArea: subarea.area,
@@ -143,7 +145,7 @@ export class ReclamosRepository implements IReclamosRepository {
       );
     } catch (error) {
       throw new Error(
-        `Error al asignar el reclamo a la subarea: ${error.message}`,
+        `Error al asignar el reclamo al empleado: ${error.message}`,
       );
     }
   }
@@ -174,7 +176,7 @@ export class ReclamosRepository implements IReclamosRepository {
       );
     } catch (error) {
       throw new Error(
-        `Error al asignar el reclamo a la subarea: ${error.message}`,
+        `Error al reasignar el reclamo al empleado: ${error.message}`,
       );
     }
   }
@@ -204,7 +206,36 @@ export class ReclamosRepository implements IReclamosRepository {
       );
     } catch (error) {
       throw new Error(
-        `Error al asignar el reclamo a la subarea: ${error.message}`,
+        `Error al reasignar el reclamo a la subarea: ${error.message}`,
+      );
+    }
+  }
+
+  async reasignarReclamoAArea(
+    reclamo: ReclamoDocumentType,
+    empleado: Usuario,
+    subareaOrigen: Subarea,
+    areaDestino: Area,
+  ): Promise<void> {
+    try {
+      const nuevoHistorialA = {
+        reclamo: reclamo,
+        desdeSubarea: subareaOrigen,
+        desdeArea: subareaOrigen.area,
+        haciaArea: areaDestino,
+        desdeEmpleado: empleado,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
+        tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_AREA,
+      };
+      const nuevoHistorialAsignacion =
+        await this.historialAsignacionService.create(nuevoHistorialA);
+      await this.actualizarHistorialAsignacionActual(
+        String(nuevoHistorialAsignacion._id),
+        reclamo,
+      );
+    } catch (error) {
+      throw new Error(
+        `Error al reasignar el reclamo al area: ${error.message}`,
       );
     }
   }

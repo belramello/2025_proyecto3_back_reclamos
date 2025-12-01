@@ -110,10 +110,7 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
-    await this.reclamosValidator.validateEmpleadoAsignado(
-      reclamo,
-      empleadoOrigen,
-    );
+    this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleadoOrigen);
     const [empleadoDestino, subarea] =
       await this.reclamosValidator.validateEmpleadoExistenteYConSubarea(
         empleadoDestinoId,
@@ -136,7 +133,7 @@ export class ReclamosService {
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
     const subareaOrigen =
       await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
-    await this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
+    this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
     const subareaDestino =
       await this.reclamosValidator.validateSubareaExistenteYValida(
         subareaId,
@@ -147,6 +144,22 @@ export class ReclamosService {
       empleado,
       subareaOrigen,
       subareaDestino,
+    );
+  }
+
+  async reasignarReclamoAArea(id: string, empleado: Usuario, areaId: string) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    await this.reclamosValidator.validateReclamoEnProceso(reclamo);
+    const subareaOrigen =
+      await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
+    this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
+    const areaDestino =
+      await this.reclamosValidator.validateAreaExistente(areaId);
+    return await this.reclamosRepository.reasignarReclamoAArea(
+      reclamo,
+      empleado,
+      subareaOrigen,
+      areaDestino,
     );
   }
 

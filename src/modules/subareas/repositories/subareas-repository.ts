@@ -13,13 +13,16 @@ export class SubareasRepository implements ISubareasRepository {
     private readonly subareaModel: Model<SubareaDocumentType>,
   ) {}
 
-  async findOne(rolId: string): Promise<SubareaDocumentType | null> {
+  async findOne(subareaId: string): Promise<SubareaDocumentType | null> {
     try {
-      return await this.subareaModel.findById(rolId).populate('area').exec();
+      return await this.subareaModel
+        .findById(subareaId)
+        .populate('area')
+        .exec();
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
-        `Error al obtener el rol con ID ${rolId}: ${error.message}`,
+        `Error al obtener el rol con ID ${subareaId}: ${error.message}`,
       );
     }
   }

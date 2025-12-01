@@ -1,6 +1,7 @@
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { Area } from 'src/modules/areas/schemas/area.schema';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
@@ -35,4 +36,10 @@ export interface IReclamosRepository {
     subareaOrigen: Subarea,
     subareaDestino: Subarea,
   ): Promise<void>;
+  reasignarReclamoAArea(
+    reclamo: ReclamoDocumentType,
+    empleado: Usuario,
+    subareaOrigen: Subarea,
+    areaDestino: Area,
+  );
 }
