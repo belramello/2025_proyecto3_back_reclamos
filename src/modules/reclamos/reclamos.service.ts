@@ -1,17 +1,10 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
 import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
-import { HistorialEstadoDocumentType } from '../historial-estado/schema/historial-estado.schema';
-import { AsignacionAreaEmpleadoStrategy } from '../historial-asignacion/asignacion-strategies/asignacion-area-empleado.strategy';
 
 @Injectable()
 export class ReclamosService {
@@ -41,6 +34,11 @@ export class ReclamosService {
 
   remove(id: number) {
     return `This action removes a #${id} reclamo`;
+  }
+
+  async consultarHistorialReclamo(id: string) {
+    await this.reclamosValidator.validateReclamoExistente(id);
+    return await this.reclamosRepository.consultarHistorialReclamo(id);
   }
 
   async autoasignarReclamo(id: string, empleado: Usuario) {

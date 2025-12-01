@@ -5,11 +5,13 @@ import { Area } from 'src/modules/areas/schemas/area.schema';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
+  consultarHistorialReclamo(reclamoId: string);
   autoasignar(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
     subarea: Subarea,
   ): Promise<void>;
+
   actualizarHistorialEstadoActual(
     historialId: string,
     reclamo: ReclamoDocumentType,

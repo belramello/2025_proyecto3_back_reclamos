@@ -40,6 +40,13 @@ export class ReclamosController {
     return this.reclamosService.findOne(id);
   }
 
+  @UseGuards(AuthGuard)
+  //@PermisoRequerido(PermisosEnum.VISUALIZAR_ESTADO_RECLAMO)
+  @Get('historial/:id')
+  consultarHistorialReclamo(@Param('id') id: string) {
+    return this.reclamosService.consultarHistorialReclamo(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateReclamoDto: UpdateReclamoDto) {
     return this.reclamosService.update(+id, updateReclamoDto);

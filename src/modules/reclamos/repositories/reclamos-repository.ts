@@ -85,6 +85,52 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
+  async consultarHistorialReclamo(reclamoId: string) {
+    try {
+      const reclamo = await this.reclamoModel
+        .findById(reclamoId)
+        .populate({
+          path: 'historialEstados',
+          populate: {
+            path: 'estado',
+          },
+        })
+        .populate({
+          path: 'historialAsignaciones',
+          populate: [
+            { path: 'haciaArea' },
+            { path: 'desdeArea' },
+            { path: 'desdeSubarea' },
+            { path: 'haciaSubarea' },
+            { path: 'deEmpleado' },
+            { path: 'haciaEmpleado' },
+          ],
+        })
+        .populate({
+          path: 'ultimoHistorialEstado',
+          populate: { path: 'estado' },
+        })
+        .populate({
+          path: 'ultimoHistorialAsignacion',
+          populate: [
+            { path: 'haciaArea' },
+            { path: 'desdeArea' },
+            { path: 'desdeSubarea' },
+            { path: 'haciaSubarea' },
+            { path: 'deEmpleado' },
+            { path: 'haciaEmpleado' },
+          ],
+        })
+        .exec();
+
+      return reclamo;
+    } catch (error) {
+      throw new Error(
+        `Error al obtener el reclamo con ID ${reclamoId}: ${error.message}`,
+      );
+    }
+  }
+
   async asignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
