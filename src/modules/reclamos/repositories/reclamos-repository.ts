@@ -68,7 +68,11 @@ export class ReclamosRepository implements IReclamosRepository {
         })
         .populate({
           path: 'ultimoHistorialAsignacion',
-          populate: [{ path: 'haciaArea' }, { path: 'haciaSubarea' }],
+          populate: [
+            { path: 'haciaArea' },
+            { path: 'haciaSubarea' },
+            { path: 'haciaEmpleado' },
+          ],
         })
         .exec();
       return reclamo;
@@ -161,6 +165,36 @@ export class ReclamosRepository implements IReclamosRepository {
         haciaEmpleado: empleadoDestino,
         historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
         tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_EMPLEADO,
+      };
+      const nuevoHistorialAsignacion =
+        await this.historialAsignacionService.create(nuevoHistorialA);
+      await this.actualizarHistorialAsignacionActual(
+        String(nuevoHistorialAsignacion._id),
+        reclamo,
+      );
+    } catch (error) {
+      throw new Error(
+        `Error al asignar el reclamo a la subarea: ${error.message}`,
+      );
+    }
+  }
+
+  async reasignarReclamoASubarea(
+    reclamo: ReclamoDocumentType,
+    empleado: Usuario,
+    subareaOrigen: Subarea,
+    subareaDestino: Subarea,
+  ): Promise<void> {
+    try {
+      const nuevoHistorialA = {
+        reclamo: reclamo,
+        desdeSubarea: subareaOrigen,
+        haciaSubarea: subareaDestino,
+        desdeArea: subareaOrigen.area,
+        haciaArea: subareaOrigen.area,
+        desdeEmpleado: empleado,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
+        tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_SUBAREA,
       };
       const nuevoHistorialAsignacion =
         await this.historialAsignacionService.create(nuevoHistorialA);

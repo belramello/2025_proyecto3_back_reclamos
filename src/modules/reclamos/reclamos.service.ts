@@ -1,4 +1,9 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
 import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
@@ -6,6 +11,7 @@ import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
 import { HistorialEstadoDocumentType } from '../historial-estado/schema/historial-estado.schema';
+import { AsignacionAreaEmpleadoStrategy } from '../historial-asignacion/asignacion-strategies/asignacion-area-empleado.strategy';
 
 @Injectable()
 export class ReclamosService {
@@ -58,7 +64,7 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
-    const area = await this.reclamosValidator.validateAreaReclamo(
+    const area = await this.reclamosValidator.validateAreaReclamoParaEncargado(
       reclamo,
       empleado,
     );
@@ -80,7 +86,7 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
-    const area = await this.reclamosValidator.validateAreaReclamo(
+    const area = await this.reclamosValidator.validateAreaReclamoParaEncargado(
       reclamo,
       encargado,
     );
@@ -104,6 +110,10 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
+    await this.reclamosValidator.validateEmpleadoAsignado(
+      reclamo,
+      empleadoOrigen,
+    );
     const [empleadoDestino, subarea] =
       await this.reclamosValidator.validateEmpleadoExistenteYConSubarea(
         empleadoDestinoId,
@@ -114,6 +124,29 @@ export class ReclamosService {
       empleadoOrigen,
       empleadoDestino,
       subarea,
+    );
+  }
+
+  async reasignarReclamoASubarea(
+    id: string,
+    empleado: Usuario,
+    subareaId: string,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    await this.reclamosValidator.validateReclamoEnProceso(reclamo);
+    const subareaOrigen =
+      await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
+    await this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
+    const subareaDestino =
+      await this.reclamosValidator.validateSubareaExistenteYValida(
+        subareaId,
+        subareaOrigen.area,
+      );
+    return await this.reclamosRepository.reasignarReclamoASubarea(
+      reclamo,
+      empleado,
+      subareaOrigen,
+      subareaDestino,
     );
   }
 

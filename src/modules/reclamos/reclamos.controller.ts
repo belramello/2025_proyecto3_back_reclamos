@@ -103,4 +103,19 @@ export class ReclamosController {
       empleadoAAsignarDto.empleadoId,
     );
   }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('reasignar-subarea/:id')
+  reasignacionReclamoASubarea(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() subareaAAsignarDto: SubareaAAsignarDto,
+  ) {
+    return this.reclamosService.reasignarReclamoASubarea(
+      id,
+      req.usuario,
+      subareaAAsignarDto.subareaId,
+    );
+  }
 }

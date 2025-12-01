@@ -16,6 +16,7 @@ import { Types } from 'mongoose';
 import { Area } from 'src/modules/areas/schemas/area.schema';
 import { SubareasValidator } from 'src/modules/subareas/helpers/subareas-validator';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
+import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 
 @Injectable()
 export class ReclamosValidator {
@@ -65,7 +66,7 @@ export class ReclamosValidator {
     return;
   }
 
-  //Validar subárea perteneciente a área a asignar
+  //Validar subárea perteneciente a área determinada.
   async validateSubareaExistenteYValida(
     id: string,
     area: Area,
@@ -80,7 +81,7 @@ export class ReclamosValidator {
   }
 
   //valida que el reclamo esté asignado al área al que pertenece el encargado. Falla si está asignado a subarea.
-  async validateAreaReclamo(
+  async validateAreaReclamoParaEncargado(
     reclamo: Reclamo,
     encargado: Usuario,
   ): Promise<Area> {
@@ -183,6 +184,25 @@ export class ReclamosValidator {
     if (subareaEmpleadoOrigen.nombre !== subareaEmpleadoDestino.nombre) {
       throw new BadRequestException(
         `El usuario está intentando reasignar el reclamo a un empleado que no se encuentra en su misma subárea.`,
+      );
+    }
+  }
+
+  async validateEmpleadoAsignado(
+    reclamo: ReclamoDocumentType,
+    empleado: Usuario,
+  ): Promise<void> {
+    if (reclamo.ultimoHistorialAsignacion instanceof Types.ObjectId) {
+      throw new BadRequestException(
+        `No es posible acceder a la ultima asignación del reclamo`,
+      );
+    }
+    const ultimaAsignacion = reclamo.ultimoHistorialAsignacion;
+    if (
+      ultimaAsignacion.haciaEmpleado?.nombreUsuario !== empleado.nombreUsuario
+    ) {
+      throw new BadRequestException(
+        `El usuario no tiene asignado el reclamo que desea asignar.`,
       );
     }
   }

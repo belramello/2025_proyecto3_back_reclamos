@@ -29,4 +29,10 @@ export interface IReclamosRepository {
     empleadoDestino: Usuario,
     subarea: Subarea,
   ): Promise<void>;
+  reasignarReclamoASubarea(
+    reclamo: ReclamoDocumentType,
+    empleado: Usuario,
+    subareaOrigen: Subarea,
+    subareaDestino: Subarea,
+  ): Promise<void>;
 }
