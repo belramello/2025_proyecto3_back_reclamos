@@ -97,6 +97,26 @@ export class ReclamosService {
     );
   }
 
+  async reasignarReclamoAEmpleado(
+    id: string,
+    empleadoOrigen: Usuario,
+    empleadoDestinoId: string,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    await this.reclamosValidator.validateReclamoEnProceso(reclamo);
+    const [empleadoDestino, subarea] =
+      await this.reclamosValidator.validateEmpleadoExistenteYConSubarea(
+        empleadoDestinoId,
+        empleadoOrigen,
+      );
+    return await this.reclamosRepository.reasignarReclamoAEmpleado(
+      reclamo,
+      empleadoOrigen,
+      empleadoDestino,
+      subarea,
+    );
+  }
+
   async actualizarHistorialEstadoActual(
     historial: HistorialEstadoDocumentType,
     reclamoId: string,

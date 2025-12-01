@@ -12,7 +12,7 @@ export interface IReclamosRepository {
   actualizarHistorialEstadoActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
-  );
+  ): Promise<void>;
   asignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
@@ -22,5 +22,11 @@ export interface IReclamosRepository {
     encargado: Usuario,
     subareaDeEmpleado: Subarea,
     haciaEmpleado: Usuario,
-  );
+  ): Promise<void>;
+  reasignarReclamoAEmpleado(
+    reclamo: ReclamoDocumentType,
+    empleadoOrigen: Usuario,
+    empleadoDestino: Usuario,
+    subarea: Subarea,
+  ): Promise<void>;
 }

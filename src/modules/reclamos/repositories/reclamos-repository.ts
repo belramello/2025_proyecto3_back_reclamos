@@ -9,7 +9,6 @@ import { TipoAsignacionesEnum } from 'src/modules/historial-asignacion/enums/tip
 import { HistorialEstadoService } from 'src/modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import { forwardRef, Inject } from '@nestjs/common';
-import { Area } from 'src/modules/areas/schemas/area.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -136,6 +135,37 @@ export class ReclamosRepository implements IReclamosRepository {
       });
       await this.actualizarHistorialEstadoActual(
         String(nuevoHistorialEstado._id),
+        reclamo,
+      );
+    } catch (error) {
+      throw new Error(
+        `Error al asignar el reclamo a la subarea: ${error.message}`,
+      );
+    }
+  }
+
+  async reasignarReclamoAEmpleado(
+    reclamo: ReclamoDocumentType,
+    empleadoOrigen: Usuario,
+    empleadoDestino: Usuario,
+    subarea: Subarea,
+  ): Promise<void> {
+    try {
+      const nuevoHistorialA = {
+        reclamo: reclamo,
+        desdeSubarea: subarea,
+        haciaSubarea: subarea,
+        desdeArea: subarea.area,
+        haciaArea: subarea.area,
+        desdeEmpleado: empleadoOrigen,
+        haciaEmpleado: empleadoDestino,
+        historialACerrarId: String(reclamo.ultimoHistorialAsignacion._id),
+        tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_EMPLEADO,
+      };
+      const nuevoHistorialAsignacion =
+        await this.historialAsignacionService.create(nuevoHistorialA);
+      await this.actualizarHistorialAsignacionActual(
+        String(nuevoHistorialAsignacion._id),
         reclamo,
       );
     } catch (error) {
