@@ -23,4 +23,14 @@ export class AreaRepository implements IAreaRepository {
       );
     }
   }
+
+  async findAll(): Promise<AreaDocumentType[]> {
+    try {
+      return await this.areaModel.find().exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener las areas: ${error.message}`,
+      );
+    }
+  }
 }
