@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SubareasService } from './subareas.service';
 import { SubareasController } from './subareas.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -12,7 +12,7 @@ import { SubareasMapper } from './helpers/subareas-mapper';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Subarea.name, schema: SubareaSchema }]),
-    UsuarioModule,
+    forwardRef(() => UsuarioModule),
     JwtModule,
   ],
   controllers: [SubareasController],
@@ -25,6 +25,6 @@ import { SubareasMapper } from './helpers/subareas-mapper';
     },
     SubareasMapper,
   ],
-  exports: [SubareasValidator],
+  exports: [SubareasValidator, SubareasService],
 })
 export class SubareasModule {}

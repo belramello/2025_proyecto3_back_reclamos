@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateSubareaDto } from './dto/create-subarea.dto';
 import { UpdateSubareaDto } from './dto/update-subarea.dto';
-import { Subarea } from './schemas/subarea.schema';
+import { Subarea, SubareaDocumentType } from './schemas/subarea.schema';
 import type { ISubareasRepository } from './repositories/subareas-repository.interface';
 import { SubareasValidator } from './helpers/subareas-validator';
 import { SubareaDeUsuarioDto } from './dto/subarea-de-usuario.dto';
@@ -27,6 +27,10 @@ export class SubareasService {
 
   findAll() {
     return `This action returns all subareas`;
+  }
+
+  async findOneByNombre(nombre: string): Promise<SubareaDocumentType | null> {
+    return await this.subareasRepository.findOneByNombre(nombre);
   }
 
   async findAllSubareasDeUsuario(

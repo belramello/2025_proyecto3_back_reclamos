@@ -21,7 +21,7 @@ export class Usuario {
   rol: Rol;
 
   @Prop()
-  nombre?: string;
+  nombre: string;
 
   @Prop()
   direccion?: string;
