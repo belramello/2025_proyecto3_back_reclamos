@@ -20,6 +20,7 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
+import { Usuario } from '../usuario/schema/usuario.schema';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -140,6 +141,17 @@ export class ReclamosController {
       id,
       req.usuario,
       areaAAsignarDto.areaId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('consultar-reclamos-asignados')
+  obtenerMisReclamosAsignados(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+  ) {
+    return this.reclamosService.obtenerReclamosAsignados(
+      String(req.usuario._id),
     );
   }
 }

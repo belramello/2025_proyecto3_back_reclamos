@@ -10,6 +10,7 @@ import { HistorialEstadoService } from 'src/modules/historial-estado/historial-e
 import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import { forwardRef, Inject } from '@nestjs/common';
 import { Area } from 'src/modules/areas/schemas/area.schema';
+import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -293,6 +294,23 @@ export class ReclamosRepository implements IReclamosRepository {
       throw new Error(
         `Error al reasignar el reclamo al area: ${error.message}`,
       );
+    }
+  }
+
+  async obtenerReclamosAsignadosDeEmpleado(
+    empleadoId: string,
+  ): Promise<ReclamoDocumentType[] | null> {
+    try {
+      return await this.reclamoModel
+        .find({
+          'ultimoHistorialAsignacion.haciaEmpleado': empleadoId,
+          'ultimoHistorialAsignacion.fechaHoraFin': { $exists: false },
+          'ultimoHistorialEstado.estado.nombre': EstadosEnum.EN_PROCESO,
+        })
+        .exec();
+    } catch (error) {
+      console.error('Error al obtener reclamos asignados:', error);
+      throw error;
     }
   }
 

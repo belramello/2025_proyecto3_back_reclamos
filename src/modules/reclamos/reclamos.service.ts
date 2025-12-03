@@ -174,4 +174,11 @@ export class ReclamosService {
       comentario,
     );
   }
+
+  async obtenerReclamosAsignados(empleadoId: string) {
+    await this.reclamosValidator.validateEmpleadoExistente(empleadoId);
+    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
+      empleadoId,
+    );
+  }
 }

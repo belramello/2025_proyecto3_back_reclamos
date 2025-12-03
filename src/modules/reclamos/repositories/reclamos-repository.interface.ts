@@ -49,4 +49,7 @@ export interface IReclamosRepository {
     areaDestino: Area,
     comentario?: string,
   ): Promise<void>;
+  obtenerReclamosAsignadosDeEmpleado(
+    empleadoId: string,
+  ): Promise<ReclamoDocumentType[] | null>;
 }
