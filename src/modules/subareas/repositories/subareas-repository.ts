@@ -26,4 +26,22 @@ export class SubareasRepository implements ISubareasRepository {
       );
     }
   }
+
+  async findAllSubareasDeArea(
+    nombreArea: string,
+  ): Promise<SubareaDocumentType[]> {
+    try {
+      return await this.subareaModel
+        .find()
+        .populate({
+          path: 'area',
+          match: { nombre: nombreArea },
+        })
+        .then((subs) => subs.filter((s) => s.area));
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener las subareas de la area con el nombre ${nombreArea}: ${error.message}`,
+      );
+    }
+  }
 }

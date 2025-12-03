@@ -5,10 +5,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Subarea, SubareaSchema } from './schemas/subarea.schema';
 import { SubareasRepository } from './repositories/subareas-repository';
 import { SubareasValidator } from './helpers/subareas-validator';
+import { UsuarioModule } from '../usuario/usuario.module';
+import { JwtModule } from '../jwt/jwt.module';
+import { SubareasMapper } from './helpers/subareas-mapper';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Subarea.name, schema: SubareaSchema }]),
+    UsuarioModule,
+    JwtModule,
   ],
   controllers: [SubareasController],
   providers: [
@@ -18,6 +23,7 @@ import { SubareasValidator } from './helpers/subareas-validator';
       provide: 'ISubareasRepository',
       useClass: SubareasRepository,
     },
+    SubareasMapper,
   ],
   exports: [SubareasValidator],
 })
