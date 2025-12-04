@@ -13,6 +13,7 @@ export class AsignacionAreaAreaStrategy implements IAsignacionStrategy {
       reclamo: data.reclamo,
       desdeArea: data.desdeArea,
       haciaArea: data.haciaArea,
+      comentario: data.comentario,
       tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_AREA,
     };
   }

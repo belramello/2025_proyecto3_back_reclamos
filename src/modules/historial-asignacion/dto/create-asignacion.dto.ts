@@ -12,6 +12,7 @@ export class CrearAsignacionDto {
   haciaEmpleado?: Usuario;
   haciaArea: Area;
   haciaSubarea?: Subarea;
+  comentario?: string;
   tipoAsignacion: TipoAsignacionesEnum;
   historialACerrarId: string;
 }
