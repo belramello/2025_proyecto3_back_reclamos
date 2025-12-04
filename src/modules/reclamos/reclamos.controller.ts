@@ -20,7 +20,6 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
-import { Usuario } from '../usuario/schema/usuario.schema';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -34,6 +33,14 @@ export class ReclamosController {
   @Get()
   findAll() {
     return this.reclamosService.findAll();
+  }
+
+  //NO FUNCIONA
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Get('reclamos-area')
+  obtenerReclamosPendientesDeArea(@Req() req: RequestWithUsuario) {
+    return this.reclamosService.obtenerReclamosPendientesDeArea(req.usuario);
   }
 
   @Get(':id')
@@ -101,6 +108,21 @@ export class ReclamosController {
 
   @UseGuards(AuthGuard)
   @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('asignar-area/:id')
+  asignarReclamoAArea(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() areaAAsignarDto: AreaAAsignarDto,
+  ) {
+    return this.reclamosService.asignarReclamoAArea(
+      id,
+      req.usuario,
+      areaAAsignarDto.areaId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
   @Patch('reasignar-empleado/:id')
   reasignacionReclamoAEmpleado(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -144,6 +166,7 @@ export class ReclamosController {
     );
   }
 
+  //NO FUNCIONA
   @UseGuards(AuthGuard)
   @Get('consultar-reclamos-asignados')
   obtenerMisReclamosAsignados(

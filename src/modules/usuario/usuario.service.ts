@@ -91,6 +91,19 @@ export class UsuarioService {
     return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
   }
 
+  async findAllEmpleadosDeAreaDelUsuario(
+    usuarioId: string,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    const usuario =
+      await this.usuariosValidator.validateEncargadoExistente(usuarioId);
+    const area =
+      await this.usuariosValidator.validateAreaAsignadaAEncargado(usuario);
+    const empleados = await this.usuariosRepository.findAllEmpleadosDeArea(
+      area.nombre,
+    );
+    return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
+  }
+
   async remove(id: string): Promise<void> {
     await this.usuariosRepository.remove(id);
   }

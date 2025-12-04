@@ -21,6 +21,6 @@ import { AreasMapper } from './helpers/areas-mapper';
     AreasValidator,
     AreasMapper,
   ],
-  exports: [AreasValidator],
+  exports: [AreasValidator, AreasService],
 })
 export class AreasModule {}

@@ -86,6 +86,26 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
+  async findAllEmpleadosDeArea(
+    nombreArea: string,
+  ): Promise<UsuarioDocumentType[]> {
+    try {
+      const subareas =
+        await this.subareaService.findAllSubareasDeArea(nombreArea);
+      let empleados: UsuarioDocumentType[] = [];
+      for (const subarea of subareas) {
+        empleados.push(
+          ...(await this.findAllEmpleadosBySubareaId(String(subarea._id))),
+        );
+      }
+      return empleados;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener empleados de la subarea ${nombreArea}: ${error.message}`,
+      );
+    }
+  }
+
   async findOne(id: string): Promise<UsuarioDocumentType | null> {
     try {
       const doc = await this.userModel

@@ -2,6 +2,8 @@ import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { Area } from 'src/modules/areas/schemas/area.schema';
+import { Estado } from 'src/modules/estados/schemas/estado.schema';
+import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
@@ -19,6 +21,14 @@ export interface IReclamosRepository {
   asignarReclamoASubarea(
     reclamo: ReclamoDocumentType,
     subarea: Subarea,
+    comentario?: string,
+  ): Promise<void>;
+  asignarReclamoAArea(
+    reclamo: ReclamoDocumentType,
+    encargado: Usuario,
+    areaOrigen: Area,
+    areaDestino: Area,
+    estado: string,
     comentario?: string,
   ): Promise<void>;
   asignarReclamoAEmpleado(
@@ -52,4 +62,5 @@ export interface IReclamosRepository {
   obtenerReclamosAsignadosDeEmpleado(
     empleadoId: string,
   ): Promise<ReclamoDocumentType[] | null>;
+  obtenerReclamosPendientesDeArea(nombreArea: string);
 }

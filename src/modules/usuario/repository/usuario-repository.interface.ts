@@ -13,6 +13,7 @@ export interface IUsuarioRepository {
     nombreSubarea: string,
   ): Promise<UsuarioDocumentType[]>;
   findOne(id: string): Promise<UsuarioDocumentType | null>;
+  findAllEmpleadosDeArea(nombreArea: string): Promise<UsuarioDocumentType[]>;
   update(
     id: string,
     updateData: Partial<UsuarioDocumentType>,

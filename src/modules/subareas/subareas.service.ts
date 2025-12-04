@@ -54,6 +54,10 @@ export class SubareasService {
     return this.subareasMapper.toSubareasDeUsuarioDtos(subareas);
   }
 
+  async findAllSubareasDeArea(areaId: string): Promise<SubareaDocumentType[]> {
+    return await this.subareasRepository.findAllSubareasDeArea(areaId);
+  }
+
   async findOne(id: string): Promise<Subarea | null> {
     return await this.subareasRepository.findOne(id);
   }

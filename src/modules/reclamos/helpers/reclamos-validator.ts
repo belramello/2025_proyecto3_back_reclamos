@@ -53,6 +53,18 @@ export class ReclamosValidator {
     return;
   }
 
+  async validateReclamoNoResuelto(
+    reclamo: ReclamoDocumentType,
+  ): Promise<string> {
+    if (reclamo.ultimoHistorialEstado instanceof Types.ObjectId) {
+      throw new BadRequestException('No se puede validar el estado actual');
+    }
+    if (reclamo.ultimoHistorialEstado.estado?.nombre == EstadosEnum.RESUELTO) {
+      throw new BadRequestException('El reclamo ya se encuentra resuelto');
+    }
+    return reclamo.ultimoHistorialEstado.estado?.nombre;
+  }
+
   async validateAreaExistente(areaId: string): Promise<Area> {
     const area = await this.areasValidator.validateAreaExistente(areaId);
     return area;
@@ -86,11 +98,7 @@ export class ReclamosValidator {
     return subarea;
   }
 
-  //valida que el reclamo esté asignado al área al que pertenece el encargado. Falla si está asignado a subarea.
-  async validateAreaReclamoParaEncargado(
-    reclamo: Reclamo,
-    encargado: Usuario,
-  ): Promise<Area> {
+  async validateEncargado(encargado: Usuario): Promise<Area> {
     if (
       encargado.rol.nombre !== RolesEnum.ENCARGADO_DE_AREA ||
       !encargado.area
@@ -99,10 +107,19 @@ export class ReclamosValidator {
         `El usuario no es un encargado de área o no tiene un área asignada`,
       );
     }
+    return encargado.area;
+  }
+
+  //valida que el reclamo esté asignado al área al que pertenece el encargado. Falla si está asignado a subarea.
+  async validateAreaReclamoParaEncargado(
+    reclamo: Reclamo,
+    encargado: Usuario,
+  ): Promise<Area> {
+    const areaEncargado = await this.validateEncargado(encargado);
     const ultimaAsignacion = reclamo.ultimoHistorialAsignacion;
     if (
       !(ultimaAsignacion instanceof Types.ObjectId) &&
-      encargado.area.nombre !== ultimaAsignacion.haciaArea?.nombre
+      areaEncargado.nombre !== ultimaAsignacion.haciaArea?.nombre
     ) {
       throw new UnauthorizedException(
         `El usuario no pertenece al área asignada del reclamo`,
@@ -116,7 +133,7 @@ export class ReclamosValidator {
         `El reclamo está asignado a una subárea, no a un encargado de área`,
       );
     }
-    return encargado.area;
+    return areaEncargado;
   }
 
   //valida que el usuario exista y que pertenece al área asignada del reclamo.

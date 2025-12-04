@@ -26,6 +26,10 @@ export class AreasService {
     return await this.areasRepository.findOne(id);
   }
 
+  async findOneByNombre(nombre: string): Promise<AreaDocumentType | null> {
+    return await this.areasRepository.findOneByNombre(nombre);
+  }
+
   update(id: number, updateAreaDto: UpdateAreaDto) {
     return `This action updates a #${id} area`;
   }

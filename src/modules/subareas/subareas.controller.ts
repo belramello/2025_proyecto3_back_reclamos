@@ -25,8 +25,8 @@ export class SubareasController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('subareas-de-empleado')
-  async findAllSubareasDeUsuario(@Req() req: RequestWithUsuario) {
+  @Get('subareas-de-usuario')
+  async findAllSubareasDeEmpleado(@Req() req: RequestWithUsuario) {
     return this.subareasService.findAllSubareasDeUsuario(
       String(req.usuario._id),
     );

@@ -41,6 +41,16 @@ export class UsuarioController {
     );
   }
 
+  @UseGuards(AuthGuard)
+  @Get('/empleados-area')
+  async findAllEmpleadosDeArea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    return await this.usuarioService.findAllEmpleadosDeAreaDelUsuario(
+      String(req.usuario._id),
+    );
+  }
+
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     return this.usuarioService.findAll();
