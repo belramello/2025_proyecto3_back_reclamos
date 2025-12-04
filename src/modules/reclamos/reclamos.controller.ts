@@ -17,6 +17,9 @@ import { AuthGuard } from '../../middlewares/auth.middleware';
 import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
 import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enums/permisos-enum';
+import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
+import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
+import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -35,6 +38,13 @@ export class ReclamosController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.reclamosService.findOne(id);
+  }
+
+  @UseGuards(AuthGuard)
+  //@PermisoRequerido(PermisosEnum.VISUALIZAR_ESTADO_RECLAMO)
+  @Get('historial/:id')
+  consultarHistorialReclamo(@Param('id') id: string) {
+    return this.reclamosService.consultarHistorialReclamo(id);
   }
 
   @Patch(':id')
@@ -63,9 +73,55 @@ export class ReclamosController {
   asignarReclamoASubarea(
     @Param('id', ParseMongoIdPipe) id: string,
     @Req() req: RequestWithUsuario,
-    @Body() subareaAAsignarDto: { subareaId: string },
+    @Body() subareaAAsignarDto: SubareaAAsignarDto,
   ) {
     return this.reclamosService.asignarReclamoASubarea(
+      id,
+      req.usuario,
+      subareaAAsignarDto.subareaId,
+      subareaAAsignarDto.comentario,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMO_A_EMPLEADO)
+  @Patch('asignar-empleado/:id')
+  asignarReclamoAEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() empleadoAAsignarDto: EmpleadoAASignarDto,
+  ) {
+    return this.reclamosService.asignarReclamoAEmpleado(
+      id,
+      req.usuario,
+      empleadoAAsignarDto.empleadoId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('reasignar-empleado/:id')
+  reasignacionReclamoAEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() empleadoAAsignarDto: EmpleadoAASignarDto,
+  ) {
+    return this.reclamosService.reasignarReclamoAEmpleado(
+      id,
+      req.usuario,
+      empleadoAAsignarDto.empleadoId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  @Patch('reasignar-subarea/:id')
+  reasignacionReclamoASubarea(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Req() req: RequestWithUsuario,
+    @Body() subareaAAsignarDto: SubareaAAsignarDto,
+  ) {
+    return this.reclamosService.reasignarReclamoASubarea(
       id,
       req.usuario,
       subareaAAsignarDto.subareaId,
@@ -74,16 +130,16 @@ export class ReclamosController {
 
   @UseGuards(AuthGuard)
   @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
-  @Patch('asignar-empleado/:id')
-  asignarReclamoAEmpleado(
+  @Patch('reasignar-area/:id')
+  reasignacionReclamoAArea(
     @Param('id', ParseMongoIdPipe) id: string,
     @Req() req: RequestWithUsuario,
-    @Body() empleadoAAsignarDto: { empleadoId: string },
+    @Body() areaAAsignarDto: AreaAAsignarDto,
   ) {
-    return this.reclamosService.asignarReclamoAEmpleado(
+    return this.reclamosService.reasignarReclamoAArea(
       id,
       req.usuario,
-      empleadoAAsignarDto.empleadoId,
+      areaAAsignarDto.areaId,
     );
   }
 }
