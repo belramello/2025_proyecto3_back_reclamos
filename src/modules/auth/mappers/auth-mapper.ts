@@ -20,7 +20,7 @@ export class AuthMapper {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol.nombre,
-        permisos: usuario.rol.permisos.map((permiso) => permiso.nombre),
+        permisos: usuario.rol.permisos.map((permiso) => permiso),
       },
     };
   }
