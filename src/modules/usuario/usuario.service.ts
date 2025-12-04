@@ -113,14 +113,17 @@ export class UsuarioService {
     };
 
     // 5. Guardar en Base de Datos usando el repositorio existente
-    const nuevoUsuario = await this.usuariosRepository.create(usuarioConPass, rol);
+    const nuevoUsuario = await this.usuariosRepository.create(
+      usuarioConPass,
+      rol,
+    );
 
     // 6. Simular envío de email (Requisito del proyecto)
     this.enviarEmailBienvenida(nuevoUsuario.email, tempPassword);
 
     return this.usuarioMappers.toResponseDto(nuevoUsuario);
   }
-//esto desp lo tengo que borrar
+  //esto desp lo tengo que borrar
   private enviarEmailBienvenida(email: string, tempPass: string) {
     console.log('================================================');
     console.log(`📧 SIMULANDO ENVÍO DE EMAIL A: ${email}`);

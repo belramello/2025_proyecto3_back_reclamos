@@ -14,6 +14,7 @@ export class AsignacionAreaSubareaStrategy implements IAsignacionStrategy {
       desdeArea: data.desdeArea,
       haciaArea: data.haciaArea,
       haciaSubarea: data.haciaSubarea,
+      comentario: data.comentario,
       tipoAsignacion: TipoAsignacionesEnum.DE_AREA_A_SUBAREA,
     };
   }
