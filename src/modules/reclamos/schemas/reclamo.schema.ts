@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
-import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
+import { HistorialAsignacion } from '../../../modules/historial-asignacion/schemas/historial-asignacion.schema';
+import { HistorialEstado } from '../../../modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from '../../proyectos/schemas/proyecto.schema';
 
 export type ReclamoDocumentType = Reclamo & Document;

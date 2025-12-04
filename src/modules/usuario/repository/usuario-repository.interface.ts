@@ -1,4 +1,4 @@
-import { Rol } from 'src/modules/roles/schema/rol.schema';
+import { Rol } from '../../../modules/roles/schema/rol.schema';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UsuarioDocumentType } from '../schema/usuario.schema';
 

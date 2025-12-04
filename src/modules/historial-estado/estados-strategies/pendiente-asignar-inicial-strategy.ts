@@ -3,8 +3,8 @@ import { ICreacionHistorialStrategy } from './creacion-historial-strategy.interf
 import { TipoCreacionHistorialEnum } from '../enums/tipo-creacion-historial.enum';
 import { CrearHistorialEstadoDto } from '../dto/create-historial-estado.dto';
 import { HistorialEstado } from '../schema/historial-estado.schema';
-import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
-import { EstadosService } from 'src/modules/estados/estados.service';
+import { EstadosEnum } from '../../../modules/estados/enums/estados-enum';
+import { EstadosService } from '../../../modules/estados/estados.service';
 
 @Injectable()
 export class InicialPendienteAAsignarStrategy

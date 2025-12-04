@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Area } from 'src/modules/areas/schemas/area.schema';
-import { Rol } from 'src/modules/roles/schema/rol.schema';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { Area } from '../../../modules/areas/schemas/area.schema';
+import { Rol } from '../../../modules/roles/schema/rol.schema';
+import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 
 export type UsuarioDocumentType = Usuario & Document;
 

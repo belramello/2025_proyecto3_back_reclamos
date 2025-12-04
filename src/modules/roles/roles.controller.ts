@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { RespuestaFindOneRolesDto } from './dto/respuesta-find-one-roles.dto';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
 
 @Controller('roles')
 export class RolesController {

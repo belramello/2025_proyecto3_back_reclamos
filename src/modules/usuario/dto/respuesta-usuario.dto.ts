@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
 import { IsString, IsOptional, IsEmail, IsNotEmpty } from 'class-validator';
-import { Rol } from 'src/modules/roles/schema/rol.schema';
+import { Rol } from '../../../modules/roles/schema/rol.schema';
 
 @Exclude()
 export class RespuestaUsuarioDto {

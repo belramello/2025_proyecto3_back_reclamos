@@ -6,8 +6,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ReclamosService } from 'src/modules/reclamos/reclamos.service';
-import { UsuarioService } from 'src/modules/usuario/usuario.service';
+import { ReclamosService } from '../../../modules/reclamos/reclamos.service';
+import { UsuarioService } from '../../../modules/usuario/usuario.service';
 import { Types } from 'mongoose';
 import type { IFeedbackRepository } from '../repository/feedback-repository.interface';
 

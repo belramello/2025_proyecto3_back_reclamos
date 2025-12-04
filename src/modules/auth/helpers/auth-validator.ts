@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { comparePasswords } from './password-helper';
-import { UsuarioService } from 'src/modules/usuario/usuario.service';
+import { UsuarioService } from '../../../modules/usuario/usuario.service';
 import {
   Usuario,
   UsuarioDocumentType,
-} from 'src/modules/usuario/schema/usuario.schema';
-import { RespuestaUsuarioDto } from 'src/modules/usuario/dto/respuesta-usuario.dto';
+} from '../../../modules/usuario/schema/usuario.schema';
+import { RespuestaUsuarioDto } from '../../../modules/usuario/dto/respuesta-usuario.dto';
 @Injectable()
 export class AuthValidator {
   constructor(private readonly usuarioservice: UsuarioService) {}

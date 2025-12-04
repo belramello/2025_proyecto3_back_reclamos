@@ -8,14 +8,14 @@ import {
 } from '@nestjs/common';
 import { ReclamosService } from '../reclamos.service';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
-import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
-import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { EstadosEnum } from '../../../modules/estados/enums/estados-enum';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
+import { RolesEnum } from '../../../modules/roles/enums/roles-enum';
+import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { Types } from 'mongoose';
-import { Area } from 'src/modules/areas/schemas/area.schema';
-import { SubareasValidator } from 'src/modules/subareas/helpers/subareas-validator';
-import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
+import { Area } from '../../../modules/areas/schemas/area.schema';
+import { SubareasValidator } from '../../../modules/subareas/helpers/subareas-validator';
+import { UsuariosValidator } from '../../../modules/usuario/helpers/usuarios-validator';
 
 @Injectable()
 export class ReclamosValidator {

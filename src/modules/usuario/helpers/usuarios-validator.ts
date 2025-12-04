@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { UsuarioService } from '../usuario.service';
 import { Usuario } from '../schema/usuario.schema';
-import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
+import { RolesEnum } from '../../../modules/roles/enums/roles-enum';
 
 @Injectable()
 export class UsuariosValidator {

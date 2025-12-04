@@ -12,10 +12,10 @@ import {
 import { ReclamosService } from './reclamos.service';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
 import { UpdateReclamoDto } from './dto/update-reclamo.dto';
-import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enums/permisos-enum';
 
 @Controller('reclamos')

@@ -1,6 +1,6 @@
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;

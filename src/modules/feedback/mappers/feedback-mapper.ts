@@ -5,8 +5,8 @@ import { Feedback } from '../schemas/feedback.schema';
 import { RespuestaCreateFeedbackDto } from '../dto/respuesta-create-feedback.dto';
 import { RespuestaFeedbackDto } from '../dto/respuesta-feedback.dto';
 import { RespuestaFindAllPaginatedFeedbackDTO } from '../dto/respuesta-find-all-paginated-dto';
-import { Reclamo } from 'src/modules/reclamos/schemas/reclamo.schema';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Reclamo } from '../../../modules/reclamos/schemas/reclamo.schema';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 import { Types } from 'mongoose';
 
 @Injectable()

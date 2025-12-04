@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
+import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 
 export type AreaDocumentType = Area & Document;
 

@@ -7,7 +7,7 @@ import {
 import { PermisosService } from '../../../modules/permisos/permisos.service';
 import { RolesService } from '../roles.service';
 import { Rol } from '../schema/rol.schema';
-import { Permiso } from 'src/modules/permisos/schemas/permiso.schema';
+import { Permiso } from '../../../modules/permisos/schemas/permiso.schema';
 
 @Injectable()
 export class RolesValidator {

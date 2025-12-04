@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { IUsuarioRepository } from './usuario-repository.interface';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
-import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
+import { RolDocumentType } from '../../../modules/roles/schema/rol.schema';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {

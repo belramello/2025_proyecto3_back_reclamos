@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RespuestaUsuarioDto } from '../../../modules/usuario/dto/respuesta-usuario.dto';
 import { IUsuarioAuth } from '../interface/usuario-auth.interface';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 
 type LoginUsuario = RespuestaUsuarioDto | Usuario | IUsuarioAuth;
 
