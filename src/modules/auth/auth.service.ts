@@ -7,8 +7,7 @@ import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { hashPassword } from './helpers/password-helper';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
-import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
-import { UsuarioController } from '../usuario/usuario.controller';
+import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 
 @Injectable()
 export class AuthService {

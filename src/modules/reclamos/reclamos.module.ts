@@ -10,6 +10,7 @@ import { UsuarioModule } from '../usuario/usuario.module';
 import { HistorialAsignacionModule } from '../historial-asignacion/historial-asignacion.module';
 import { HistorialEstadoModule } from '../historial-estado/historial-estado.module';
 import { SubareasModule } from '../subareas/subareas.module';
+import { AreasModule } from '../areas/areas.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SubareasModule } from '../subareas/subareas.module';
     JwtModule,
     UsuarioModule,
     SubareasModule,
+    AreasModule,
     forwardRef(() => HistorialEstadoModule),
     HistorialAsignacionModule,
   ],
