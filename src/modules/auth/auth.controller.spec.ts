@@ -14,11 +14,11 @@ const MOCK_PASSWORD = 'securepassword';
 
 // 1. DTOs de entrada
 const mockLoginDto: LoginDto = { email: MOCK_EMAIL, contraseña: MOCK_PASSWORD };
-const mockCreateDto: CreateUsuarioDto = { 
-  nombreUsuario: 'newuser', 
-  email: 'new@example.com', 
-  contraseña: MOCK_PASSWORD, 
-  rol: 'rol-1' 
+const mockCreateDto: CreateUsuarioDto = {
+  nombreUsuario: 'newuser',
+  email: 'new@example.com',
+  contraseña: MOCK_PASSWORD,
+  rol: 'rol-1',
 };
 
 // 2. DTO de respuesta esperado
@@ -39,7 +39,6 @@ const mockAuthService = {
   register: jest.fn().mockResolvedValue(mockLoginResponse),
   refresh: jest.fn().mockResolvedValue(mockLoginResponse),
 };
-
 
 describe('AuthController', () => {
   let controller: AuthController;
