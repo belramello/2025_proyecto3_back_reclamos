@@ -28,7 +28,6 @@ export class UsuarioController {
     return this.usuarioService.createCliente(createUsuarioDto);
   }
 
-
   // POST /usuarios (Creación genérica que ya estaba)
   @Post()
   async create(
