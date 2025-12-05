@@ -8,7 +8,11 @@ import { FeedbackValidator } from './helpers/feedback-validator';
 import { FeedbackMapper } from './mappers/feedback-mapper';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { PaginationFeedbackDto } from './dto/pagination-feedback.dto';
-import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Types } from 'mongoose'; // Necesaria para el test de ObjectId
 
 // --- MOCKS DE DATOS ---
@@ -32,7 +36,11 @@ const mockPaginationDto: PaginationFeedbackDto = {
 const mockFeedbackDocument = {
   valoracion: 5,
   comentario: 'Excelente servicio.',
-  reclamo: { nroTicket: 'R123', descripcion: 'Issue', ultimoHistorialEstado: 'CERRADO' },
+  reclamo: {
+    nroTicket: 'R123',
+    descripcion: 'Issue',
+    ultimoHistorialEstado: 'CERRADO',
+  },
   cliente: { nombre: 'Cliente Test', email: 'c@test.com' },
   fechaCreacion: new Date(),
 };
@@ -67,9 +75,10 @@ const mockFeedbackValidator = {
 
 const mockFeedbackMapper = {
   toRespuestaCreateFeedback: jest.fn().mockReturnValue({ valoracion: 5 }),
-  toRespuestaFindAllPaginatedFeedbackDto: jest.fn().mockReturnValue(mockRespuestaPaginatedDto),
+  toRespuestaFindAllPaginatedFeedbackDto: jest
+    .fn()
+    .mockReturnValue(mockRespuestaPaginatedDto),
 };
-
 
 describe('FeedbackService', () => {
   let service: FeedbackService;
@@ -102,7 +111,7 @@ describe('FeedbackService', () => {
     repository = module.get<IFeedbackRepository>('IFeedbackRepository');
     validator = module.get<FeedbackValidator>(FeedbackValidator);
     mapper = module.get<FeedbackMapper>(FeedbackMapper);
-    
+
     jest.clearAllMocks();
   });
 
@@ -115,7 +124,6 @@ describe('FeedbackService', () => {
   // ----------------------------------------------------------------
   describe('create', () => {
     it('debe llamar al validador, crear el feedback y mapear la respuesta (ÉXITO)', async () => {
-      
       const result = await service.create(mockCreateDto);
 
       // 1. Verificación del validador
@@ -146,7 +154,7 @@ describe('FeedbackService', () => {
       await expect(service.create(mockCreateDto)).rejects.toThrow(
         NotFoundException,
       );
-      
+
       // Aseguramos que el repositorio no se llama si la validación falla
       expect(repository.createFeedback).not.toHaveBeenCalled();
     });
@@ -158,7 +166,6 @@ describe('FeedbackService', () => {
   describe('findAll', () => {
     // CASO 1: Paginación con valores definidos
     it('debe llamar al repositorio con limit/page correctos y mapear la respuesta', async () => {
-      
       const result = await service.findAll(mockPaginationDto);
 
       // 1. Verificación del repositorio (usa los valores del DTO)
@@ -168,9 +175,9 @@ describe('FeedbackService', () => {
       );
 
       // 2. Verificación del mapper
-      expect(mapper.toRespuestaFindAllPaginatedFeedbackDto).toHaveBeenCalledWith(
-        mockPaginatedRepoResponse,
-      );
+      expect(
+        mapper.toRespuestaFindAllPaginatedFeedbackDto,
+      ).toHaveBeenCalledWith(mockPaginatedRepoResponse);
 
       // 3. Resultado esperado
       expect(result).toEqual(mockRespuestaPaginatedDto);
@@ -178,9 +185,8 @@ describe('FeedbackService', () => {
 
     // CASO 2: Paginación con valores por defecto
     it('debe llamar al repositorio con limit=10 y page=1 si no se provee DTO', async () => {
-      
       // Llamamos con un DTO vacío o undefined
-      await service.findAll({}); 
+      await service.findAll({});
 
       // Verificación de valores por defecto
       expect(repository.findAllPaginated).toHaveBeenCalledWith(1, 10);
@@ -193,130 +199,171 @@ describe('FeedbackService', () => {
 // ----------------------------------------------------------------
 // NOTE: ReclamosService y UsuarioService ya deben estar importados arriba
 describe('FeedbackValidator', () => {
-    let validator: FeedbackValidator;
-    
-    // Mocks de dependencias del Validator
-    const mockReclamosService = {
-        findOne: jest.fn(),
-    };
-    const mockUsuariosService = {
-        findOne: jest.fn(),
-    };
-    const mockFeedbackRepositoryForValidator = {
-        findByReclamoYCliente: jest.fn(),
-    };
+  let validator: FeedbackValidator;
 
-    // Datos de prueba para el Reclamo (con el cliente poblado, como lo espera el validator)
-    const MOCK_RECLAMO_POBLADO: any = {
-        _id: MOCK_RECLAMO_ID,
+  // Mocks de dependencias del Validator
+  const mockReclamosService = {
+    findOne: jest.fn(),
+  };
+  const mockUsuariosService = {
+    findOne: jest.fn(),
+  };
+  const mockFeedbackRepositoryForValidator = {
+    findByReclamoYCliente: jest.fn(),
+  };
+
+  // Datos de prueba para el Reclamo (con el cliente poblado, como lo espera el validator)
+  const MOCK_RECLAMO_POBLADO: any = {
+    _id: MOCK_RECLAMO_ID,
+    proyecto: {
+      cliente: {
+        _id: MOCK_CLIENTE_ID,
+        nombre: 'Cliente',
+      },
+    },
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        FeedbackValidator,
+        {
+          provide: 'IFeedbackRepository',
+          useValue: mockFeedbackRepositoryForValidator,
+        },
+        // Las clases ReclamosService y UsuarioService DEBEN ESTAR IMPORTADAS
+        { provide: ReclamosService, useValue: mockReclamosService },
+        { provide: UsuarioService, useValue: mockUsuariosService },
+      ],
+    }).compile();
+
+    validator = module.get<FeedbackValidator>(FeedbackValidator);
+
+    jest.clearAllMocks();
+    // Configuraciones base de éxito
+    mockReclamosService.findOne.mockResolvedValue(MOCK_RECLAMO_POBLADO);
+    mockUsuariosService.findOne.mockResolvedValue({ _id: MOCK_CLIENTE_ID });
+    mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(
+      null,
+    );
+  });
+
+  // ----------------------------------------------------------------
+  // 3.1. validateCreateFeedback (Método de control)
+  // ----------------------------------------------------------------
+  describe('validateCreateFeedback', () => {
+    it('debe pasar si todas las validaciones son exitosas', async () => {
+      const result = await validator.validateCreateFeedback(
+        MOCK_RECLAMO_ID,
+        MOCK_CLIENTE_ID,
+      );
+      expect(mockReclamosService.findOne).toHaveBeenCalled();
+      expect(mockUsuariosService.findOne).toHaveBeenCalled();
+      expect(
+        mockFeedbackRepositoryForValidator.findByReclamoYCliente,
+      ).toHaveBeenCalled();
+      expect(result).toEqual(MOCK_RECLAMO_POBLADO);
+    });
+  });
+
+  // ----------------------------------------------------------------
+  // 3.2. validateReclamoExistente
+  // ----------------------------------------------------------------
+  describe('validateReclamoExistente', () => {
+    it('debe lanzar NotFoundException si el reclamo no existe', async () => {
+      mockReclamosService.findOne.mockResolvedValue(null);
+      await expect(
+        validator.validateReclamoExistente(MOCK_RECLAMO_ID),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ----------------------------------------------------------------
+  // 3.3. validateUsuarioExistente
+  // ----------------------------------------------------------------
+  describe('validateUsuarioExistente', () => {
+    it('debe lanzar NotFoundException si el usuario no existe', async () => {
+      mockUsuariosService.findOne.mockResolvedValue(null);
+      await expect(
+        validator.validateUsuarioExistente(MOCK_CLIENTE_ID),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ----------------------------------------------------------------
+  // 3.4. validateUsuarioEsCliente
+  // ----------------------------------------------------------------
+  describe('validateUsuarioEsCliente', () => {
+    it('debe pasar si el ID del usuario coincide con el ID del cliente del reclamo', () => {
+      // El mock MOCK_RECLAMO_POBLADO ya está configurado correctamente
+      expect(() =>
+        validator.validateUsuarioEsCliente(
+          MOCK_RECLAMO_POBLADO,
+          MOCK_CLIENTE_ID,
+        ),
+      ).not.toThrow();
+    });
+
+    it('debe lanzar BadRequestException si el reclamo no contiene proyecto', () => {
+      const reclamoSinProyecto = {};
+      expect(() =>
+        validator.validateUsuarioEsCliente(reclamoSinProyecto, MOCK_CLIENTE_ID),
+      ).toThrow(BadRequestException);
+    });
+
+    it('debe lanzar BadRequestException si el proyecto no contiene cliente', () => {
+      const reclamoSinCliente = { proyecto: {} };
+      expect(() =>
+        validator.validateUsuarioEsCliente(reclamoSinCliente, MOCK_CLIENTE_ID),
+      ).toThrow(BadRequestException);
+    });
+
+    it('debe lanzar BadRequestException si el cliente no está poblado (es un ObjectId)', () => {
+      const reclamoClienteNoPoblado = {
         proyecto: {
-            cliente: { 
-                _id: MOCK_CLIENTE_ID, 
-                nombre: 'Cliente' 
-            }
-        }
-    };
-
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                FeedbackValidator,
-                { provide: 'IFeedbackRepository', useValue: mockFeedbackRepositoryForValidator },
-                // Las clases ReclamosService y UsuarioService DEBEN ESTAR IMPORTADAS
-                { provide: ReclamosService, useValue: mockReclamosService },
-                { provide: UsuarioService, useValue: mockUsuariosService },
-            ],
-        }).compile();
-
-        validator = module.get<FeedbackValidator>(FeedbackValidator);
-        
-        jest.clearAllMocks();
-        // Configuraciones base de éxito
-        mockReclamosService.findOne.mockResolvedValue(MOCK_RECLAMO_POBLADO);
-        mockUsuariosService.findOne.mockResolvedValue({ _id: MOCK_CLIENTE_ID });
-        mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(null);
-    });
-    
-    // ----------------------------------------------------------------
-    // 3.1. validateCreateFeedback (Método de control)
-    // ----------------------------------------------------------------
-    describe('validateCreateFeedback', () => {
-        it('debe pasar si todas las validaciones son exitosas', async () => {
-            const result = await validator.validateCreateFeedback(MOCK_RECLAMO_ID, MOCK_CLIENTE_ID);
-            expect(mockReclamosService.findOne).toHaveBeenCalled();
-            expect(mockUsuariosService.findOne).toHaveBeenCalled();
-            expect(mockFeedbackRepositoryForValidator.findByReclamoYCliente).toHaveBeenCalled();
-            expect(result).toEqual(MOCK_RECLAMO_POBLADO);
-        });
+          // No hay necesidad de importar Types, ya está importado arriba
+          cliente: new Types.ObjectId(), // Instancia de ObjectId
+        },
+      };
+      expect(() =>
+        validator.validateUsuarioEsCliente(
+          reclamoClienteNoPoblado,
+          MOCK_CLIENTE_ID,
+        ),
+      ).toThrow(BadRequestException);
     });
 
-    // ----------------------------------------------------------------
-    // 3.2. validateReclamoExistente
-    // ----------------------------------------------------------------
-    describe('validateReclamoExistente', () => {
-        it('debe lanzar NotFoundException si el reclamo no existe', async () => {
-            mockReclamosService.findOne.mockResolvedValue(null);
-            await expect(validator.validateReclamoExistente(MOCK_RECLAMO_ID)).rejects.toThrow(NotFoundException);
-        });
+    it('debe lanzar UnauthorizedException si el usuario NO es el cliente del reclamo', () => {
+      const OTRO_CLIENTE_ID = '999999999999999999999999';
+      expect(() =>
+        validator.validateUsuarioEsCliente(
+          MOCK_RECLAMO_POBLADO,
+          OTRO_CLIENTE_ID,
+        ),
+      ).toThrow(UnauthorizedException);
+    });
+  });
+
+  // ----------------------------------------------------------------
+  // 3.5. validateNoFeedbackDuplicado
+  // ----------------------------------------------------------------
+  describe('validateNoFeedbackDuplicado', () => {
+    it('debe lanzar BadRequestException si ya existe un feedback previo', async () => {
+      mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(
+        MOCK_RECLAMO_POBLADO,
+      ); // Devuelve un existente
+      await expect(
+        validator.validateNoFeedbackDuplicado(MOCK_RECLAMO_ID, MOCK_CLIENTE_ID),
+      ).rejects.toThrow(BadRequestException);
     });
 
-    // ----------------------------------------------------------------
-    // 3.3. validateUsuarioExistente
-    // ----------------------------------------------------------------
-    describe('validateUsuarioExistente', () => {
-        it('debe lanzar NotFoundException si el usuario no existe', async () => {
-            mockUsuariosService.findOne.mockResolvedValue(null);
-            await expect(validator.validateUsuarioExistente(MOCK_CLIENTE_ID)).rejects.toThrow(NotFoundException);
-        });
+    it('debe pasar si no existe feedback previo', async () => {
+      mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(
+        null,
+      );
+      await expect(
+        validator.validateNoFeedbackDuplicado(MOCK_RECLAMO_ID, MOCK_CLIENTE_ID),
+      ).resolves.toBeUndefined();
     });
-
-    // ----------------------------------------------------------------
-    // 3.4. validateUsuarioEsCliente
-    // ----------------------------------------------------------------
-    describe('validateUsuarioEsCliente', () => {
-        it('debe pasar si el ID del usuario coincide con el ID del cliente del reclamo', () => {
-            // El mock MOCK_RECLAMO_POBLADO ya está configurado correctamente
-            expect(() => validator.validateUsuarioEsCliente(MOCK_RECLAMO_POBLADO, MOCK_CLIENTE_ID)).not.toThrow();
-        });
-
-        it('debe lanzar BadRequestException si el reclamo no contiene proyecto', () => {
-            const reclamoSinProyecto = {};
-            expect(() => validator.validateUsuarioEsCliente(reclamoSinProyecto, MOCK_CLIENTE_ID)).toThrow(BadRequestException);
-        });
-
-        it('debe lanzar BadRequestException si el proyecto no contiene cliente', () => {
-            const reclamoSinCliente = { proyecto: {} };
-            expect(() => validator.validateUsuarioEsCliente(reclamoSinCliente, MOCK_CLIENTE_ID)).toThrow(BadRequestException);
-        });
-
-        it('debe lanzar BadRequestException si el cliente no está poblado (es un ObjectId)', () => {
-            const reclamoClienteNoPoblado = { 
-                proyecto: { 
-                    // No hay necesidad de importar Types, ya está importado arriba
-                    cliente: new Types.ObjectId() // Instancia de ObjectId
-                } 
-            };
-            expect(() => validator.validateUsuarioEsCliente(reclamoClienteNoPoblado, MOCK_CLIENTE_ID)).toThrow(BadRequestException);
-        });
-
-        it('debe lanzar UnauthorizedException si el usuario NO es el cliente del reclamo', () => {
-            const OTRO_CLIENTE_ID = '999999999999999999999999';
-            expect(() => validator.validateUsuarioEsCliente(MOCK_RECLAMO_POBLADO, OTRO_CLIENTE_ID)).toThrow(UnauthorizedException);
-        });
-    });
-
-    // ----------------------------------------------------------------
-    // 3.5. validateNoFeedbackDuplicado
-    // ----------------------------------------------------------------
-    describe('validateNoFeedbackDuplicado', () => {
-        it('debe lanzar BadRequestException si ya existe un feedback previo', async () => {
-            mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(MOCK_RECLAMO_POBLADO); // Devuelve un existente
-            await expect(validator.validateNoFeedbackDuplicado(MOCK_RECLAMO_ID, MOCK_CLIENTE_ID)).rejects.toThrow(BadRequestException);
-        });
-        
-        it('debe pasar si no existe feedback previo', async () => {
-            mockFeedbackRepositoryForValidator.findByReclamoYCliente.mockResolvedValue(null);
-            await expect(validator.validateNoFeedbackDuplicado(MOCK_RECLAMO_ID, MOCK_CLIENTE_ID)).resolves.toBeUndefined();
-        });
-    });
+  });
 });
