@@ -2,31 +2,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IReclamosRepository } from './reclamos-repository.interface';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
-<<<<<<< HEAD
 import { HistorialAsignacionService } from '../../../modules/historial-asignacion/historial-asignacion.service';
 import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
-import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
-import { Area } from '../../../modules/areas/schemas/area.schema';
-import { AreasService } from 'src/modules/areas/areas.service';
-=======
-import { HistorialAsignacionService } from 'src/modules/historial-asignacion/historial-asignacion.service';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
-import { TipoAsignacionesEnum } from 'src/modules/historial-asignacion/enums/tipoAsignacionesEnum';
-import { HistorialEstadoService } from 'src/modules/historial-estado/historial-estado.service';
-import { TipoCreacionHistorialEnum } from 'src/modules/historial-estado/enums/tipo-creacion-historial.enum';
 import {
   forwardRef,
   Inject,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Area } from 'src/modules/areas/schemas/area.schema';
-import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
+import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 
