@@ -93,6 +93,7 @@
       "/seeds/",
       "/strategies/",
       "\\.interface\\.ts$",
+      "\\.module\\.ts$",
       "\\*strategy\\.ts$",
       "/estados-strategies/",
       "/asignacion-strategies/",
