@@ -95,7 +95,9 @@
       "\\.interface\\.ts$",
       "\\*strategy\\.ts$",
       "/estados-strategies/",
-      "/asignacion-strategies/"
+      "/asignacion-strategies/",
+      "/helpers/",
+      "/mappers/"
     ]
   }
 }

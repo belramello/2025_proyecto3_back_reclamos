@@ -11,15 +11,15 @@ import { Payload } from '../modules/jwt/interfaces/payload.interface'; // Ajusta
 const MOCK_USER_ID = '60c84c47f897f212d4a1b0c0';
 const MOCK_TOKEN = 'Bearer valid.jwt.token';
 
-const mockUsuarioDB: UsuarioDocumentType = { 
-    _id: MOCK_USER_ID, 
-    nombreUsuario: 'test_user' 
+const mockUsuarioDB: UsuarioDocumentType = {
+  _id: MOCK_USER_ID,
+  nombreUsuario: 'test_user',
 } as UsuarioDocumentType;
 
-const mockPayload: Payload = { 
-    sub: MOCK_USER_ID, 
-    email: 'test@example.com',
-    // Otros campos necesarios
+const mockPayload: Payload = {
+  sub: MOCK_USER_ID,
+  email: 'test@example.com',
+  // Otros campos necesarios
 };
 
 // --- MOCKS DE DEPENDENCIAS ---
@@ -33,12 +33,15 @@ const mockUsuarioService = {
 };
 
 // --- MOCK DE CONTEXTO DE EJECUCIÓN (ExecutionContext) ---
-const createMockContext = (token: string | null = MOCK_TOKEN): ExecutionContext => ({
+const createMockContext = (
+  token: string | null = MOCK_TOKEN,
+): ExecutionContext => ({
   switchToHttp: () => ({
-    getRequest: () => ({
-      headers: { authorization: token },
-      // Aquí simulamos la interfaz RequestWithUsuario (aunque inicialmente no tenga 'usuario')
-    }) as unknown as RequestWithUsuario,
+    getRequest: () =>
+      ({
+        headers: { authorization: token },
+        // Aquí simulamos la interfaz RequestWithUsuario (aunque inicialmente no tenga 'usuario')
+      }) as unknown as RequestWithUsuario,
     getResponse: jest.fn(),
     getNext: jest.fn(),
   }),
@@ -47,7 +50,6 @@ const createMockContext = (token: string | null = MOCK_TOKEN): ExecutionContext 
   getHandler: jest.fn(),
   getType: jest.fn(),
 });
-
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
@@ -81,7 +83,7 @@ describe('AuthGuard', () => {
   // 2.1. Token no existe (Coincide con la primera rama del if: if (!token))
   it('debe lanzar UnauthorizedException si no hay token en los headers', async () => {
     const context = createMockContext(null); // Sin token
-    
+
     await expect(guard.canActivate(context)).rejects.toThrow(
       UnauthorizedException,
     );
@@ -91,34 +93,36 @@ describe('AuthGuard', () => {
   // 2.2. Token inválido/expirado (Coincide con la segunda rama del if: if (!payload))
   it('debe lanzar UnauthorizedException si el token es inválido (getPayload retorna null/falsy)', async () => {
     mockJwtService.getPayload.mockReturnValue(null);
-    
+
     await expect(guard.canActivate(createMockContext())).rejects.toThrow(
       UnauthorizedException,
     );
     expect(mockJwtService.getPayload).toHaveBeenCalled();
     expect(mockUsuarioService.findOneForAuth).not.toHaveBeenCalled();
   });
-  
+
   // 2.3. Payload sin 'sub' (Coincide con la tercera rama del if: if (!payload.sub))
   it('debe lanzar UnauthorizedException si el payload no contiene el sub (ID)', async () => {
     const invalidPayload = { email: 'e@e.com' }; // Falta 'sub'
     mockJwtService.getPayload.mockReturnValue(invalidPayload);
-    
+
     await expect(guard.canActivate(createMockContext())).rejects.toThrow(
       UnauthorizedException,
     );
     expect(mockUsuarioService.findOneForAuth).not.toHaveBeenCalled();
   });
-  
+
   // 2.4. Usuario no encontrado (Coincide con la cuarta rama del if: if (!usuario))
   it('debe lanzar UnauthorizedException si el usuario no existe en la BD', async () => {
     mockJwtService.getPayload.mockReturnValue(mockPayload);
     mockUsuarioService.findOneForAuth.mockResolvedValue(null); // Usuario no existe
-    
+
     await expect(guard.canActivate(createMockContext())).rejects.toThrow(
       UnauthorizedException,
     );
-    expect(mockUsuarioService.findOneForAuth).toHaveBeenCalledWith(MOCK_USER_ID);
+    expect(mockUsuarioService.findOneForAuth).toHaveBeenCalledWith(
+      MOCK_USER_ID,
+    );
   });
 
   // ----------------------------------------------------------------
@@ -135,6 +139,8 @@ describe('AuthGuard', () => {
       UnauthorizedException,
     );
     // Verificamos que el mensaje es el genérico 'No autorizado' del catch
-    await expect(guard.canActivate(createMockContext())).rejects.toThrow('No autorizado');
+    await expect(guard.canActivate(createMockContext())).rejects.toThrow(
+      'No autorizado',
+    );
   });
 });
