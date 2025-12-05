@@ -105,6 +105,32 @@ export class ReclamosService {
     );
   }
 
+  async asignarReclamoAArea(
+    id: string,
+    encargado: Usuario,
+    areaId: string,
+    comentario?: string,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
+    const estadoActual =
+      await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
+    const areaOrigen =
+      await this.reclamosValidator.validateAreaReclamoParaEncargado(
+        reclamo,
+        encargado,
+      );
+    const areaDestino =
+      await this.reclamosValidator.validateAreaExistente(areaId);
+    return await this.reclamosRepository.asignarReclamoAArea(
+      reclamo,
+      encargado,
+      areaOrigen,
+      areaDestino,
+      estadoActual,
+      comentario,
+    );
+  }
+
   async reasignarReclamoAEmpleado(
     id: string,
     empleadoOrigen: Usuario,
@@ -172,6 +198,20 @@ export class ReclamosService {
       subareaOrigen,
       areaDestino,
       comentario,
+    );
+  }
+
+  async obtenerReclamosAsignados(empleadoId: string) {
+    await this.reclamosValidator.validateEmpleadoExistente(empleadoId);
+    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
+      empleadoId,
+    );
+  }
+
+  async obtenerReclamosPendientesDeArea(encargado: Usuario) {
+    const area = await this.reclamosValidator.validateEncargado(encargado);
+    return await this.reclamosRepository.obtenerReclamosPendientesDeArea(
+      area.nombre,
     );
   }
 }

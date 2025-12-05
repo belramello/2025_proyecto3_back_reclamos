@@ -3,6 +3,7 @@ import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UpdateUsuarioDto } from '../dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from '../dto/respuesta-usuario.dto';
+import { EmpleadoDeSubareaDto } from '../dto/empleado-de-subarea.dto';
 
 @Injectable()
 export class UsersMapper {
@@ -17,6 +18,23 @@ export class UsersMapper {
       //subarea: dto.subarea,
       //area: dto.area,
     };
+  }
+
+  public toEmpleadoDeSubareaDto(
+    usuario: UsuarioDocumentType,
+  ): EmpleadoDeSubareaDto {
+    return {
+      id: String(usuario._id),
+      nombre: usuario.nombre,
+    };
+  }
+
+  public toEmpleadoDeSubareaDtos(
+    usuarios: UsuarioDocumentType[],
+  ): EmpleadoDeSubareaDto[] {
+    return usuarios.map((usuario) => {
+      return this.toEmpleadoDeSubareaDto(usuario);
+    });
   }
 
   public toResponseDto(usuario: UsuarioDocumentType): RespuestaUsuarioDto {

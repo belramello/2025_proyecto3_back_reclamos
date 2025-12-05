@@ -11,17 +11,19 @@ export class Reclamo {
   @Prop({ required: true })
   nroTicket: string;
 
+  @Prop({ required: true })
+  titulo: string;
+
   //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
   @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: false })
   tipoReclamo?: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
 
   //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
   @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: false })
-  prioridad?: Types.ObjectId; //cambiar a Prioridad cuando exista el schema de Prioridad
+  prioridad?: string;
 
-  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
-  @Prop({ type: Types.ObjectId, ref: 'NivelCriticidad', required: false })
-  nivelCriticidad?: Types.ObjectId; //cambiar a NivelCriticidad cuando exista el schema de NivelCriticidad
+  @Prop({ required: true })
+  nivelCriticidad?: number;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];

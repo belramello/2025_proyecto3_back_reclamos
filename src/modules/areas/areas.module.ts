@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Area, AreaSchema } from './schemas/area.schema';
 import { AreaRepository } from './repositories/areas-repository';
 import { AreasValidator } from './helpers/areas-validator';
+import { AreasMapper } from './helpers/areas-mapper';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { AreasValidator } from './helpers/areas-validator';
       useClass: AreaRepository,
     },
     AreasValidator,
+    AreasMapper,
   ],
-  exports: [AreasValidator],
+  exports: [AreasValidator, AreasService],
 })
 export class AreasModule {}

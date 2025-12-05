@@ -8,12 +8,17 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
-import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { AuthGuard } from 'src/middlewares/auth.middleware';
+import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import { EmpleadoDeSubareaDto } from './dto/empleado-de-subarea.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -36,13 +41,31 @@ export class UsuarioController {
     return this.usuarioService.create(createUsuarioDto);
   }
 
-  // GET /usuarios
+  @UseGuards(AuthGuard)
+  @Get('/empleados-subarea')
+  async findAllEmpleadosDeSubarea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    return await this.usuarioService.findAllEmpleadosDeSubareaDelUsuario(
+      String(req.usuario._id),
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/empleados-area')
+  async findAllEmpleadosDeArea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    return await this.usuarioService.findAllEmpleadosDeAreaDelUsuario(
+      String(req.usuario._id),
+    );
+  }
+
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     return this.usuarioService.findAll();
   }
 
-  // GET /usuarios/:id
   @Get(':id')
   async findOne(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -50,7 +73,6 @@ export class UsuarioController {
     return this.usuarioService.findOne(id);
   }
 
-  // PATCH /usuarios/:id
   @Patch(':id')
   async update(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -59,7 +81,6 @@ export class UsuarioController {
     return this.usuarioService.update(id, updateUsuarioDto);
   }
 
-  // DELETE /usuarios/:id
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {

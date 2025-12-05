@@ -6,10 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { SubareasService } from './subareas.service';
 import { CreateSubareaDto } from './dto/create-subarea.dto';
 import { UpdateSubareaDto } from './dto/update-subarea.dto';
+import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import { AuthGuard } from 'src/middlewares/auth.middleware';
 
 @Controller('subareas')
 export class SubareasController {
@@ -20,9 +24,12 @@ export class SubareasController {
     return this.subareasService.create(createSubareaDto);
   }
 
-  @Get()
-  findAll() {
-    return this.subareasService.findAll();
+  @UseGuards(AuthGuard)
+  @Get('subareas-de-usuario')
+  async findAllSubareasDeEmpleado(@Req() req: RequestWithUsuario) {
+    return this.subareasService.findAllSubareasDeUsuario(
+      String(req.usuario._id),
+    );
   }
 
   @Patch(':id')

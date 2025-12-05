@@ -1,8 +1,9 @@
 import {
+  ConflictException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -11,6 +12,8 @@ import type { IUsuarioRepository } from './repository/usuario-repository.interfa
 import { UsersMapper } from './mappers/usuario.mapper';
 import { UsuarioDocumentType } from './schema/usuario.schema';
 import { RolesValidator } from '../roles/helpers/roles-validator';
+import { UsuariosValidator } from './helpers/usuarios-validator';
+import { EmpleadoDeSubareaDto } from './dto/empleado-de-subarea.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -19,6 +22,8 @@ export class UsuarioService {
     @Inject('IUsuarioRepository')
     private readonly usuariosRepository: IUsuarioRepository,
     private readonly usuarioMappers: UsersMapper,
+    @Inject(forwardRef(() => UsuariosValidator))
+    private readonly usuariosValidator: UsuariosValidator,
     private readonly rolesValidator: RolesValidator,
   ) {}
 
@@ -73,6 +78,32 @@ export class UsuarioService {
       );
     }
     return this.usuarioMappers.toResponseDto(usuarioActualizado);
+  }
+
+  async findAllEmpleadosDeSubareaDelUsuario(
+    usuarioId: string,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    const usuario =
+      await this.usuariosValidator.validateEmpleadoExistente(usuarioId);
+    const subarea =
+      await this.usuariosValidator.validateSubareaAsignadaAEmpleado(usuario);
+    const empleados = await this.usuariosRepository.findAllEmpleadosDeSubarea(
+      subarea.nombre,
+    );
+    return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
+  }
+
+  async findAllEmpleadosDeAreaDelUsuario(
+    usuarioId: string,
+  ): Promise<EmpleadoDeSubareaDto[]> {
+    const usuario =
+      await this.usuariosValidator.validateEncargadoExistente(usuarioId);
+    const area =
+      await this.usuariosValidator.validateAreaAsignadaAEncargado(usuario);
+    const empleados = await this.usuariosRepository.findAllEmpleadosDeArea(
+      area.nombre,
+    );
+    return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
   }
 
   async remove(id: string): Promise<void> {
