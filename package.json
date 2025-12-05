@@ -81,6 +81,21 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/dto/",
+      "/schemas/",
+      "/enums/",
+      "/interfaces/",
+      "\\.d\\.ts$",
+      "main\\.ts$",
+      "/repositories/",
+      "/seeds/",
+      "/strategies/",
+      "\\.interface\\.ts$",
+      "\\*strategy\\.ts$",
+      "/estados-strategies/",
+      "/asignacion-strategies/"
+    ]
   }
 }
