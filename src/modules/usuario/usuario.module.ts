@@ -8,8 +8,9 @@ import { Rol, RolSchema } from '../roles/schema/rol.schema';
 import { Usuario, UsuarioSchema } from './schema/usuario.schema';
 import { RolesModule } from '../roles/roles.module';
 import { UsuariosValidator } from './helpers/usuarios-validator';
-import { UserContext } from './strategies/user-context';
-import { ProyectosModule } from '../proyectos/proyectos.module';
+import { UserContext } from './strategies/user-context'; 
+import { ProyectosModule } from '../proyectos/proyectos.module'; 
+import { SubareasModule } from '../subareas/subareas.module'; 
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProyectosModule } from '../proyectos/proyectos.module';
     ]),
     RolesModule,
     forwardRef(() => ProyectosModule), 
+    forwardRef(() => SubareasModule),  
   ],
   controllers: [UsuarioController],
   providers: [
@@ -29,7 +31,7 @@ import { ProyectosModule } from '../proyectos/proyectos.module';
       useClass: UsuarioMongoRepository,
     },
     UsersMapper,
-    UserContext, // Inyectamos el contexto de estrategias
+    UserContext, // TUYO
   ],
   exports: [UsuarioService, UsuariosValidator],
 })

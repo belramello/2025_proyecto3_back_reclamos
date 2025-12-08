@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Permiso } from 'src/modules/permisos/schemas/permiso.schema';
+import { Permiso } from '../../../modules/permisos/schemas/permiso.schema';
 
 export class RespuestaFindOneRolesDto {
   @ApiProperty({ example: '67ab31e01399c8f5920a1b3d' })

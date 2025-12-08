@@ -7,7 +7,7 @@ import {
 import { Request } from 'express';
 import { JwtService } from '../modules/jwt/jwt.service';
 import { UsuarioService } from '../modules/usuario/usuario.service';
-import { UsuarioDocumentType } from 'src/modules/usuario/schema/usuario.schema';
+import { UsuarioDocumentType } from '../modules/usuario/schema/usuario.schema';
 
 export interface RequestWithUsuario extends Request {
   usuario: UsuarioDocumentType;

@@ -5,7 +5,7 @@ import {
   HistorialEstado,
   HistorialEstadoDocumentType,
 } from '../schema/historial-estado.schema';
-import { ReclamosService } from 'src/modules/reclamos/reclamos.service';
+import { ReclamosService } from '../../../modules/reclamos/reclamos.service';
 import { forwardRef, Inject } from '@nestjs/common';
 
 export class HistorialEstadoRepository implements IHistorialEstadoRepository {

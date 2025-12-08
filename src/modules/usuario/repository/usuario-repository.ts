@@ -4,17 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { IUsuarioRepository } from './usuario-repository.interface';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
+import { SubareasService } from 'src/modules/subareas/subareas.service';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
   constructor(
     @InjectModel(Usuario.name)
     private readonly userModel: Model<UsuarioDocumentType>,
+    private readonly subareaService: SubareasService,
   ) {}
 
   async create(
@@ -49,6 +51,60 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al buscar todos los usuarios.`,
+      );
+    }
+  }
+
+  async findAllEmpleadosBySubareaId(
+    subareaId: string,
+  ): Promise<UsuarioDocumentType[]> {
+    try {
+      const subareaObjectId = new Types.ObjectId(subareaId);
+      const docs = await this.userModel
+        .find({ subarea: subareaObjectId })
+        .exec();
+      return docs;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar todos los usuarios pertenecientes a la subarea ${subareaId}.`,
+      );
+    }
+  }
+
+  async findAllEmpleadosDeSubarea(
+    nombreSubarea: string,
+  ): Promise<UsuarioDocumentType[]> {
+    try {
+      const subarea = await this.subareaService.findOneByNombre(nombreSubarea);
+      if (!subarea) {
+        throw new NotFoundException(
+          `Subarea con nombre ${nombreSubarea} no encontrada.`,
+        );
+      }
+      return await this.findAllEmpleadosBySubareaId(String(subarea._id));
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener empleados de la subarea ${nombreSubarea}: ${error.message}`,
+      );
+    }
+  }
+
+  async findAllEmpleadosDeArea(
+    nombreArea: string,
+  ): Promise<UsuarioDocumentType[]> {
+    try {
+      const subareas =
+        await this.subareaService.findAllSubareasDeArea(nombreArea);
+      let empleados: UsuarioDocumentType[] = [];
+      for (const subarea of subareas) {
+        empleados.push(
+          ...(await this.findAllEmpleadosBySubareaId(String(subarea._id))),
+        );
+      }
+      return empleados;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener empleados de la subarea ${nombreArea}: ${error.message}`,
       );
     }
   }

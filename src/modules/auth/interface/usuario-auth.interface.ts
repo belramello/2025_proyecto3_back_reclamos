@@ -1,5 +1,5 @@
-import { Permiso } from 'src/modules/permisos/schemas/permiso.schema';
-import { Rol } from 'src/modules/roles/schema/rol.schema';
+import { Permiso } from '../../../modules/permisos/schemas/permiso.schema';
+import { Rol } from '../../../modules/roles/schema/rol.schema';
 
 export interface IUsuarioAuth {
   id: string;

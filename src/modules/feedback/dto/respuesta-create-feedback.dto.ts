@@ -1,4 +1,4 @@
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 import { Reclamo } from '../../../modules/reclamos/schemas/reclamo.schema';
 
 export class RespuestaCreateFeedbackDto {

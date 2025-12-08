@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PERMISO_REQUERIDO_KEY } from '../decorators/permiso-requerido.decorator';
 import { RequestWithUsuario } from '../../middlewares/auth.middleware';
-import { PermisosEnum } from 'src/modules/permisos/enums/permisos-enum';
+import { PermisosEnum } from '../../modules/permisos/enums/permisos-enum';
 
 @Injectable()
 export class PermisosGuard implements CanActivate {

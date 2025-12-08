@@ -17,6 +17,7 @@ export class AsignacionEmpleadoEmpleadoStrategy implements IAsignacionStrategy {
       haciaSubarea: data.haciaSubarea,
       deEmpleado: data.desdeEmpleado,
       haciaEmpleado: data.haciaEmpleado,
+      comentario: data.comentario,
       tipoAsignacion: TipoAsignacionesEnum.DE_EMPLEADO_A_EMPLEADO,
     };
   }

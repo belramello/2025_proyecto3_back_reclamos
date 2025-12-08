@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { PermisosEnum } from 'src/modules/permisos/enums/permisos-enum';
+import { PermisosEnum } from '../../modules/permisos/enums/permisos-enum';
 
 export const PERMISO_REQUERIDO_KEY = 'permiso_requerido';
 

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Reclamo } from 'src/modules/reclamos/schemas/reclamo.schema';
-import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Reclamo } from '../../../modules/reclamos/schemas/reclamo.schema';
+import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 
 export type FeedbackDocument = HydratedDocument<Feedback>;
 
