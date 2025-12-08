@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { PermisosService } from '../../../modules/permisos/permisos.service';
 import { RolesService } from '../roles.service';
-import { Rol } from '../schema/rol.schema';
-import { Permiso } from '../../../modules/permisos/schemas/permiso.schema';
+import { RolDocumentType } from '../schema/rol.schema'; // Importamos el tipo Documento
+import { Permiso } from 'src/modules/permisos/schemas/permiso.schema';
 
 @Injectable()
 export class RolesValidator {
@@ -32,10 +32,14 @@ export class RolesValidator {
     return permisos;
   }
 
-  async validateRolExistente(rolId: string): Promise<Rol> {
-    const rol = await this.rolesService.findOne(rolId);
+  // Corregido: Devuelve RolDocumentType
+  async validateRolExistente(nombreRol: string): Promise<RolDocumentType> {
+    const rol = await this.rolesService.findByName(nombreRol);
+    
     if (!rol) {
-      throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
+      throw new NotFoundException(
+        `El rol "${nombreRol}" no existe. (Asegúrate de enviarlo en mayúsculas, ej: CLIENTE)`
+      );
     }
     return rol;
   }

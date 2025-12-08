@@ -1,10 +1,10 @@
-import { Rol } from '../../../modules/roles/schema/rol.schema';
+import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UsuarioDocumentType } from '../schema/usuario.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 
 export interface IUsuarioRepository {
-  create(usuario: CreateUsuarioDto, rol: Rol): Promise<UsuarioDocumentType>;
+  create(usuario: CreateUsuarioDto, rol: RolDocumentType): Promise<UsuarioDocumentType>;
   findAll(): Promise<UsuarioDocumentType[]>;
   findAllEmpleadosBySubareaId(
     subareaIds: string,
@@ -20,4 +20,6 @@ export interface IUsuarioRepository {
   ): Promise<UsuarioDocumentType>;
   remove(id: string): Promise<void>;
   findByEmail(email: string): Promise<UsuarioDocumentType | null>;
+  
+  findByToken(token: string): Promise<UsuarioDocumentType | null>;
 }

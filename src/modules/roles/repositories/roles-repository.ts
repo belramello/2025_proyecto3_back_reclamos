@@ -40,4 +40,19 @@ export class RolesRepository implements IRolesRepository {
       );
     }
   }
+
+  // --- NUEVO MÉTODO AGREGADO ---
+  async findByName(nombre: string): Promise<RolDocumentType | null> {
+    try {
+      // Buscamos coincidencia exacta por el campo "nombre"
+      return await this.rolModel
+        .findOne({ nombre: nombre }) 
+        .populate('permisos')
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar el rol por nombre "${nombre}": ${error.message}`,
+      );
+    }
+  }
 }

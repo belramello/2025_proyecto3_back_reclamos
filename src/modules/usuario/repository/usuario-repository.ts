@@ -29,6 +29,9 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         rol: rol,
       });
       const created = await userDoc.save();
+      // Buscamos de nuevo para devolverlo populado si fuera necesario, 
+      // o simplemente devolvemos 'created' si no requieres popular nada extra inmediatamente.
+      // Mantengo tu lógica de buscarlo:
       const user = await this.findOne(created._id.toString());
       if (!user) {
         throw new InternalServerErrorException(`Error al crear el usuario`);
@@ -133,7 +136,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const doc = await this.userModel
         .findOne({ email })
         .populate('rol')
-        .populate('rol.permisos')
+        .populate('rol.permisos') // Asegúrate que 'permisos' sea el campo correcto en tu schema de Rol
         .exec();
       if (!doc) {
         return null;
@@ -164,6 +167,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       );
     }
   }
+
   async remove(id: string): Promise<void> {
     try {
       const result = await this.userModel.deleteOne({ _id: id }).exec();
@@ -175,6 +179,18 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al eliminar el usuario con ID ${id}.`,
+      );
+    }
+  }
+
+  // --- CORRECCIÓN AQUÍ ---
+  async findByToken(token: string): Promise<UsuarioDocumentType | null> {
+    try {
+      // Corregido: 'this.usuarioModel' no existía, debe ser 'this.userModel'
+      return await this.userModel.findOne({ tokenActivacion: token }).exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar usuario por token: ${error.message}`,
       );
     }
   }

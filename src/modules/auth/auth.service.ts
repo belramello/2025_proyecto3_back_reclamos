@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { 
+  Injectable, 
+  NotFoundException, 
+  BadRequestException 
+} from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
-import { hashPassword } from './helpers/password-helper';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
+import * as bcrypt from 'bcrypt'; 
+import { ActivarCuentaDto } from './dto/activar-cuenta.dto'; 
 
 @Injectable()
 export class AuthService {
@@ -22,10 +27,12 @@ export class AuthService {
     try {
       const usuario: UsuarioDocumentType =
         await this.authValidator.validarEmailExistente(loginDto.email);
+
       await this.authValidator.validarContraseñaCorrecta(
         loginDto.contraseña,
         usuario.contraseña,
       );
+
       const payload = { email: usuario.email, sub: usuario._id.toString() };
       return this.authMapper.toLoginResponseDto(
         this.jwtService.generateToken(payload, 'auth'),
@@ -41,19 +48,17 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUsuarioDto): Promise<LoginResponseDto> {
-    await this.authValidator.validarEmailSinUsar(createUserDto.email);
-    const hashedPassword = await hashPassword(createUserDto.contraseña);
-    const nuevoUsuario = await this.userService.create({
-      ...createUserDto,
-      contraseña: hashedPassword,
-    });
+    // Delegamos todo al UsuarioService (Estrategias + Mail)
+    const nuevoUsuario = await this.userService.create(createUserDto);
 
     const payload = {
       email: nuevoUsuario.email,
-      sub: nuevoUsuario.id.toString(),
+      sub: nuevoUsuario.id, 
     };
+
     const accessToken = this.jwtService.generateToken(payload, 'auth');
     const refreshToken = this.jwtService.generateToken(payload, 'refresh');
+
     return this.authMapper.toLoginResponseDto(
       accessToken,
       refreshToken,
@@ -73,5 +78,31 @@ export class AuthService {
       tokens.refreshToken || refreshToken,
       user,
     );
+  }
+
+  // --- MÉTODO ACTUALIZADO ---
+  async activarCuenta(activarCuentaDto: ActivarCuentaDto): Promise<{ message: string }> {
+    const { token, contraseña } = activarCuentaDto;
+
+    // 1. Buscar usuario por token
+    const usuario = await this.userService.findByToken(token);
+
+    if (!usuario) {
+      throw new NotFoundException('Token inválido o usuario no encontrado.');
+    }
+
+    // 2. Verificar expiración
+    if (usuario.tokenExpiracion && new Date() > usuario.tokenExpiracion) {
+      throw new BadRequestException('El token ha expirado. Solicite uno nuevo.');
+    }
+
+    // 3. Hashear nueva contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(contraseña, salt);
+
+    // 4. Actualizar Usuario: LLAMADA AL NUEVO MÉTODO PROFESIONAL
+    await this.userService.activateUser(String(usuario._id), hash);
+
+    return { message: 'Cuenta activada con éxito. Ya puede iniciar sesión.' };
   }
 }

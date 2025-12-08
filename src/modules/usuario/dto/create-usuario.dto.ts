@@ -4,7 +4,11 @@ import {
   IsEmail,
   MinLength,
   IsOptional,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateProyectoDto } from 'src/modules/proyectos/dto/create-proyecto.dto';
+
 export class CreateUsuarioDto {
   @IsString({ message: 'El nombre de usuario debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio.' })
@@ -14,10 +18,11 @@ export class CreateUsuarioDto {
   @IsNotEmpty({ message: 'El email es obligatorio.' })
   readonly email: string;
 
+  // CAMBIO: Ahora es opcional. Si no viene, el sistema asume flujo de invitación.
   @IsString({ message: 'La contraseña debe ser una cadena de texto.' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres.' })
-  @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
-  readonly contraseña: string;
+  @IsOptional()
+  readonly contraseña?: string;
 
   @IsString({ message: 'El rol debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El rol es obligatorio.' })
@@ -37,9 +42,14 @@ export class CreateUsuarioDto {
 
   @IsString({ message: 'La subárea debe ser una cadena de texto.' })
   @IsOptional()
-  readonly subarea?: string; //CAMBIAR A SUBÁREA CUANDO ESTÉ LA SUBÁREA
+  readonly subarea?: string;
 
   @IsString({ message: 'El área debe ser una cadena de texto.' })
   @IsOptional()
-  readonly area?: string; //CAMBIAR A ÁREA CUANDO ESTÉ EL ÁREA
+  readonly area?: string;
+  
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateProyectoDto)
+  readonly proyecto?: CreateProyectoDto;
 }
