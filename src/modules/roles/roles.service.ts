@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { IRolesRepository } from './repositories/roles-repository.interface';
 import { RolesMapper } from './mappers/roles-mapper';
 import { RespuestaFindOneRolesDto } from './dto/respuesta-find-one-roles.dto';
-import { Rol } from './schema/rol.schema';
+import { RolDocumentType } from './schema/rol.schema'; // Importamos el tipo Documento
 
 @Injectable()
 export class RolesService {
@@ -17,8 +17,14 @@ export class RolesService {
       await this.rolesRepository.findAll(),
     );
   }
-  //agregar mapper
-  async findOne(id: string): Promise<Rol | null> {
+
+  // Corregido: Devuelve RolDocumentType
+  async findOne(id: string): Promise<RolDocumentType | null> {
     return await this.rolesRepository.findOne(id);
+  }
+
+  // Corregido: Devuelve RolDocumentType
+  async findByName(nombre: string): Promise<RolDocumentType | null> {
+    return await this.rolesRepository.findByName(nombre);
   }
 }

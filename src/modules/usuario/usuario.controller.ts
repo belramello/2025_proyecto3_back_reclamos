@@ -14,22 +14,23 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { RolesEnum } from '../roles/enums/roles-enum';
 
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  // --- NUEVO ENDPOINT---
-  // POST /usuarios/registrar-cliente
+  // POST /usuarios/registrar-cliente (Específico para clientes + proyecto)
   @Post('registrar-cliente')
   async createCliente(
     @Body() createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioService.createCliente(createUsuarioDto);
+    // Forzamos el rol CLIENTE para seguridad
+    const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
+    return this.usuarioService.create(dtoCliente);
   }
 
-
-  // POST /usuarios (Creación genérica que ya estaba)
+  // POST /usuarios (Genérico)
   @Post()
   async create(
     @Body() createUsuarioDto: CreateUsuarioDto,
@@ -37,13 +38,11 @@ export class UsuarioController {
     return this.usuarioService.create(createUsuarioDto);
   }
 
-  // GET /usuarios
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     return this.usuarioService.findAll();
   }
 
-  // GET /usuarios/:id
   @Get(':id')
   async findOne(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -51,7 +50,6 @@ export class UsuarioController {
     return this.usuarioService.findOne(id);
   }
 
-  // PATCH /usuarios/:id
   @Patch(':id')
   async update(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -60,7 +58,6 @@ export class UsuarioController {
     return this.usuarioService.update(id, updateUsuarioDto);
   }
 
-  // DELETE /usuarios/:id
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {

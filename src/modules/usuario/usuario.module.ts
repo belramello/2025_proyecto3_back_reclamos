@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,8 @@ import { Rol, RolSchema } from '../roles/schema/rol.schema';
 import { Usuario, UsuarioSchema } from './schema/usuario.schema';
 import { RolesModule } from '../roles/roles.module';
 import { UsuariosValidator } from './helpers/usuarios-validator';
+import { UserContext } from './strategies/user-context';
+import { ProyectosModule } from '../proyectos/proyectos.module';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
       { name: Rol.name, schema: RolSchema },
     ]),
     RolesModule,
+    forwardRef(() => ProyectosModule), 
   ],
   controllers: [UsuarioController],
   providers: [
@@ -26,6 +29,7 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
       useClass: UsuarioMongoRepository,
     },
     UsersMapper,
+    UserContext, // Inyectamos el contexto de estrategias
   ],
   exports: [UsuarioService, UsuariosValidator],
 })

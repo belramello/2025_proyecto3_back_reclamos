@@ -40,11 +40,12 @@ export class Usuario {
   @Prop({ type: Types.ObjectId, ref: 'Area', required: false, default: null })
   area?: Area;
 
-  //@Prop()
-  //passwordResetToken?: string;
+  // --- NUEVOS CAMPOS PARA ACTIVACIÓN DE CUENTA ---
+  @Prop({ default: null })
+  tokenActivacion: string;
 
-  //@Prop()
-  //passwordResetExpiration?: Date;
+  @Prop({ default: null })
+  tokenExpiracion: Date;
 }
 
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
