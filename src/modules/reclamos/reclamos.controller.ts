@@ -177,4 +177,9 @@ export class ReclamosController {
       String(req.usuario._id),
     );
   }
+  // BORRA ESTO BELU CUANDO HAGAS LA LOGICA DE RECLAMOS QUE ES LA SIMULACIÓN DE NOTIFICACIÓN
+  @Post('test-mail')
+  async testMail(@Body() body: { email: string }) {
+    return this.reclamosService.simularNotificacion(body.email);
+  }
 }
