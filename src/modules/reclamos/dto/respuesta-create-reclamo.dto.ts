@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { TipoReclamo } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
 import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
@@ -31,17 +30,4 @@ export class RespuestaCreateReclamoDto {
 
   fechaCreacion: Date;
   fechaEliminacion?: Date;
-=======
-export class CreateReclamoResponseDto {
-  nroTicket: string;           
-  titulo: string;
-  tipoReclamo?: string;
-  prioridad: string;
-  nivelCriticidad: number;
-  proyecto: string;
-  descripcion?: string;
-  imagenUrl?: string[];
-  //resumenResolucion?: string;
-  //fechaCreacion: Date;
->>>>>>> bel
 }
