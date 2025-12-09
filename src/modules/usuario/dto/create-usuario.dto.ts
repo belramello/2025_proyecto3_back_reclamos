@@ -25,12 +25,16 @@ export class CreateUsuarioDto {
   readonly contraseña?: string;
 
   @IsString({ message: 'El rol debe ser una cadena de texto.' })
-  @IsNotEmpty({ message: 'El rol es obligatorio.' })
+  @IsOptional()
   readonly rol: string;
 
   @IsString({ message: 'El nombre debe ser una cadena de texto.' })
   @IsOptional()
   readonly nombre?: string;
+
+  @IsString()
+  @IsOptional() // O @IsNotEmpty() si quieres que sea obligatorio
+  apellido?: string;
 
   @IsString({ message: 'La dirección debe ser una cadena de texto.' })
   @IsOptional()

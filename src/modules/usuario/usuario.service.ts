@@ -5,6 +5,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
@@ -18,6 +20,7 @@ import { ProyectosService } from '../proyectos/proyectos.service';
 import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDeSubareaDto } from './dto/empleado-de-subarea.dto';
+import { ReclamosService } from '../reclamos/reclamos.service';
 
 @Injectable()
 export class UsuarioService {
@@ -32,33 +35,28 @@ export class UsuarioService {
     private readonly userContext: UserContext,
     @Inject(forwardRef(() => ProyectosService))
     private readonly proyectosService: ProyectosService,
+    // Inyectamos ReclamosService para validar eliminación
+    @Inject(forwardRef(() => ReclamosService))
+    private readonly reclamosService: ReclamosService,
   ) {}
 
-  // --- 1. TU MÉTODO DE CREACIÓN (STRATEGY + MAILING) ---
   async create(createUsuarioDto: CreateUsuarioDto): Promise<RespuestaUsuarioDto> {
-    // 1. Validar Email Duplicado
     const existe = await this.usuariosRepository.findByEmail(createUsuarioDto.email);
     if (existe) {
       throw new ConflictException('El correo electrónico ya está registrado.');
     }
 
-    // 2. Validar Rol Existente
     const rolEncontrado = await this.rolesValidator.validateRolExistente(createUsuarioDto.rol);
     const nombreRol = rolEncontrado.nombre;
 
-    // 3. ESTRATEGIA: Obtener lógica según el rol
     const strategy = this.userContext.getStrategy(nombreRol);
 
-    // 4. Validar reglas específicas (ej: subarea obligatoria)
     strategy.validate(createUsuarioDto);
 
-    // 5. Preparar datos (Generar token y pass random si es cliente/empleado)
     const usuarioData = await strategy.prepareData(createUsuarioDto);
 
-    // 6. Guardar Usuario
     const nuevoUsuario = await this.usuariosRepository.create(usuarioData, rolEncontrado);
 
-    // 7. Enviar Mail si se generó token
     if (usuarioData.tokenActivacion) {
       await this.mailService.sendUserActivation(
         nuevoUsuario.email,
@@ -67,18 +65,79 @@ export class UsuarioService {
       );
     }
 
-    // 8. Crear Proyecto (si aplica y es Cliente)
     if (createUsuarioDto.proyecto && nombreRol === RolesEnum.CLIENTE) {
       await this.proyectosService.create({
         ...createUsuarioDto.proyecto,
-        cliente: String(nuevoUsuario._id), // Asociamos el ID del nuevo usuario
+        cliente: String(nuevoUsuario._id), 
       });
     }
 
     return this.usuarioMappers.toResponseDto(nuevoUsuario);
   }
 
-  // --- 2. MÉTODO DE ACTIVACIÓN PROFESIONAL (TUYO) ---
+  async updateEmpleado(id: string, updateDto: UpdateUsuarioDto): Promise<RespuestaUsuarioDto> {
+    // A. Buscamos el empleado actual
+    const empleadoActual = await this.findOneForAuth(id);
+
+    // B. Verificamos si cambió el email
+    if (updateDto.email && updateDto.email !== empleadoActual.email) {
+      
+      // 1. Validar que el nuevo email no esté en uso
+      const existe = await this.usuariosRepository.findByEmail(updateDto.email);
+      if (existe) {
+        throw new ConflictException('El nuevo correo electrónico ya está en uso.');
+      }
+
+      //Generar nueva lógica de activación (Token + Pass Temp)
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiracion = new Date();
+      expiracion.setHours(expiracion.getHours() + 24);
+
+      const passTemp = crypto.randomBytes(10).toString('hex');
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(passTemp, salt);
+
+      //Preparamos la data a actualizar
+      const dataAActualizar = {
+        ...this.usuarioMappers.toPartialEntity(updateDto),
+        email: updateDto.email,
+        contraseña: hash, 
+        tokenActivacion: token, 
+        tokenExpiracion: expiracion,
+      };
+
+      //Actualizamos en BD
+      const empleadoActualizado = await this.usuariosRepository.update(id, dataAActualizar);
+
+      //ENVIAR EMAIL AL NUEVO CORREO
+      const nombreRol = empleadoActual.rol ? (empleadoActual.rol as any).nombre || RolesEnum.EMPLEADO : RolesEnum.EMPLEADO;
+      
+      await this.mailService.sendUserActivation(
+        empleadoActualizado.email,
+        token,
+        nombreRol
+      );
+
+      return this.usuarioMappers.toResponseDto(empleadoActualizado);
+
+    } else {
+      return this.update(id, updateDto);
+    }
+  }
+
+ 
+//Elimina un empleado SOLO si no tiene reclamos asignados.
+  async removeEmpleado(id: string): Promise<void> {
+    const reclamosAsignados = await this.reclamosService.obtenerReclamosAsignados(id);
+
+    if (reclamosAsignados && reclamosAsignados.length > 0) {
+      throw new ConflictException(
+        'No se puede eliminar al empleado porque tiene reclamos asignados en curso o pendientes.'
+      );
+    }
+
+    await this.usuariosRepository.remove(id);
+  }
   async activateUser(id: string, hashContraseña: string): Promise<void> {
     await this.usuariosRepository.update(id, {
       contraseña: hashContraseña,
@@ -86,11 +145,9 @@ export class UsuarioService {
       tokenExpiracion: null
     } as any);
     
-    // Log opcional para seguimiento
     console.log(`Usuario ${id} activado exitosamente a las ${new Date()}`);
   }
 
-  // --- 3. MÉTODOS DE BÚSQUEDA GENERAL ---
 
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     const usuarios = await this.usuariosRepository.findAll();
@@ -135,15 +192,12 @@ export class UsuarioService {
     return await this.usuariosRepository.findByEmail(email);
   }
 
-  // --- 4. MÉTODOS DE GESTIÓN DE EMPLEADOS (DE LA DEVELOP) ---
-  // Estos métodos se conservan porque son necesarios para la funcionalidad de tus compañeros
 
   async findAllEmpleadosDeSubareaDelUsuario(
     usuarioId: string,
   ): Promise<EmpleadoDeSubareaDto[]> {
     const usuario = await this.usuariosValidator.validateEmpleadoExistente(usuarioId);
     
-    // Nota: Si validateSubareaAsignadaAEmpleado devuelve algo diferente a lo esperado, revisar UsuariosValidator
     const subarea = await this.usuariosValidator.validateSubareaAsignadaAEmpleado(usuario);
     
     const empleados = await this.usuariosRepository.findAllEmpleadosDeSubarea(

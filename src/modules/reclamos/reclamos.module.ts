@@ -16,11 +16,11 @@ import { AreasModule } from '../areas/areas.module';
   imports: [
     MongooseModule.forFeature([{ name: Reclamo.name, schema: ReclamoSchema }]),
     JwtModule,
-    UsuarioModule,
-    SubareasModule,
     AreasModule,
     forwardRef(() => HistorialEstadoModule),
     HistorialAsignacionModule,
+    forwardRef(() => UsuarioModule),
+    forwardRef(() => SubareasModule),
   ],
   controllers: [ReclamosController],
   providers: [

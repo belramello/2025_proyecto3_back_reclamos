@@ -18,31 +18,80 @@ import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { RolesEnum } from '../roles/enums/roles-enum';
 
+import { AuthGuard } from 'src/middlewares/auth.middleware';
+import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  // POST /usuarios/registrar-cliente (Específico para clientes + proyecto)
+  // =================================================================
+  // 1. RUTAS ESTÁTICAS / ESPECÍFICAS (VAN PRIMERO)
+  // =================================================================
+
+  // --- GESTIÓN DE EMPLEADOS DE UN ÁREA (US-153) ---
+  
+  @Post('gestion-empleados')
+  async createEmpleado(
+    @Body() createUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    const dtoEmpleado = { ...createUsuarioDto, rol: RolesEnum.EMPLEADO };
+    return this.usuarioService.create(dtoEmpleado);
+  }
+
+  // --- REGISTRO DE CLIENTES ---
   @Post('registrar-cliente')
   async createCliente(
     @Body() createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    // Forzamos el rol CLIENTE para seguridad
     const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
     return this.usuarioService.create(dtoCliente);
   }
 
-  // POST /usuarios (Genérico)
+  // --- LISTADOS ESPECÍFICOS ---
+  @Get('empleados-subarea')
+  @UseGuards(AuthGuard)
+  async findAllEmpleadosDeSubarea(@Req() req: RequestWithUsuario) {
+    return this.usuarioService.findAllEmpleadosDeSubareaDelUsuario(String(req.usuario._id));
+  }
+
+  @Get('empleados-area')
+  @UseGuards(AuthGuard) 
+  async findAllEmpleadosDeArea(@Req() req: RequestWithUsuario) {
+    return this.usuarioService.findAllEmpleadosDeAreaDelUsuario(String(req.usuario._id));
+  }
+
+  // --- CRUD GENÉRICO (CREATE) ---
   @Post()
   async create(
     @Body() createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
     return this.usuarioService.create(createUsuarioDto);
   }
-
+  
+  // --- LISTAR TODOS ---
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     return this.usuarioService.findAll();
+  }
+
+  // =================================================================
+  // 2. RUTAS DINÁMICAS / CON PARÁMETROS (VAN AL FINAL)
+  // =================================================================
+  // (Si pones estas arriba, "se comen" a las de gestion-empleados)
+
+  @Patch('gestion-empleados/:id')
+  async updateEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioService.updateEmpleado(id, updateUsuarioDto);
+  }
+
+  @Delete('gestion-empleados/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeEmpleado(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
+    await this.usuarioService.removeEmpleado(id);
   }
 
   @Get(':id')
