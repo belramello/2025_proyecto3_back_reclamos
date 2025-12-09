@@ -1,15 +1,13 @@
-import { Schema, model, Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
-export const TipoReclamoSchema = new Schema(
-  {
-    nombre: { type: String, required: true },
+@Schema({ collection: 'tipo_reclamo', timestamps: true })
+export class TipoReclamo {
+  @Prop({ required: true })
+  nombre: string;
 
-    reclamos: [{ type: Types.ObjectId, ref: 'Reclamo' }],
-  },
-  {
-    collection: 'tipo_reclamo',
-    timestamps: true, 
-  }
-);
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Reclamo' }] })
+  reclamos: Types.ObjectId[];
+}
 
-export const TipoReclamoModel = model('TipoReclamo', TipoReclamoSchema);
+export const TipoReclamoSchema = SchemaFactory.createForClass(TipoReclamo);
