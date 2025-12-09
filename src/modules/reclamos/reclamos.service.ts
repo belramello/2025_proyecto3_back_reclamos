@@ -5,6 +5,7 @@ import type { IReclamosRepository } from './repositories/reclamos-repository.int
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class ReclamosService {
@@ -13,33 +14,22 @@ export class ReclamosService {
     private readonly reclamosRepository: IReclamosRepository,
     @Inject(forwardRef(() => ReclamosValidator))
     private readonly reclamosValidator: ReclamosValidator,
+    private readonly mailService: MailService,
   ) {}
 
   create(createReclamoDto: CreateReclamoDto) {
-    //cuando se crea un estado, entonces hay que crear tamb un historial estado y un historial asignación (inicial).
     return 'This action adds a new reclamo';
   }
-
-  findAll() {
-    return `This action returns all reclamos`;
-  }
-
-  async findOne(id: string): Promise<ReclamoDocumentType | null> {
-    return await this.reclamosRepository.findOne(id);
-  }
-
-  update(id: number, updateReclamoDto: UpdateReclamoDto) {
-    return `This action updates a #${id} reclamo`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} reclamo`;
-  }
-
+  findAll() { return `This action returns all reclamos`; }
+  async findOne(id: string): Promise<ReclamoDocumentType | null> { return await this.reclamosRepository.findOne(id); }
+  update(id: number, updateReclamoDto: UpdateReclamoDto) { return `This action updates a #${id} reclamo`; }
+  remove(id: number) { return `This action removes a #${id} reclamo`; }
+  
   async consultarHistorialReclamo(id: string) {
     await this.reclamosValidator.validateReclamoExistente(id);
     return await this.reclamosRepository.consultarHistorialReclamo(id);
   }
+
 
   async autoasignarReclamo(id: string, empleado: Usuario) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
@@ -48,11 +38,10 @@ export class ReclamosService {
       reclamo,
       empleado,
     );
-    return await this.reclamosRepository.autoasignar(
-      reclamo,
-      empleado,
-      subarea,
-    );
+    await this.reclamosRepository.autoasignar(reclamo, empleado, subarea);
+    
+    // Notificación
+    await this.notificarCliente(reclamo, 'En Proceso', `El reclamo fue tomado por ${empleado.nombre}`);
   }
 
   async asignarReclamoASubarea(
@@ -67,16 +56,18 @@ export class ReclamosService {
       reclamo,
       empleado,
     );
-    const subarea =
-      await this.reclamosValidator.validateSubareaExistenteYValida(
-        subareaId,
-        area,
-      );
-    return await this.reclamosRepository.asignarReclamoASubarea(
+    const subarea = await this.reclamosValidator.validateSubareaExistenteYValida(
+      subareaId,
+      area,
+    );
+    await this.reclamosRepository.asignarReclamoASubarea(
       reclamo,
       subarea,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, 'Pendiente de Asignación', `Derivado a subárea: ${subarea.nombre}`);
   }
 
   async asignarReclamoAEmpleado(
@@ -96,13 +87,16 @@ export class ReclamosService {
         empleadoId,
         area,
       );
-    return await this.reclamosRepository.asignarReclamoAEmpleado(
+    await this.reclamosRepository.asignarReclamoAEmpleado(
       reclamo,
       encargado,
       subareaDeEmpleado,
       empleado,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, 'En Proceso', `Asignado a responsable: ${empleado.nombre}`);
   }
 
   async asignarReclamoAArea(
@@ -112,16 +106,14 @@ export class ReclamosService {
     comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
-    const estadoActual =
-      await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
-    const areaOrigen =
-      await this.reclamosValidator.validateAreaReclamoParaEncargado(
-        reclamo,
-        encargado,
-      );
-    const areaDestino =
-      await this.reclamosValidator.validateAreaExistente(areaId);
-    return await this.reclamosRepository.asignarReclamoAArea(
+    const estadoActual = await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
+    const areaOrigen = await this.reclamosValidator.validateAreaReclamoParaEncargado(
+      reclamo,
+      encargado,
+    );
+    const areaDestino = await this.reclamosValidator.validateAreaExistente(areaId);
+    
+    await this.reclamosRepository.asignarReclamoAArea(
       reclamo,
       encargado,
       areaOrigen,
@@ -129,6 +121,9 @@ export class ReclamosService {
       estadoActual,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, estadoActual, `Transferido al Área: ${areaDestino.nombre}`);
   }
 
   async reasignarReclamoAEmpleado(
@@ -145,13 +140,17 @@ export class ReclamosService {
         empleadoDestinoId,
         empleadoOrigen,
       );
-    return await this.reclamosRepository.reasignarReclamoAEmpleado(
+      
+    await this.reclamosRepository.reasignarReclamoAEmpleado(
       reclamo,
       empleadoOrigen,
       empleadoDestino,
       subarea,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, 'En Proceso', `Reasignado a: ${empleadoDestino.nombre}`);
   }
 
   async reasignarReclamoASubarea(
@@ -162,21 +161,23 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
-    const subareaOrigen =
-      await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
+    const subareaOrigen = await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
     this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
-    const subareaDestino =
-      await this.reclamosValidator.validateSubareaExistenteYValida(
-        subareaId,
-        subareaOrigen.area,
-      );
-    return await this.reclamosRepository.reasignarReclamoASubarea(
+    const subareaDestino = await this.reclamosValidator.validateSubareaExistenteYValida(
+      subareaId,
+      subareaOrigen.area,
+    );
+    
+    await this.reclamosRepository.reasignarReclamoASubarea(
       reclamo,
       empleado,
       subareaOrigen,
       subareaDestino,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, 'Pendiente de Asignación', `Movido a subárea: ${subareaDestino.nombre}`);
   }
 
   async reasignarReclamoAArea(
@@ -187,31 +188,76 @@ export class ReclamosService {
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
-    const subareaOrigen =
-      await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
+    const subareaOrigen = await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
     this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
-    const areaDestino =
-      await this.reclamosValidator.validateAreaExistente(areaId);
-    return await this.reclamosRepository.reasignarReclamoAArea(
+    const areaDestino = await this.reclamosValidator.validateAreaExistente(areaId);
+    
+    await this.reclamosRepository.reasignarReclamoAArea(
       reclamo,
       empleado,
       subareaOrigen,
       areaDestino,
       comentario,
     );
+
+    // Notificación
+    await this.notificarCliente(reclamo, 'Pendiente de Asignación', `Transferido al Área: ${areaDestino.nombre}`);
   }
 
   async obtenerReclamosAsignados(empleadoId: string) {
     await this.reclamosValidator.validateEmpleadoExistente(empleadoId);
-    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
-      empleadoId,
-    );
+    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(empleadoId);
   }
 
   async obtenerReclamosPendientesDeArea(encargado: Usuario) {
     const area = await this.reclamosValidator.validateEncargado(encargado);
-    return await this.reclamosRepository.obtenerReclamosPendientesDeArea(
-      area.nombre,
+    return await this.reclamosRepository.obtenerReclamosPendientesDeArea(area.nombre);
+  }
+
+  // --- HELPER PRIVADO PARA ENVIAR EL MAIL ---
+  private async notificarCliente(reclamo: ReclamoDocumentType, nuevoEstado: string, mensaje: string) {
+    try {
+      let emailCliente: string | null = null;
+      
+      // Intentamos obtener el mail del campo 'usuario' (si existe en el schema actualizado)
+      const usuario: any = reclamo.usuario;
+      if (usuario && usuario.email) {
+          emailCliente = usuario.email;
+      }
+      
+      // Si no, intentamos vía proyecto -> cliente
+      if (!emailCliente) {
+         const proyecto: any = reclamo.proyecto;
+         if (proyecto && proyecto.cliente && proyecto.cliente.email) {
+            emailCliente = proyecto.cliente.email;
+         }
+      }
+
+      // Si encontramos email, enviamos
+      if (emailCliente) {
+        await this.mailService.sendReclamoNotification(
+          emailCliente,
+          reclamo.nroTicket,
+          reclamo.titulo,
+          nuevoEstado,
+          mensaje
+        );
+      }
+    } catch (error) {
+      console.error(`Error no bloqueante enviando notificación reclamo ${reclamo.nroTicket}:`, error);
+    }
+  }
+  // BORRA ESTO BELU CUANDO HAGAS LA LOGICA DE RECLAMOS QUE ES LA SIMULACIÓN DE NOTIFICACIÓN
+  // --- MÉTODO TEMPORAL PARA PROBAR EN POSTMAN ---
+  async simularNotificacion(emailDestino: string) {
+    console.log('🧪 Iniciando prueba de mail manual...');
+    await this.mailService.sendReclamoNotification(
+      emailDestino,
+      'TICKET-9999',         // Nro Ticket Falso
+      'Reclamo de Prueba',   // Título Falso
+      'Resuelto',            // Nuevo Estado
+      'Esta es una prueba manual desde Postman para verificar la conexión SMTP.'
     );
+    return { message: 'Prueba de correo ejecutada. Revisa tu bandeja de entrada.' };
   }
 }

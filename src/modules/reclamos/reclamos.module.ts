@@ -11,6 +11,7 @@ import { HistorialAsignacionModule } from '../historial-asignacion/historial-asi
 import { HistorialEstadoModule } from '../historial-estado/historial-estado.module';
 import { SubareasModule } from '../subareas/subareas.module';
 import { AreasModule } from '../areas/areas.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AreasModule } from '../areas/areas.module';
     HistorialAsignacionModule,
     forwardRef(() => UsuarioModule),
     forwardRef(() => SubareasModule),
+    MailModule,
   ],
   controllers: [ReclamosController],
   providers: [

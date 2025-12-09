@@ -17,10 +17,7 @@ export class MailService {
   }
 
   async sendUserActivation(email: string, token: string, rol: string) {
-    // Ajusta el puerto 5173 si tu frontend corre en otro lado
     const url = `http://localhost:5173/auth/activar-cuenta?token=${token}`;
-    
-    // Importamos el template
     const { getWelcomeTemplate } = require('./templates/user-welcome.template');
     const html = getWelcomeTemplate(rol, url);
 
@@ -34,6 +31,30 @@ export class MailService {
       console.log(`Mail enviado a: ${email}`);
     } catch (error) {
       console.error('Error enviando mail:', error);
+    }
+  }
+
+  // --- NUEVO MÉTODO AGREGADO ---
+  async sendReclamoNotification(
+    email: string,
+    nroTicket: string,
+    titulo: string,
+    nuevoEstado: string,
+    mensaje: string
+  ) {
+    const { getNotificacionReclamoTemplate } = require('./templates/notificacion-reclamo.template');
+    const html = getNotificacionReclamoTemplate(nroTicket, titulo, nuevoEstado, mensaje);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: `Actualización Reclamo #${nroTicket}`,
+        html: html,
+      });
+      console.log(`📧 Notificación de reclamo enviada a: ${email}`);
+    } catch (error) {
+      console.error('❌ Error enviando notificación de reclamo:', error);
     }
   }
 }
