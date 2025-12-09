@@ -3,8 +3,14 @@ import { Document, Types } from 'mongoose';
 import { HistorialAsignacion } from '../../../modules/historial-asignacion/schemas/historial-asignacion.schema';
 import { HistorialEstado } from '../../../modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from '../../proyectos/schemas/proyecto.schema';
+import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 
 export type ReclamoDocumentType = Reclamo & Document;
+export enum Prioridad {
+  BAJA = 'BAJA',
+  MEDIA = 'MEDIA',
+  ALTA = 'ALTA',
+}
 
 @Schema({ collection: 'reclamos', timestamps: true })
 export class Reclamo {
@@ -14,16 +20,18 @@ export class Reclamo {
   @Prop({ required: true })
   titulo: string;
 
-  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
+  // TEMPORAL: requerido en false para poder crear el seed
   @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: false })
-  tipoReclamo?: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
+  tipoReclamo?: Types.ObjectId;
 
-  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
-  @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: false })
-  prioridad?: string;
+  @Prop({ type: String, enum: Prioridad, required: true })
+  prioridad: Prioridad; 
+  
+  @Prop({ type: Number, required: true, min: 1, max: 10 })
+  nivelCriticidad: number; 
 
-  @Prop({ required: true })
-  nivelCriticidad?: number;
+  @Prop()
+  descripcion?: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];
@@ -41,14 +49,12 @@ export class Reclamo {
     | Types.ObjectId
     | (HistorialEstado & { _id: Types.ObjectId });
 
-  @Prop({ type: Types.ObjectId, ref: 'Proyecto' })
-  proyecto?: Proyecto | Types.ObjectId;
+  // 👇 CAMBIO IMPORTANTE: requerido TRUE según historia de usuario
+  @Prop({ type: Types.ObjectId, ref: 'Proyecto', required: true })
+  proyecto: Proyecto | Types.ObjectId;
 
-  @Prop()
-  descripcion?: string;
-
-  @Prop()
-  imagenUrl?: string;
+  @Prop({ type: [String], required: false })
+  imagenUrl?: string[];
 
   @Prop()
   resumenResolucion?: string;
@@ -58,6 +64,10 @@ export class Reclamo {
 
   @Prop({ default: null })
   fechaEliminacion?: Date;
+
+
+  @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
+  usuario: Usuario | Types.ObjectId
 }
 
 export const ReclamoSchema = SchemaFactory.createForClass(Reclamo);
