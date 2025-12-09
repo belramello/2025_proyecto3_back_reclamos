@@ -11,6 +11,8 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
 import { UserContext } from './strategies/user-context'; 
 import { ProyectosModule } from '../proyectos/proyectos.module'; 
 import { SubareasModule } from '../subareas/subareas.module'; 
+import { ReclamosModule } from '../reclamos/reclamos.module';
+import { JwtModule } from '../jwt/jwt.module';
 
 @Module({
   imports: [
@@ -19,8 +21,10 @@ import { SubareasModule } from '../subareas/subareas.module';
       { name: Rol.name, schema: RolSchema },
     ]),
     RolesModule,
+    JwtModule,
     forwardRef(() => ProyectosModule), 
-    forwardRef(() => SubareasModule),  
+    forwardRef(() => SubareasModule),
+    forwardRef(() => ReclamosModule),
   ],
   controllers: [UsuarioController],
   providers: [
@@ -31,7 +35,7 @@ import { SubareasModule } from '../subareas/subareas.module';
       useClass: UsuarioMongoRepository,
     },
     UsersMapper,
-    UserContext, // TUYO
+    UserContext, 
   ],
   exports: [UsuarioService, UsuariosValidator],
 })
