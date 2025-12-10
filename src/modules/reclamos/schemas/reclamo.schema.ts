@@ -25,13 +25,10 @@ export class Reclamo {
   tipoReclamo?: Types.ObjectId;
 
   @Prop({ type: String, enum: Prioridad, required: true })
-  prioridad: Prioridad; 
-  
-  @Prop({ type: Number, required: true, min: 1, max: 10 })
-  nivelCriticidad: number; 
+  prioridad: Prioridad;
 
-  @Prop()
-  descripcion?: string;
+  @Prop({ type: Number, required: true, min: 1, max: 10 })
+  nivelCriticidad: number;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];
@@ -65,9 +62,8 @@ export class Reclamo {
   @Prop({ default: null })
   fechaEliminacion?: Date;
 
-
   @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
-  usuario: Usuario | Types.ObjectId
+  usuario: Usuario | Types.ObjectId;
 }
 
 export const ReclamoSchema = SchemaFactory.createForClass(Reclamo);

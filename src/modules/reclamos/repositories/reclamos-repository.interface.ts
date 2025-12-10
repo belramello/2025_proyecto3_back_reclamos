@@ -12,8 +12,8 @@ export interface IReclamosRepository {
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
     subarea: Subarea,
+    estado: string,
   ): Promise<void>;
-
   actualizarHistorialEstadoActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
@@ -25,10 +25,8 @@ export interface IReclamosRepository {
   ): Promise<void>;
   asignarReclamoAArea(
     reclamo: ReclamoDocumentType,
-    encargado: Usuario,
     areaOrigen: Area,
     areaDestino: Area,
-    estado: string,
     comentario?: string,
   ): Promise<void>;
   asignarReclamoAEmpleado(
@@ -36,6 +34,7 @@ export interface IReclamosRepository {
     encargado: Usuario,
     subareaDeEmpleado: Subarea,
     haciaEmpleado: Usuario,
+    estado: string,
     comentario?: string,
   ): Promise<void>;
   reasignarReclamoAEmpleado(
