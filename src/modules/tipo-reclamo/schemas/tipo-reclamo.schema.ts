@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Types,Document } from 'mongoose';
 
+export type TipoReclamoDocumentType = TipoReclamo & Document;
 @Schema({ collection: 'tipo_reclamo', timestamps: true })
 export class TipoReclamo {
   @Prop({ required: true })

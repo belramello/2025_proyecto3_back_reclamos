@@ -4,9 +4,11 @@ import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { Area } from 'src/modules/areas/schemas/area.schema';
 import { Estado } from 'src/modules/estados/schemas/estado.schema';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
+import { CreateReclamoDto } from '../dto/create-reclamo.dto';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
+  crearReclamo(reclamo:CreateReclamoDto, cliente:Usuario):Promise<ReclamoDocumentType>
   consultarHistorialReclamo(reclamoId: string);
   autoasignar(
     reclamo: ReclamoDocumentType,
