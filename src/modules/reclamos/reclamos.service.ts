@@ -43,7 +43,8 @@ export class ReclamosService {
 
   async autoasignarReclamo(id: string, empleado: Usuario) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
-    await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
+    const estadoActual =
+      await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
     const subarea = await this.reclamosValidator.validateAreaYSubareaReclamo(
       reclamo,
       empleado,
@@ -52,6 +53,7 @@ export class ReclamosService {
       reclamo,
       empleado,
       subarea,
+      estadoActual,
     );
   }
 
@@ -62,7 +64,7 @@ export class ReclamosService {
     comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
-    await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
+    await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
     const area = await this.reclamosValidator.validateAreaReclamoParaEncargado(
       reclamo,
       empleado,
@@ -86,7 +88,8 @@ export class ReclamosService {
     comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
-    await this.reclamosValidator.validateReclamoPendienteAAsignar(reclamo);
+    const estadoActual =
+      await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
     const area = await this.reclamosValidator.validateAreaReclamoParaEncargado(
       reclamo,
       encargado,
@@ -101,6 +104,7 @@ export class ReclamosService {
       encargado,
       subareaDeEmpleado,
       empleado,
+      estadoActual,
       comentario,
     );
   }
@@ -112,8 +116,7 @@ export class ReclamosService {
     comentario?: string,
   ) {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
-    const estadoActual =
-      await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
+    await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
     const areaOrigen =
       await this.reclamosValidator.validateAreaReclamoParaEncargado(
         reclamo,
@@ -123,10 +126,8 @@ export class ReclamosService {
       await this.reclamosValidator.validateAreaExistente(areaId);
     return await this.reclamosRepository.asignarReclamoAArea(
       reclamo,
-      encargado,
       areaOrigen,
       areaDestino,
-      estadoActual,
       comentario,
     );
   }

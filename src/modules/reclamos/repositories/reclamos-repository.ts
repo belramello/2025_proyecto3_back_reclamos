@@ -32,6 +32,7 @@ export class ReclamosRepository implements IReclamosRepository {
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
     subarea: Subarea,
+    estado: string,
   ): Promise<void> {
     try {
       const nuevoHistorial = {
@@ -51,16 +52,18 @@ export class ReclamosRepository implements IReclamosRepository {
         String(nuevoHistorialAsignacion._id),
         reclamo,
       );
-      const nuevoHistorialEstado = await this.historialEstadoService.create({
-        reclamo: reclamo,
-        usuarioResponsable: empleado,
-        historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
-        tipo: TipoCreacionHistorialEnum.EN_PROCESO,
-      });
-      await this.actualizarHistorialEstadoActual(
-        String(nuevoHistorialEstado._id),
-        reclamo,
-      );
+      if (estado == EstadosEnum.PENDIENTE_A_ASIGNAR) {
+        const nuevoHistorialEstado = await this.historialEstadoService.create({
+          reclamo: reclamo,
+          usuarioResponsable: empleado,
+          historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
+          tipo: TipoCreacionHistorialEnum.EN_PROCESO,
+        });
+        await this.actualizarHistorialEstadoActual(
+          String(nuevoHistorialEstado._id),
+          reclamo,
+        );
+      }
     } catch (error) {
       throw new Error(`Error al autoasignar reclamo: ${error.message}`);
     }
@@ -169,10 +172,8 @@ export class ReclamosRepository implements IReclamosRepository {
 
   async asignarReclamoAArea(
     reclamo: ReclamoDocumentType,
-    encargado: Usuario,
     areaOrigen: Area,
     areaDestino: Area,
-    estado: string,
     comentario?: string,
   ): Promise<void> {
     try {
@@ -190,18 +191,6 @@ export class ReclamosRepository implements IReclamosRepository {
         String(nuevoHistorialAsignacion._id),
         reclamo,
       );
-      if (estado == EstadosEnum.PENDIENTE_A_ASIGNAR) {
-        const nuevoHistorialEstado = await this.historialEstadoService.create({
-          reclamo: reclamo,
-          usuarioResponsable: encargado,
-          historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
-          tipo: TipoCreacionHistorialEnum.EN_PROCESO,
-        });
-        await this.actualizarHistorialEstadoActual(
-          String(nuevoHistorialEstado._id),
-          reclamo,
-        );
-      }
     } catch (error) {
       throw new Error(
         `Error al reasignar el reclamo al area: ${error.message}`,
@@ -214,6 +203,7 @@ export class ReclamosRepository implements IReclamosRepository {
     encargado: Usuario,
     subareaDeEmpleado: Subarea,
     empleado: Usuario,
+    estado: string,
     comentario?: string,
   ): Promise<void> {
     try {
@@ -233,16 +223,18 @@ export class ReclamosRepository implements IReclamosRepository {
         String(nuevoHistorialAsignacion._id),
         reclamo,
       );
-      const nuevoHistorialEstado = await this.historialEstadoService.create({
-        reclamo: reclamo,
-        usuarioResponsable: encargado,
-        historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
-        tipo: TipoCreacionHistorialEnum.EN_PROCESO,
-      });
-      await this.actualizarHistorialEstadoActual(
-        String(nuevoHistorialEstado._id),
-        reclamo,
-      );
+      if (estado == EstadosEnum.PENDIENTE_A_ASIGNAR) {
+        const nuevoHistorialEstado = await this.historialEstadoService.create({
+          reclamo: reclamo,
+          usuarioResponsable: encargado,
+          historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
+          tipo: TipoCreacionHistorialEnum.EN_PROCESO,
+        });
+        await this.actualizarHistorialEstadoActual(
+          String(nuevoHistorialEstado._id),
+          reclamo,
+        );
+      }
     } catch (error) {
       throw new Error(
         `Error al asignar el reclamo al empleado: ${error.message}`,

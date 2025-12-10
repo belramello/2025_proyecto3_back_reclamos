@@ -4,10 +4,20 @@ dotenv.config();
 import { connect, Schema, Types } from 'mongoose';
 
 // --------------------------------------------
-// CONSTANTES QUE PEDISTE
+// CONSTANTES
 // --------------------------------------------
 const AREA_DESTINO = '69246b407d0518c5e0c46f82';
 const ESTADO_PENDIENTE_ID = '6921ce775659f081b8e59e5a';
+
+// Para prioridades y creación de títulos
+const PRIORIDADES = ['bajo', 'medio', 'alto'];
+const TITULOS_EJEMPLO = [
+  'Falla en sistema eléctrico',
+  'Inconveniente con la red de datos',
+  'Problema de acceso al sistema',
+  'Revisión de infraestructura',
+  'Solicitud de mantenimiento preventivo',
+];
 
 // --------------------------------------------
 // MODELOS
@@ -26,9 +36,10 @@ async function runSeed() {
     new Schema(
       {
         nroTicket: String,
+        titulo: String,
         tipoReclamo: { type: Types.ObjectId, default: null },
-        prioridad: { type: Types.ObjectId, default: null },
-        nivelCriticidad: { type: Types.ObjectId, default: null },
+        prioridad: { type: String, required: true },
+        nivelCriticidad: { type: Number, required: true },
         historialAsignaciones: [
           { type: Types.ObjectId, ref: 'HistorialAsignacion' },
         ],
@@ -93,15 +104,22 @@ async function runSeed() {
   // --------------------------------------------
   //  CREAR 5 RECLAMOS
   // --------------------------------------------
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 10; i++) {
     const nroTicket = `TCK-${String(i).padStart(4, '0')}`;
 
-    // Crear reclamo base vacío
+    const prioridad =
+      PRIORIDADES[Math.floor(Math.random() * PRIORIDADES.length)];
+    const nivelCriticidad = Math.floor(Math.random() * 5) + 1;
+    const titulo =
+      TITULOS_EJEMPLO[Math.floor(Math.random() * TITULOS_EJEMPLO.length)];
+
+    // Crear reclamo base
     const reclamo = await Reclamo.create({
       nroTicket,
+      titulo,
+      prioridad,
+      nivelCriticidad,
       tipoReclamo: null,
-      prioridad: null,
-      nivelCriticidad: null,
       proyecto: null,
       descripcion: `Reclamo generado automáticamente (${nroTicket})`,
     });
@@ -138,9 +156,12 @@ async function runSeed() {
     await reclamo.save();
 
     console.log(`✔ Reclamo creado: ${nroTicket}`);
+    console.log(`   → Título: ${titulo}`);
+    console.log(`   → Prioridad: ${prioridad}`);
+    console.log(`   → Criticidad: ${nivelCriticidad}\n`);
   }
 
-  console.log('\n🎉 SEED COMPLETO: 5 reclamos generados correctamente');
+  console.log('🎉 SEED COMPLETO: 5 reclamos generados correctamente');
   process.exit(0);
 }
 

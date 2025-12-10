@@ -18,12 +18,11 @@ export class Reclamo {
   @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: false })
   tipoReclamo?: Types.ObjectId; //cambiar a TipoReclamo cuando exista el schema de TipoReclamo
 
-  //IMPORTANTE: LO PUSE OPCIONAL Y REQUIRED FALSE PARA PODER CREAR EL SEED. DESP ACTUALIZAR SI O SI.
-  @Prop({ type: Types.ObjectId, ref: 'Prioridad', required: false })
-  prioridad?: string;
+  @Prop({ required: true })
+  prioridad: string;
 
   @Prop({ required: true })
-  nivelCriticidad?: number;
+  nivelCriticidad: number;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];

@@ -51,7 +51,7 @@ export class ReclamosController {
   @UseGuards(AuthGuard)
   //@PermisoRequerido(PermisosEnum.VISUALIZAR_ESTADO_RECLAMO)
   @Get('historial/:id')
-  consultarHistorialReclamo(@Param('id') id: string) {
+  consultarHistorialReclamo(@Param('id', ParseMongoIdPipe) id: string) {
     return this.reclamosService.consultarHistorialReclamo(id);
   }
 
