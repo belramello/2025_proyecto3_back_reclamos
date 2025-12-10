@@ -33,16 +33,4 @@ export class HistorialAsignacionService {
     );
     return historialDoc;
   }
-
-  findAll() {
-    return `This action returns all historialAsignacion`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} historialAsignacion`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} historialAsignacion`;
-  }
 }

@@ -342,17 +342,75 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  async obtenerReclamosAsignadosDeEmpleado(
-    empleadoId: string,
-  ): Promise<ReclamoDocumentType[] | null> {
+  async obtenerReclamosAsignadosDeEmpleado(empleadoId: string): Promise<any[]> {
     try {
-      return await this.reclamoModel
-        .find({
-          'ultimoHistorialAsignacion.haciaEmpleado': empleadoId,
-          'ultimoHistorialAsignacion.fechaHoraFin': { $exists: false },
-          'ultimoHistorialEstado.estado.nombre': EstadosEnum.EN_PROCESO,
-        })
-        .exec();
+      const objectId = new Types.ObjectId(empleadoId);
+
+      return await this.reclamoModel.aggregate([
+        // 1) Join historial_asignaciones
+        {
+          $lookup: {
+            from: 'historial_asignaciones',
+            localField: 'ultimoHistorialAsignacion',
+            foreignField: '_id',
+            as: 'asig',
+          },
+        },
+        { $unwind: '$asig' },
+        {
+          $lookup: {
+            from: 'historial_estado',
+            localField: 'ultimoHistorialEstado',
+            foreignField: '_id',
+            as: 'estado',
+          },
+        },
+        { $unwind: '$estado' },
+        {
+          $lookup: {
+            from: 'estados',
+            localField: 'estado.estado',
+            foreignField: '_id',
+            as: 'estadoDetalle',
+          },
+        },
+        { $unwind: '$estadoDetalle' },
+        {
+          $lookup: {
+            from: 'proyectos',
+            localField: 'proyecto',
+            foreignField: '_id',
+            as: 'proyectoDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$proyectoDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'cliente',
+            foreignField: '_id',
+            as: 'clienteDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$clienteDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            'asig.haciaEmpleado': objectId,
+            'asig.fechaHoraFin': null,
+            'estadoDetalle.nombre': EstadosEnum.EN_PROCESO,
+          },
+        },
+      ]);
     } catch (error) {
       console.error('Error al obtener reclamos asignados:', error);
       throw error;

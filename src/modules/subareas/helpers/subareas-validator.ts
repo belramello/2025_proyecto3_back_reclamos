@@ -7,11 +7,7 @@ import {
 import { SubareasService } from '../subareas.service';
 import { Subarea } from '../schemas/subarea.schema';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
-import {
-  Usuario,
-  UsuarioDocumentType,
-} from 'src/modules/usuario/schema/usuario.schema';
-import { RespuestaUsuarioDto } from 'src/modules/usuario/dto/respuesta-usuario.dto';
+import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 
 @Injectable()
 export class SubareasValidator {

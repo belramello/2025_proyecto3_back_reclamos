@@ -34,16 +34,22 @@ export class MailService {
     }
   }
 
-  // --- NUEVO MÉTODO AGREGADO ---
   async sendReclamoNotification(
     email: string,
     nroTicket: string,
     titulo: string,
     nuevoEstado: string,
-    mensaje: string
+    mensaje: string,
   ) {
-    const { getNotificacionReclamoTemplate } = require('./templates/notificacion-reclamo.template');
-    const html = getNotificacionReclamoTemplate(nroTicket, titulo, nuevoEstado, mensaje);
+    const {
+      getNotificacionReclamoTemplate,
+    } = require('./templates/notificacion-reclamo.template');
+    const html = getNotificacionReclamoTemplate(
+      nroTicket,
+      titulo,
+      nuevoEstado,
+      mensaje,
+    );
 
     try {
       await this.transporter.sendMail({
@@ -52,7 +58,6 @@ export class MailService {
         subject: `Actualización Reclamo #${nroTicket}`,
         html: html,
       });
-      console.log(`📧 Notificación de reclamo enviada a: ${email}`);
     } catch (error) {
       console.error('❌ Error enviando notificación de reclamo:', error);
     }

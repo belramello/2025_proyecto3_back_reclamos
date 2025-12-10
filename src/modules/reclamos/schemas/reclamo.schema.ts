@@ -20,10 +20,16 @@ export class Reclamo {
   @Prop({ type: Types.ObjectId, ref: 'TipoReclamo', required: false })
   tipoReclamo?: Types.ObjectId;
 
-  @Prop({ type: String, enum: Prioridad, required: true })
+  //LO PONGO EN REQUIRED: FALSE PARA QUE NO SE ROMPA EL REPOSIOTIO CON EL SEED QUE HICE
+  @Prop({
+    type: String,
+    enum: ['Baja', 'Media', 'Alta'],
+    required: false,
+  })
   prioridad: Prioridad;
 
-  @Prop({ type: Number, required: true, min: 1, max: 10 })
+  //LO PONGO EN REQUIRED: FALSE PARA QUE NO SE ROMPA EL REPOSIOTIO CON EL SEED QUE HICE
+  @Prop({ type: Number, required: false, min: 1, max: 10 })
   nivelCriticidad: number;
 
   @Prop()
@@ -45,7 +51,8 @@ export class Reclamo {
     | Types.ObjectId
     | (HistorialEstado & { _id: Types.ObjectId });
 
-  @Prop({ type: Types.ObjectId, ref: 'Proyecto', required: true })
+  //LO PONGO EN FALSE PARA QUE NO SE ROMPA EL REPOSIOTIO CON EL SEED QUE HICE
+  @Prop({ type: Types.ObjectId, ref: 'Proyecto', required: false })
   proyecto: Proyecto | Types.ObjectId;
 
   @Prop({ type: [String], required: false })
@@ -60,7 +67,8 @@ export class Reclamo {
   @Prop({ default: null })
   fechaEliminacion?: Date;
 
-  @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
+  //LO PONGO EN FALSE PARA QUE NO SE ROMPA EL REPOSIOTIO CON EL SEED QUE HICE
+  @Prop({ type: Types.ObjectId, ref: 'Usuario', required: false })
   usuario: Usuario | Types.ObjectId;
 }
 

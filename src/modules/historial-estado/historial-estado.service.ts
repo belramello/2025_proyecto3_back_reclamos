@@ -34,15 +34,7 @@ export class HistorialEstadoService {
     return await this.historialEstadoRepository.cerrarHistorial(historial);
   }
 
-  findAll() {
-    return `This action returns all historialEstado`;
-  }
-
   async findOne(id: string): Promise<HistorialEstadoDocumentType> {
     return await this.historialEstadoRepository.findOne(id);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} historialEstado`;
   }
 }

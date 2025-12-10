@@ -7,6 +7,7 @@ import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
 import { MailService } from '../mail/mail.service';
 import { ReclamosMapper } from './helpers/reclamos-mapper';
+import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 
 @Injectable()
 export class ReclamosService {
@@ -22,12 +23,15 @@ export class ReclamosService {
   create(createReclamoDto: CreateReclamoDto) {
     return 'This action adds a new reclamo';
   }
+
   findAll() {
     return `This action returns all reclamos`;
   }
+
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     return await this.reclamosRepository.findOne(id);
   }
+
   update(id: number, updateReclamoDto: UpdateReclamoDto) {
     return `This action updates a #${id} reclamo`;
   }
@@ -254,11 +258,16 @@ export class ReclamosService {
     );
   }
 
-  async obtenerReclamosAsignados(empleadoId: string) {
+  async obtenerReclamosAsignados(
+    empleadoId: string,
+  ): Promise<ReclamoEnMovimientoDto[]> {
     await this.reclamosValidator.validateEmpleadoExistente(empleadoId);
-    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
-      empleadoId,
-    );
+    const reclamos =
+      await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
+        empleadoId,
+      );
+    if (!reclamos) return [];
+    return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
   async obtenerReclamosPendientesDeArea(encargado: Usuario) {
