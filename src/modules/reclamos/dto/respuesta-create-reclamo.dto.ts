@@ -25,7 +25,7 @@ export class RespuestaCreateReclamoDto {
   proyecto?: Proyecto;
 
   descripcion?: string;
-  imagenUrl?: string;
+  imagenUrl?: string[];
   resumenResolucion?: string;
 
   fechaCreacion: Date;

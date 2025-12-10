@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types,Document } from 'mongoose';
 import { IReclamosRepository } from './reclamos-repository.interface';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { HistorialAsignacionService } from '../../../modules/historial-asignacion/historial-asignacion.service';
@@ -13,10 +13,13 @@ import {
   Inject,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
+import { CreateReclamoDto } from '../dto/create-reclamo.dto';
+import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -27,6 +30,48 @@ export class ReclamosRepository implements IReclamosRepository {
     private readonly historialEstadoService: HistorialEstadoService,
     private readonly areaService: AreasService,
   ) {}
+
+  async crearReclamo(reclamoDto: CreateReclamoDto,cliente: Usuario & Document,): Promise<ReclamoDocumentType> {
+    if (cliente.rol.nombre !== RolesEnum.CLIENTE) {
+      throw new UnauthorizedException('Solo los clientes pueden registrar reclamos.');
+    }
+
+    const estadoInicial = EstadosEnum.PENDIENTE_A_ASIGNAR;
+    const { proyecto, tipoReclamo, ...restOfReclamoData } = reclamoDto;
+
+    const reclamoData = {
+      ...restOfReclamoData,
+      cliente: cliente._id,
+      proyecto: new Types.ObjectId(proyecto),
+      tipoReclamo: new Types.ObjectId(tipoReclamo),
+      estado: estadoInicial,
+      fechaCreacion: new Date(),
+      historialEstados: [
+        {
+          estado: estadoInicial,
+          fecha: new Date(),
+          usuario: cliente._id,
+        },
+      ],
+    };
+
+    const nuevoReclamo = new this.reclamoModel(reclamoData);
+    const reclamoCreado = await nuevoReclamo.save();
+
+    try {
+      const nroTicket = reclamoCreado.nroTicket;
+      // this.emailService.sendTicketConfirmation(cliente.email, nroTicket);
+      // this.asignacionService.determinarYAsignar(reclamoCreado);
+    } catch (error) {
+      console.error(
+        `Advertencia: Reclamo creado (${reclamoCreado._id}), pero falló el proceso de post-creación.`,
+        error,
+      );
+    }
+
+    return reclamoCreado;
+  }
+
 
   async autoasignar(
     reclamo: ReclamoDocumentType,
