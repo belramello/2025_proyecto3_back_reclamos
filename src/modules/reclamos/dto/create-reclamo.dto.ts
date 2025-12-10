@@ -1,13 +1,20 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, Min, Max, IsArray, IsMongoId } from 'class-validator';
-import { Prioridad } from '../schemas/reclamo.schema';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  Min,
+  Max,
+  IsArray,
+  IsMongoId,
+} from 'class-validator';
+import { Prioridad } from './respuesta-create-reclamo.dto';
 
 export class CreateReclamoDto {
-
-
   @IsString()
   @IsNotEmpty()
   titulo: string;
-
 
   @IsMongoId()
   @IsOptional()
@@ -34,6 +41,4 @@ export class CreateReclamoDto {
   @IsArray()
   @IsOptional()
   imagenUrl?: string[];
-
 }
-

@@ -26,6 +26,9 @@ export class Reclamo {
   @Prop({ type: Number, required: true, min: 1, max: 10 })
   nivelCriticidad: number;
 
+  @Prop()
+  descripcion?: string;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'HistorialAsignacion' }] })
   historialAsignaciones: (Types.ObjectId | HistorialAsignacion)[];
 
