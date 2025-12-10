@@ -4,13 +4,9 @@ import { HistorialAsignacion } from '../../../modules/historial-asignacion/schem
 import { HistorialEstado } from '../../../modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from '../../proyectos/schemas/proyecto.schema';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
+import { Prioridad } from '../dto/respuesta-create-reclamo.dto';
 
 export type ReclamoDocumentType = Reclamo & Document;
-export enum Prioridad {
-  BAJA = 'BAJA',
-  MEDIA = 'MEDIA',
-  ALTA = 'ALTA',
-}
 
 @Schema({ collection: 'reclamos', timestamps: true })
 export class Reclamo {
@@ -46,7 +42,6 @@ export class Reclamo {
     | Types.ObjectId
     | (HistorialEstado & { _id: Types.ObjectId });
 
-  // 👇 CAMBIO IMPORTANTE: requerido TRUE según historia de usuario
   @Prop({ type: Types.ObjectId, ref: 'Proyecto', required: true })
   proyecto: Proyecto | Types.ObjectId;
 
