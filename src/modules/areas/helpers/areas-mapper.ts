@@ -16,4 +16,9 @@ export class AreasMapper {
       nombre: areaDocument.nombre,
     };
   }
+
+  toAreaDtoOrNull(area: AreaDocumentType | undefined): AreaDto | null {
+    if (!area) return null;
+    return this.toAreaDto(area);
+  }
 }

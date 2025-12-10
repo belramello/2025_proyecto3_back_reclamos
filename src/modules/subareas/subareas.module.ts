@@ -25,6 +25,6 @@ import { SubareasMapper } from './helpers/subareas-mapper';
     },
     SubareasMapper,
   ],
-  exports: [SubareasValidator, SubareasService],
+  exports: [SubareasValidator, SubareasService, SubareasMapper],
 })
 export class SubareasModule {}

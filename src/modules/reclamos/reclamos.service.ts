@@ -6,6 +6,7 @@ import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario } from '../usuario/schema/usuario.schema';
 import { MailService } from '../mail/mail.service';
+import { ReclamosMapper } from './helpers/reclamos-mapper';
 
 @Injectable()
 export class ReclamosService {
@@ -15,6 +16,7 @@ export class ReclamosService {
     @Inject(forwardRef(() => ReclamosValidator))
     private readonly reclamosValidator: ReclamosValidator,
     private readonly mailService: MailService,
+    private readonly reclamosMapper: ReclamosMapper,
   ) {}
 
   create(createReclamoDto: CreateReclamoDto) {
@@ -35,7 +37,8 @@ export class ReclamosService {
 
   async consultarHistorialReclamo(id: string) {
     await this.reclamosValidator.validateReclamoExistente(id);
-    return await this.reclamosRepository.consultarHistorialReclamo(id);
+    const reclamo = await this.reclamosRepository.consultarHistorialReclamo(id);
+    return this.reclamosMapper.toRespuestaHistorialReclamoDto(reclamo);
   }
 
   async autoasignarReclamo(id: string, empleado: Usuario) {

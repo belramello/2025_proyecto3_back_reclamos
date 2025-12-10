@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { Feedback } from '../schemas/feedback.schema';
 import { RespuestaCreateFeedbackDto } from '../dto/respuesta-create-feedback.dto';

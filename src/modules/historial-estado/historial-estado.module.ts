@@ -14,6 +14,7 @@ import { EnProcesoStrategy } from './estados-strategies/en-proceso-strategy';
 import { HistorialEstadoRepository } from './repositories/historial-estado.repository';
 import { EstadosModule } from '../estados/estados.module';
 import { ReclamosModule } from '../reclamos/reclamos.module';
+import { HistorialEstadosMapper } from './mappers/historial-estado-mapper';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
   controllers: [HistorialEstadoController],
   providers: [
     HistorialEstadoService,
+    HistorialEstadosMapper,
     ResueltoStrategy,
     InicialPendienteAAsignarStrategy,
     ReasignadoPendienteAAsignarStrategy,
@@ -45,6 +47,6 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
       useClass: HistorialEstadoRepository,
     },
   ],
-  exports: [HistorialEstadoService],
+  exports: [HistorialEstadoService, HistorialEstadosMapper],
 })
 export class HistorialEstadoModule {}

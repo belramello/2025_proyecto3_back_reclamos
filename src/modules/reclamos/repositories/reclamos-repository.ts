@@ -96,7 +96,9 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  async consultarHistorialReclamo(reclamoId: string) {
+  async consultarHistorialReclamo(
+    reclamoId: string,
+  ): Promise<ReclamoDocumentType> {
     try {
       const reclamo = await this.reclamoModel
         .findById(reclamoId)
@@ -133,7 +135,9 @@ export class ReclamosRepository implements IReclamosRepository {
           ],
         })
         .exec();
-
+      if (!reclamo) {
+        throw new NotFoundException(`No se encontró el reclamo ${reclamoId}`);
+      }
       return reclamo;
     } catch (error) {
       throw new Error(

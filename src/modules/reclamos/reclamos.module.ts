@@ -12,6 +12,7 @@ import { HistorialEstadoModule } from '../historial-estado/historial-estado.modu
 import { SubareasModule } from '../subareas/subareas.module';
 import { AreasModule } from '../areas/areas.module';
 import { MailModule } from '../mail/mail.module';
+import { ReclamosMapper } from './helpers/reclamos-mapper';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MailModule } from '../mail/mail.module';
     forwardRef(() => UsuarioModule),
     forwardRef(() => SubareasModule),
     MailModule,
+    HistorialAsignacionModule,
   ],
   controllers: [ReclamosController],
   providers: [
@@ -32,6 +34,7 @@ import { MailModule } from '../mail/mail.module';
       useClass: ReclamosRepository,
     },
     ReclamosValidator,
+    ReclamosMapper,
   ],
   exports: [ReclamosService],
 })

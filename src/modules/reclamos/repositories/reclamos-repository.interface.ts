@@ -2,12 +2,10 @@ import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { Area } from 'src/modules/areas/schemas/area.schema';
-import { Estado } from 'src/modules/estados/schemas/estado.schema';
-import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
-  consultarHistorialReclamo(reclamoId: string);
+  consultarHistorialReclamo(reclamoId: string): Promise<ReclamoDocumentType>;
   autoasignar(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,

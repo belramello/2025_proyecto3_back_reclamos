@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { SubareaDeUsuarioDto } from '../dto/subarea-de-usuario.dto';
+import { SubareaDto } from '../dto/subarea-de-usuario.dto';
 import { SubareaDocumentType } from '../schemas/subarea.schema';
 
 @Injectable()
 export class SubareasMapper {
-  toSubareaDeUsuarioDto(subarea: SubareaDocumentType): SubareaDeUsuarioDto {
+  toSubareaDto(subarea: SubareaDocumentType): SubareaDto {
     return {
       id: String(subarea._id),
       nombre: subarea.nombre,
     };
   }
 
-  toSubareasDeUsuarioDtos(
-    subareas: SubareaDocumentType[],
-  ): SubareaDeUsuarioDto[] {
+  toSubareaDtoOrNull(
+    subarea: SubareaDocumentType | undefined,
+  ): SubareaDto | null {
+    if (!subarea) return null;
+    return this.toSubareaDto(subarea);
+  }
+
+  toSubareasDtos(subareas: SubareaDocumentType[]): SubareaDto[] {
     return subareas.map((subarea) => {
-      return this.toSubareaDeUsuarioDto(subarea);
+      return this.toSubareaDto(subarea);
     });
   }
 }

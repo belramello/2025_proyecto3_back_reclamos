@@ -19,7 +19,7 @@ import { UserContext } from './strategies/user-context';
 import { ProyectosService } from '../proyectos/proyectos.service';
 import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
-import { EmpleadoDeSubareaDto } from './dto/empleado-de-subarea.dto';
+import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
 
 @Injectable()
@@ -40,13 +40,19 @@ export class UsuarioService {
     private readonly reclamosService: ReclamosService,
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto): Promise<RespuestaUsuarioDto> {
-    const existe = await this.usuariosRepository.findByEmail(createUsuarioDto.email);
+  async create(
+    createUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    const existe = await this.usuariosRepository.findByEmail(
+      createUsuarioDto.email,
+    );
     if (existe) {
       throw new ConflictException('El correo electrónico ya está registrado.');
     }
 
-    const rolEncontrado = await this.rolesValidator.validateRolExistente(createUsuarioDto.rol);
+    const rolEncontrado = await this.rolesValidator.validateRolExistente(
+      createUsuarioDto.rol,
+    );
     const nombreRol = rolEncontrado.nombre;
 
     const strategy = this.userContext.getStrategy(nombreRol);
@@ -55,37 +61,44 @@ export class UsuarioService {
 
     const usuarioData = await strategy.prepareData(createUsuarioDto);
 
-    const nuevoUsuario = await this.usuariosRepository.create(usuarioData, rolEncontrado);
+    const nuevoUsuario = await this.usuariosRepository.create(
+      usuarioData,
+      rolEncontrado,
+    );
 
     if (usuarioData.tokenActivacion) {
       await this.mailService.sendUserActivation(
         nuevoUsuario.email,
         usuarioData.tokenActivacion,
-        nombreRol
+        nombreRol,
       );
     }
 
     if (createUsuarioDto.proyecto && nombreRol === RolesEnum.CLIENTE) {
       await this.proyectosService.create({
         ...createUsuarioDto.proyecto,
-        cliente: String(nuevoUsuario._id), 
+        cliente: String(nuevoUsuario._id),
       });
     }
 
     return this.usuarioMappers.toResponseDto(nuevoUsuario);
   }
 
-  async updateEmpleado(id: string, updateDto: UpdateUsuarioDto): Promise<RespuestaUsuarioDto> {
+  async updateEmpleado(
+    id: string,
+    updateDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
     // A. Buscamos el empleado actual
     const empleadoActual = await this.findOneForAuth(id);
 
     // B. Verificamos si cambió el email
     if (updateDto.email && updateDto.email !== empleadoActual.email) {
-      
       // 1. Validar que el nuevo email no esté en uso
       const existe = await this.usuariosRepository.findByEmail(updateDto.email);
       if (existe) {
-        throw new ConflictException('El nuevo correo electrónico ya está en uso.');
+        throw new ConflictException(
+          'El nuevo correo electrónico ya está en uso.',
+        );
       }
 
       //Generar nueva lógica de activación (Token + Pass Temp)
@@ -101,57 +114,62 @@ export class UsuarioService {
       const dataAActualizar = {
         ...this.usuarioMappers.toPartialEntity(updateDto),
         email: updateDto.email,
-        contraseña: hash, 
-        tokenActivacion: token, 
+        contraseña: hash,
+        tokenActivacion: token,
         tokenExpiracion: expiracion,
       };
 
       //Actualizamos en BD
-      const empleadoActualizado = await this.usuariosRepository.update(id, dataAActualizar);
+      const empleadoActualizado = await this.usuariosRepository.update(
+        id,
+        dataAActualizar,
+      );
 
       //ENVIAR EMAIL AL NUEVO CORREO
-      const nombreRol = empleadoActual.rol ? (empleadoActual.rol as any).nombre || RolesEnum.EMPLEADO : RolesEnum.EMPLEADO;
-      
+      const nombreRol = empleadoActual.rol
+        ? (empleadoActual.rol as any).nombre || RolesEnum.EMPLEADO
+        : RolesEnum.EMPLEADO;
+
       await this.mailService.sendUserActivation(
         empleadoActualizado.email,
         token,
-        nombreRol
+        nombreRol,
       );
 
       return this.usuarioMappers.toResponseDto(empleadoActualizado);
-
     } else {
       return this.update(id, updateDto);
     }
   }
 
- 
-//Elimina un empleado SOLO si no tiene reclamos asignados.
+  //Elimina un empleado SOLO si no tiene reclamos asignados.
   async removeEmpleado(id: string): Promise<void> {
-    const reclamosAsignados = await this.reclamosService.obtenerReclamosAsignados(id);
+    const reclamosAsignados =
+      await this.reclamosService.obtenerReclamosAsignados(id);
 
     if (reclamosAsignados && reclamosAsignados.length > 0) {
       throw new ConflictException(
-        'No se puede eliminar al empleado porque tiene reclamos asignados en curso o pendientes.'
+        'No se puede eliminar al empleado porque tiene reclamos asignados en curso o pendientes.',
       );
     }
 
     await this.usuariosRepository.remove(id);
-  }
+  }
   async activateUser(id: string, hashContraseña: string): Promise<void> {
     await this.usuariosRepository.update(id, {
       contraseña: hashContraseña,
       tokenActivacion: null,
-      tokenExpiracion: null
+      tokenExpiracion: null,
     } as any);
-    
+
     console.log(`Usuario ${id} activado exitosamente a las ${new Date()}`);
   }
 
-
   async findAll(): Promise<RespuestaUsuarioDto[]> {
     const usuarios = await this.usuariosRepository.findAll();
-    return usuarios.map((usuario) => this.usuarioMappers.toResponseDto(usuario));
+    return usuarios.map((usuario) =>
+      this.usuarioMappers.toResponseDto(usuario),
+    );
   }
 
   async findOne(id: string): Promise<RespuestaUsuarioDto> {
@@ -174,9 +192,15 @@ export class UsuarioService {
     return await this.usuariosRepository.findByToken(token);
   }
 
-  async update(id: string, updateUsuarioDto: UpdateUsuarioDto): Promise<RespuestaUsuarioDto> {
+  async update(
+    id: string,
+    updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
     const partialEntity = this.usuarioMappers.toPartialEntity(updateUsuarioDto);
-    const usuarioActualizado = await this.usuariosRepository.update(id, partialEntity);
+    const usuarioActualizado = await this.usuariosRepository.update(
+      id,
+      partialEntity,
+    );
 
     if (!usuarioActualizado) {
       throw new NotFoundException(`Usuario no encontrado.`);
@@ -192,30 +216,33 @@ export class UsuarioService {
     return await this.usuariosRepository.findByEmail(email);
   }
 
-
   async findAllEmpleadosDeSubareaDelUsuario(
     usuarioId: string,
-  ): Promise<EmpleadoDeSubareaDto[]> {
-    const usuario = await this.usuariosValidator.validateEmpleadoExistente(usuarioId);
-    
-    const subarea = await this.usuariosValidator.validateSubareaAsignadaAEmpleado(usuario);
-    
+  ): Promise<EmpleadoDto[]> {
+    const usuario =
+      await this.usuariosValidator.validateEmpleadoExistente(usuarioId);
+
+    const subarea =
+      await this.usuariosValidator.validateSubareaAsignadaAEmpleado(usuario);
+
     const empleados = await this.usuariosRepository.findAllEmpleadosDeSubarea(
       subarea.nombre,
     );
-    return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
+    return this.usuarioMappers.toEmpleadoDtos(empleados);
   }
 
   async findAllEmpleadosDeAreaDelUsuario(
     usuarioId: string,
-  ): Promise<EmpleadoDeSubareaDto[]> {
-    const usuario = await this.usuariosValidator.validateEncargadoExistente(usuarioId);
-    
-    const area = await this.usuariosValidator.validateAreaAsignadaAEncargado(usuario);
-    
+  ): Promise<EmpleadoDto[]> {
+    const usuario =
+      await this.usuariosValidator.validateEncargadoExistente(usuarioId);
+
+    const area =
+      await this.usuariosValidator.validateAreaAsignadaAEncargado(usuario);
+
     const empleados = await this.usuariosRepository.findAllEmpleadosDeArea(
       area.nombre,
     );
-    return this.usuarioMappers.toEmpleadoDeSubareaDtos(empleados);
+    return this.usuarioMappers.toEmpleadoDtos(empleados);
   }
 }

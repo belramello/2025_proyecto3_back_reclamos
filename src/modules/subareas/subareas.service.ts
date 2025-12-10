@@ -4,12 +4,10 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { CreateSubareaDto } from './dto/create-subarea.dto';
-import { UpdateSubareaDto } from './dto/update-subarea.dto';
 import { Subarea, SubareaDocumentType } from './schemas/subarea.schema';
 import type { ISubareasRepository } from './repositories/subareas-repository.interface';
 import { SubareasValidator } from './helpers/subareas-validator';
-import { SubareaDeUsuarioDto } from './dto/subarea-de-usuario.dto';
+import { SubareaDto } from './dto/subarea-de-usuario.dto';
 import { SubareasMapper } from './helpers/subareas-mapper';
 
 @Injectable()
@@ -21,21 +19,12 @@ export class SubareasService {
     private readonly subareasValidator: SubareasValidator,
     private readonly subareasMapper: SubareasMapper,
   ) {}
-  create(createSubareaDto: CreateSubareaDto) {
-    return 'This action adds a new subarea';
-  }
-
-  findAll() {
-    return `This action returns all subareas`;
-  }
 
   async findOneByNombre(nombre: string): Promise<SubareaDocumentType | null> {
     return await this.subareasRepository.findOneByNombre(nombre);
   }
 
-  async findAllSubareasDeUsuario(
-    usuarioId: string,
-  ): Promise<SubareaDeUsuarioDto[]> {
+  async findAllSubareasDeUsuario(usuarioId: string): Promise<SubareaDto[]> {
     const usuario = await this.subareasValidator.validateNoCliente(usuarioId);
     let nombreArea: string;
     if (usuario.subarea == null) {
@@ -51,7 +40,7 @@ export class SubareasService {
     }
     const subareas =
       await this.subareasRepository.findAllSubareasDeArea(nombreArea);
-    return this.subareasMapper.toSubareasDeUsuarioDtos(subareas);
+    return this.subareasMapper.toSubareasDtos(subareas);
   }
 
   async findAllSubareasDeArea(areaId: string): Promise<SubareaDocumentType[]> {
@@ -60,13 +49,5 @@ export class SubareasService {
 
   async findOne(id: string): Promise<Subarea | null> {
     return await this.subareasRepository.findOne(id);
-  }
-
-  update(id: number, updateSubareaDto: UpdateSubareaDto) {
-    return `This action updates a #${id} subarea`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} subarea`;
   }
 }
