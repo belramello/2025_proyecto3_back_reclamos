@@ -8,12 +8,7 @@ import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
-import {
-  forwardRef,
-  Inject,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
@@ -27,6 +22,30 @@ export class ReclamosRepository implements IReclamosRepository {
     private readonly historialEstadoService: HistorialEstadoService,
     private readonly areaService: AreasService,
   ) {}
+
+  async create(reclamo: ReclamoDocumentType, areaDestino: Area) {
+    //cuando se cree el ReclamoDocumentType, pasarle eso al nuevoHistorial. Ahora se está pasando como parámetro en el método, pero en realidad se tiene que pasar lo que se guarde en la base de datos y BORRAR EL PARÁMETRO DEL METODO CREATE.
+    //EL AREA DESTINO QUE TAMB SE RECIBE COMO PARÁMETRO EN REALIDAD SE TIENE QUE DETERMINAR DE ACUERDO AL TIPO DE RECLAMO. TIENE QUE HABER UNA VINCULACIÓN ENTRE EL TIPO DE RECLAMO Y EL ÁREA EN QUE CAE DE ACUERDO AL TIPO.
+    const nuevoHistorial = {
+      reclamo: reclamo, //aca esta reclamo q le llega por parametro, pero en realidad le tiene que llegar el reclamo que se guarda en la base de datos.
+      haciaArea: areaDestino,
+      tipoAsignacion: TipoAsignacionesEnum.INICIAL,
+    };
+    const nuevoHistorialAsignacion =
+      await this.historialAsignacionService.create(nuevoHistorial);
+    await this.actualizarHistorialAsignacionActual(
+      String(nuevoHistorialAsignacion._id),
+      reclamo,
+    );
+    const nuevoHistorialEstado = await this.historialEstadoService.create({
+      reclamo: reclamo,
+      tipo: TipoCreacionHistorialEnum.INICIAL_PENDIENTE_A_ASIGNAR,
+    });
+    await this.actualizarHistorialEstadoActual(
+      String(nuevoHistorialEstado._id),
+      reclamo,
+    );
+  }
 
   async autoasignar(
     reclamo: ReclamoDocumentType,
