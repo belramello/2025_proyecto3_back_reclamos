@@ -10,14 +10,12 @@ import { Usuario } from '../schema/usuario.schema';
 import { RolesEnum } from '../../roles/enums/roles-enum';
 import { Subarea } from '../../subareas/schemas/subarea.schema';
 import { Area } from '../../areas/schemas/area.schema';
-import { SubareasService } from '../../subareas/subareas.service';
 
 @Injectable()
 export class UsuariosValidator {
   constructor(
     @Inject(forwardRef(() => UsuarioService))
     private readonly usuariosService: UsuarioService,
-    private readonly subareaService: SubareasService,
   ) {}
   async validateEmpleadoExistente(empleadoId: string): Promise<Usuario> {
     const empleado = await this.validateUsuarioExistente(empleadoId);
@@ -63,13 +61,5 @@ export class UsuariosValidator {
       throw new UnauthorizedException(`El usuario es un cliente.`);
     }
     return usuario;
-  }
-
-  async validateSubareaExistente(subareaId: string): Promise<Subarea> {
-    const sub = await this.subareaService.findOne(subareaId);
-    if (!sub) {
-      throw new NotFoundException(`La subarea con ID ${subareaId} no existe.`);
-    }
-    return sub;
   }
 }

@@ -28,7 +28,6 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         ...userData,
         rol: rol,
       });
-      const sub = userData.subarea;
       const created = await userDoc.save();
       // Buscamos de nuevo para devolverlo populado si fuera necesario, 
       // o simplemente devolvemos 'created' si no requieres popular nada extra inmediatamente.

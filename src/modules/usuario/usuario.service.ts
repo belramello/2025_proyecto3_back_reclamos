@@ -21,6 +21,7 @@ import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
+import { SubareasValidator } from '../subareas/helpers/subareas-validator';
 
 @Injectable()
 export class UsuarioService {
@@ -31,6 +32,7 @@ export class UsuarioService {
     @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
     private readonly rolesValidator: RolesValidator,
+    private readonly subareaValidator: SubareasValidator,
     private readonly mailService: MailService,
     private readonly userContext: UserContext,
     @Inject(forwardRef(() => ProyectosService))
@@ -55,7 +57,7 @@ export class UsuarioService {
     );
 
     if (createUsuarioDto.subarea) {
-      await this.usuariosValidator.validateSubareaExistente(
+      await this.subareaValidator.validateSubareaExistente(
         createUsuarioDto.subarea,
       );
     }
