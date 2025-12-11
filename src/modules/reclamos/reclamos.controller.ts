@@ -20,15 +20,23 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
+import Document from 'mongoose';
 
 @Controller('reclamos')
 export class ReclamosController {
   constructor(private readonly reclamosService: ReclamosService) {}
-
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createReclamoDto: CreateReclamoDto) {
-    return this.reclamosService.create(createReclamoDto);
+  async create(
+    @Body() createReclamoDto: CreateReclamoDto,
+    @Req() req: RequestWithUsuario,
+  ) {
+    return await this.reclamosService.crearReclamo(
+      createReclamoDto,
+      req.usuario, 
+    );
   }
+
 
   @Get()
   findAll() {

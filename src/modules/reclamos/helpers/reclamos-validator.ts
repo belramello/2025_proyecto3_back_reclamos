@@ -241,4 +241,13 @@ export class ReclamosValidator {
     this.validateMismaSubarea(subareaEmpleadoOrigen, subareaEmpleadoDestino);
     return [empleadoDestino, subareaEmpleadoDestino];
   }
+
+  async validateClienteReclamo(cliente: Usuario) {
+    if (!cliente || cliente.rol.nombre !== RolesEnum.CLIENTE) {
+      throw new UnauthorizedException(
+        `El usuario no es un cliente autorizado para realizar reclamos`,
+      );
+    }
+  }
+  
 }

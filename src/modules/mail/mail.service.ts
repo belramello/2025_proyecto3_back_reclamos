@@ -57,4 +57,31 @@ export class MailService {
       console.error('❌ Error enviando notificación de reclamo:', error);
     }
   }
+
+
+    async enviarNotificacionCreacionReclamo(email: string,nroTicket: string,titulo: string,fechaCreacion: Date,) {
+    const { getTicketCreationTemplate } = require('./templates/creacion-reclamo.template');
+
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const html = getTicketCreationTemplate(nroTicket, titulo, fechaFormateada);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: `Nuevo reclamo registrado - Ticket #${nroTicket}`,
+        html: html,
+      });
+
+    } catch (error) {
+    }
+  }
+
 }

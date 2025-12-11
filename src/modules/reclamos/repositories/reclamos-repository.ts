@@ -3,11 +3,12 @@ import { Model, Types,Document } from 'mongoose';
 import { IReclamosRepository } from './reclamos-repository.interface';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { HistorialAsignacionService } from '../../../modules/historial-asignacion/historial-asignacion.service';
-import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
+import { Usuario, UsuarioDocumentType } from '../../../modules/usuario/schema/usuario.schema';
 import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
+import { HistorialEstadoDocumentType } from 'src/modules/historial-estado/schema/historial-estado.schema';
 import {
   forwardRef,
   Inject,
@@ -15,11 +16,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ContadorService } from 'src/modules/contador/contador.service';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 import { CreateReclamoDto } from '../dto/create-reclamo.dto';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
+import { MailService } from 'src/modules/mail/mail.service';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -29,48 +32,106 @@ export class ReclamosRepository implements IReclamosRepository {
     @Inject(forwardRef(() => HistorialEstadoService))
     private readonly historialEstadoService: HistorialEstadoService,
     private readonly areaService: AreasService,
+    private readonly contadorService: ContadorService,
+    private readonly mailService: MailService,
+    @InjectModel('HistorialEstado') 
+    private historialEstadoModel: Model<HistorialEstadoDocumentType>,
   ) {}
 
-  async crearReclamo(reclamoDto: CreateReclamoDto,cliente: Usuario & Document,): Promise<ReclamoDocumentType> {
-    if (cliente.rol.nombre !== RolesEnum.CLIENTE) {
-      throw new UnauthorizedException('Solo los clientes pueden registrar reclamos.');
-    }
-
+ /* async crearReclamo(
+    reclamoDto: CreateReclamoDto,
+    cliente: UsuarioDocumentType,
+  ): Promise<ReclamoDocumentType> {
+    const seqNumber = await this.contadorService.getNextSequenceValue('reclamoId');
+    const nroTicketString = this.formatTicketNumber(seqNumber);
     const estadoInicial = EstadosEnum.PENDIENTE_A_ASIGNAR;
+
     const { proyecto, tipoReclamo, ...restOfReclamoData } = reclamoDto;
 
     const reclamoData = {
       ...restOfReclamoData,
-      cliente: cliente._id,
+      nroTicket: nroTicketString,
+      usuario: cliente._id,
       proyecto: new Types.ObjectId(proyecto),
       tipoReclamo: new Types.ObjectId(tipoReclamo),
       estado: estadoInicial,
       fechaCreacion: new Date(),
-      historialEstados: [
-        {
-          estado: estadoInicial,
-          fecha: new Date(),
-          usuario: cliente._id,
-        },
-      ],
+      historialEstados: [],
+      ultimoHistorialEstado: null,
     };
 
     const nuevoReclamo = new this.reclamoModel(reclamoData);
-    const reclamoCreado = await nuevoReclamo.save();
+    let reclamoCreado = await nuevoReclamo.save();
 
-    try {
-      const nroTicket = reclamoCreado.nroTicket;
-      // this.emailService.sendTicketConfirmation(cliente.email, nroTicket);
-      // this.asignacionService.determinarYAsignar(reclamoCreado);
-    } catch (error) {
-      console.error(
-        `Advertencia: Reclamo creado (${reclamoCreado._id}), pero falló el proceso de post-creación.`,
-        error,
-      );
-    }
+    const historialEstadoInicial = await this.historialEstadoModel.create({
+      estado: estadoInicial,
+      fecha: new Date(),
+      usuario: cliente._id,
+      reclamo: reclamoCreado._id,
+    });
+    const historialEstadoId = historialEstadoInicial._id;
+
+    reclamoCreado.historialEstados.push(historialEstadoId);
+    reclamoCreado.ultimoHistorialEstado = historialEstadoId;
+    await reclamoCreado.save();
+
+    reclamoCreado = await reclamoCreado.populate([
+      { path: 'proyecto' },
+      { path: 'tipoReclamo' },
+      { path: 'historialEstados' },
+    ]);
 
     return reclamoCreado;
   }
+  */
+  async crearReclamo(
+    reclamoDto: CreateReclamoDto,
+    cliente: UsuarioDocumentType,
+  ): Promise<ReclamoDocumentType> {
+    const seqNumber = await this.contadorService.getNextSequenceValue('reclamoId');
+    const nroTicketString = this.formatTicketNumber(seqNumber);
+    const estadoInicial = EstadosEnum.PENDIENTE_A_ASIGNAR;
+    const fechaCreacion = new Date();
+
+    const { proyecto, tipoReclamo, ...restOfReclamoData } = reclamoDto;
+
+    const reclamoData = {
+      ...restOfReclamoData,
+      nroTicket: nroTicketString,
+      usuario: cliente._id,
+      proyecto: new Types.ObjectId(proyecto),
+      tipoReclamo: new Types.ObjectId(tipoReclamo),
+      estado: estadoInicial,
+      fechaCreacion: fechaCreacion,
+      historialEstados: [],
+      ultimoHistorialEstado: null,
+    };
+
+    const nuevoReclamo = new this.reclamoModel(reclamoData);
+    let reclamoCreado = await nuevoReclamo.save();
+
+    try {
+      await this.mailService.enviarNotificacionCreacionReclamo(
+        cliente.email,
+        reclamoCreado.nroTicket,
+        reclamoCreado.titulo,
+        fechaCreacion,
+      );
+    } catch (error) {
+      console.error('Error al notificar la creación del reclamo:', error);
+    }
+
+    reclamoCreado = await reclamoCreado.populate([
+      { path: 'proyecto' },
+      { path: 'tipoReclamo' },
+      { path: 'historialEstados' },
+    ]);
+
+    return reclamoCreado;
+  }
+
+
+
 
 
   async autoasignar(
@@ -130,6 +191,13 @@ export class ReclamosRepository implements IReclamosRepository {
             { path: 'haciaArea' },
             { path: 'haciaSubarea' },
             { path: 'haciaEmpleado' },
+          ],
+        })
+        .populate({
+          path: 'proyecto',        
+          populate: [          //Agregué esta parte para que mi herno juan pueda enviar notifiaciones
+            { path: 'cliente',      
+            select: 'email nombre' }
           ],
         })
         .exec();
@@ -472,5 +540,15 @@ export class ReclamosRepository implements IReclamosRepository {
         `Error al actualizar el historial de asignacion actual: ${error.message}`,
       );
     }
+  }
+
+  private formatTicketNumber(seq: number): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const datePart = `${year}${month}${day}`;
+    const seqPart = String(seq).padStart(6, '0');
+    return `TKT-${datePart}-${seqPart}`;
   }
 }

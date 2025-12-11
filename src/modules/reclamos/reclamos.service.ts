@@ -4,8 +4,10 @@ import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
-import { Usuario } from '../usuario/schema/usuario.schema';
+import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 import { MailService } from '../mail/mail.service';
+import { RespuestaCreateReclamoDto } from './dto/respuesta-create-reclamo.dto';
+import { ReclamosMapper } from './mappers/reclamos-mapper';
 
 @Injectable()
 export class ReclamosService {
@@ -15,6 +17,7 @@ export class ReclamosService {
     @Inject(forwardRef(() => ReclamosValidator))
     private readonly reclamosValidator: ReclamosValidator,
     private readonly mailService: MailService,
+    private readonly reclamosMapper: ReclamosMapper,
   ) {}
 
   create(createReclamoDto: CreateReclamoDto) {
@@ -320,4 +323,16 @@ export class ReclamosService {
       message: 'Prueba de correo ejecutada. Revisa tu bandeja de entrada.',
     };
   }
+
+  async crearReclamo(createReclamoDto: CreateReclamoDto,cliente: UsuarioDocumentType,): Promise<RespuestaCreateReclamoDto> {
+    await this.reclamosValidator.validateClienteReclamo(cliente);
+
+    const reclamoCreado = await this.reclamosRepository.crearReclamo(
+      createReclamoDto,
+      cliente,
+    );
+
+    return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
+  }
+
 }
