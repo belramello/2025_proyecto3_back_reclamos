@@ -266,15 +266,18 @@ export class ReclamosService {
       await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
         empleadoId,
       );
-    if (!reclamos) return [];
     return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
-  async obtenerReclamosPendientesDeArea(encargado: Usuario) {
+  async obtenerReclamosAsignadosAUnArea(
+    encargado: Usuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
     const area = await this.reclamosValidator.validateEncargado(encargado);
-    return await this.reclamosRepository.obtenerReclamosPendientesDeArea(
-      area.nombre,
-    );
+    const reclamos =
+      await this.reclamosRepository.obtenerReclamosAsignadosAUnArea(
+        area.nombre,
+      );
+    return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
   // --- HELPER PRIVADO PARA ENVIAR EL MAIL ---

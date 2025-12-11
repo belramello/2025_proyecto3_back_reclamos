@@ -36,15 +36,15 @@ export class ReclamosController {
     return this.reclamosService.findAll();
   }
 
-  //NO FUNCIONA
   @UseGuards(AuthGuard)
   @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
   @Get('reclamos-area')
-  obtenerReclamosPendientesDeArea(@Req() req: RequestWithUsuario) {
-    return this.reclamosService.obtenerReclamosPendientesDeArea(req.usuario);
+  obtenerReclamosAsignadosAUnArea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
+    return this.reclamosService.obtenerReclamosAsignadosAUnArea(req.usuario);
   }
 
-  //NO FUNCIONA
   @UseGuards(AuthGuard)
   @Get('consultar-reclamos-asignados')
   obtenerMisReclamosAsignados(

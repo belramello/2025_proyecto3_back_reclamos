@@ -417,47 +417,106 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  async obtenerReclamosPendientesDeArea(nombreArea: string) {
-    const area = await this.areaService.findOneByNombre(nombreArea);
-
+  async obtenerReclamosAsignadosAUnArea(nombreArea: string): Promise<any[]> {
     try {
+      const area = await this.areaService.findOneByNombre(nombreArea);
       if (!area) {
         throw new NotFoundException(`No se encontró el área ${nombreArea}`);
       }
+      const objectId = new Types.ObjectId(area._id);
+      return await this.reclamoModel.aggregate([
+        // 1) Join historial_asignaciones
+        {
+          $lookup: {
+            from: 'historial_asignaciones',
+            localField: 'ultimoHistorialAsignacion',
+            foreignField: '_id',
+            as: 'asig',
+          },
+        },
+        { $unwind: '$asig' },
 
-      const reclamos = await this.reclamoModel
-        .find()
-        .populate({
-          path: 'ultimoHistorialEstado',
-          populate: { path: 'estado' },
-        })
-        .populate({
-          path: 'ultimoHistorialAsignacion',
-          populate: [{ path: 'haciaArea' }],
-        });
+        // 2) Join historial_estado
+        {
+          $lookup: {
+            from: 'historial_estado',
+            localField: 'ultimoHistorialEstado',
+            foreignField: '_id',
+            as: 'estado',
+          },
+        },
+        { $unwind: '$estado' },
 
-      console.log('reclamos traídos:', reclamos);
+        // 3) Detalle del estado
+        {
+          $lookup: {
+            from: 'estados',
+            localField: 'estado.estado',
+            foreignField: '_id',
+            as: 'estadoDetalle',
+          },
+        },
+        { $unwind: '$estadoDetalle' },
 
-      const reclamosFiltrados = reclamos.filter((r) => {
-        const estadoPendiente =
-          (r.ultimoHistorialEstado as any)?.estado?.nombre ===
-          'Pendiente a Asignar';
+        // 4) Join proyecto
+        {
+          $lookup: {
+            from: 'proyectos',
+            localField: 'proyecto',
+            foreignField: '_id',
+            as: 'proyectoDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$proyectoDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
 
-        const asignacion = r.ultimoHistorialAsignacion as any;
+        // 5) Join cliente
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'cliente',
+            foreignField: '_id',
+            as: 'clienteDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$clienteDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
 
-        const asignacionCorrecta =
-          asignacion &&
-          asignacion.haciaArea?._id.toString() === area._id.toString() &&
-          !asignacion.fechaHoraFin;
+        // 6) FILTRO: asignado actualmente a un área
+        {
+          $match: {
+            'asig.haciaArea': objectId,
+            'asig.haciaEmpleado': null,
+            'asig.haciaSubarea': null,
+            'asig.fechaHoraFin': null,
+            'asig.tipoAsignacion': {
+              $in: [
+                'Inicial',
+                'AsignacionDeAreaAArea',
+                'AsignacionDeEmpleadoAArea',
+              ],
+            },
+          },
+        },
 
-        return estadoPendiente && asignacionCorrecta;
-      });
-      console.log('filtrados:', reclamosFiltrados);
-      return reclamosFiltrados;
+        // 7) FILTRO: estado actual NO es "Resuelto"
+        {
+          $match: {
+            'estadoDetalle.nombre': { $ne: 'Resuelto' },
+          },
+        },
+      ]);
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Error al obtener reclamos pendientes: ${error.message}`,
-      );
+      console.error('Error al obtener reclamos asignados a área:', error);
+      throw error;
     }
   }
 
