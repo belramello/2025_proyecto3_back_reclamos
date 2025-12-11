@@ -9,7 +9,6 @@ export class HistorialAsignacionService {
   constructor(
     @Inject('ASIGNACION_STRATEGIES')
     private readonly strategies: IAsignacionStrategy[],
-
     @Inject('IHistorialAsignacionRepository')
     private readonly historialAsignacionRepository: IHistorialAsignacionRepository,
   ) {}
@@ -28,9 +27,26 @@ export class HistorialAsignacionService {
     const historial = estrategia.crearHistorial(crearAsignacionDto);
     const historialDoc =
       await this.historialAsignacionRepository.create(historial);
-    await this.historialAsignacionRepository.cerrarHistorial(
-      crearAsignacionDto.historialACerrarId,
-    );
+    if (
+      estrategia.requiereCierreHistorial &&
+      crearAsignacionDto.historialACerrarId
+    ) {
+      await this.historialAsignacionRepository.cerrarHistorial(
+        crearAsignacionDto.historialACerrarId,
+      );
+    }
+
+    if (
+      estrategia.requiereNotificacionEmpleado &&
+      estrategia.notificarAsignacionEmpleado &&
+      crearAsignacionDto.haciaEmpleado?.email
+    ) {
+      await estrategia.notificarAsignacionEmpleado(
+        crearAsignacionDto.haciaEmpleado?.email,
+        crearAsignacionDto.reclamo.nroTicket,
+      );
+    }
+
     return historialDoc;
   }
 }

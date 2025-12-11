@@ -3,5 +3,11 @@ import { HistorialAsignacion } from '../schemas/historial-asignacion.schema';
 
 export interface IAsignacionStrategy {
   tipo: string;
+  requiereCierreHistorial: boolean;
+  requiereNotificacionEmpleado: boolean;
   crearHistorial(data: CrearAsignacionDto): HistorialAsignacion;
+  notificarAsignacionEmpleado?(
+    email: string,
+    nroDeTicket: string,
+  ): Promise<void>;
 }

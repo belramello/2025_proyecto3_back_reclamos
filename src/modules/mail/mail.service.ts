@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -59,7 +59,31 @@ export class MailService {
         html: html,
       });
     } catch (error) {
-      console.error('❌ Error enviando notificación de reclamo:', error);
+      new InternalServerErrorException(
+        'Error enviando notificación de asignación de empleado:',
+        error,
+      );
+    }
+  }
+
+  async sendAsignacionEmpleado(email: string, nroTicket: string) {
+    const {
+      getAsignaciionEmpleadoTemplate,
+    } = require('./templates/asignacion-empleado.template');
+    const html = getAsignaciionEmpleadoTemplate(nroTicket);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: `Asignación de Reclamo #${nroTicket}`,
+        html: html,
+      });
+    } catch (error) {
+      new InternalServerErrorException(
+        'Error enviando notificación de asignación de empleado:',
+        error,
+      );
     }
   }
 }
