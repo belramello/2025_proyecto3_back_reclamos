@@ -53,6 +53,13 @@ export class UsuarioService {
     const rolEncontrado = await this.rolesValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
+
+    if (createUsuarioDto.subarea) {
+      await this.usuariosValidator.validateSubareaExistente(
+        createUsuarioDto.subarea,
+      );
+    }
+
     const nombreRol = rolEncontrado.nombre;
 
     const strategy = this.userContext.getStrategy(nombreRol);
