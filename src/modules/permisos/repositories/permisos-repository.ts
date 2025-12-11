@@ -34,7 +34,6 @@ export class PermisosRepository implements IPermisosRepository {
       return permisos;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-
       throw new InternalServerErrorException(
         `Error al encontrar permisos de un rol: ${error.message}`,
       );

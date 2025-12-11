@@ -1,4 +1,4 @@
-export class SubareaDeUsuarioDto {
+export class SubareaDto {
   id: string;
   nombre: string;
 }

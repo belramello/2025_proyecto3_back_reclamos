@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { HistorialAsignacionService } from './historial-asignacion.service';
 import { HistorialAsignacionController } from './historial-asignacion.controller';
 import {
@@ -17,6 +17,10 @@ import { AsignacionEmpleadoSubareaStrategy } from './asignacion-strategies/asign
 import { IAsignacionStrategy } from './asignacion-strategies/asignacion-strategy.interface';
 import { HistorialAsignacionRepository } from './repositories/historial-asignacion.repository';
 import { AsignacionAreaEmpleadoStrategy } from './asignacion-strategies/asignacion-area-empleado.strategy';
+import { HistorialAsignacionesMapper } from './mappers/historial-asignaciones-mapper';
+import { AreasModule } from '../areas/areas.module';
+import { SubareasModule } from '../subareas/subareas.module';
+import { UsuarioModule } from '../usuario/usuario.module';
 
 @Module({
   imports: [
@@ -24,10 +28,14 @@ import { AsignacionAreaEmpleadoStrategy } from './asignacion-strategies/asignaci
       { name: HistorialAsignacion.name, schema: HistorialAsignacionSchema },
       { name: Usuario.name, schema: UsuarioSchema },
     ]),
+    AreasModule,
+    SubareasModule,
+    forwardRef(() => UsuarioModule),
   ],
   controllers: [HistorialAsignacionController],
   providers: [
     HistorialAsignacionService,
+    HistorialAsignacionesMapper,
     AsignacionInicialStrategy,
     AsignacionAreaAreaStrategy,
     AsignacionAreaSubareaStrategy,
@@ -55,6 +63,6 @@ import { AsignacionAreaEmpleadoStrategy } from './asignacion-strategies/asignaci
       ],
     },
   ],
-  exports: [HistorialAsignacionService],
+  exports: [HistorialAsignacionService, HistorialAsignacionesMapper],
 })
 export class HistorialAsignacionModule {}

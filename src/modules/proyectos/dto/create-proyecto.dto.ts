@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsDateString, IsMongoId, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsMongoId,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateProyectoDto {
   @IsString({ message: 'El título debe ser texto.' })
@@ -13,7 +19,10 @@ export class CreateProyectoDto {
   @IsOptional()
   descripcionDetallada?: string;
 
-  @IsDateString({}, { message: 'La fecha debe tener un formato válido (ISO 8601).' })
+  @IsDateString(
+    {},
+    { message: 'La fecha debe tener un formato válido (ISO 8601).' },
+  )
   @IsNotEmpty({ message: 'La fecha de inicio es obligatoria.' })
   fechaInicio: string;
 
@@ -23,5 +32,5 @@ export class CreateProyectoDto {
 
   @IsMongoId({ message: 'El ID del cliente no es válido.' })
   @IsNotEmpty({ message: 'El cliente es obligatorio.' })
-  cliente: string; // Recibimos el _id del usuario (cliente)
+  cliente: string;
 }

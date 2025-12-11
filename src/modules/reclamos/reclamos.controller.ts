@@ -20,6 +20,7 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
+import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -41,6 +42,17 @@ export class ReclamosController {
   @Get('reclamos-area')
   obtenerReclamosPendientesDeArea(@Req() req: RequestWithUsuario) {
     return this.reclamosService.obtenerReclamosPendientesDeArea(req.usuario);
+  }
+
+  //NO FUNCIONA
+  @UseGuards(AuthGuard)
+  @Get('consultar-reclamos-asignados')
+  obtenerMisReclamosAsignados(
+    @Req() req: RequestWithUsuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
+    return this.reclamosService.obtenerReclamosAsignados(
+      String(req.usuario._id),
+    );
   }
 
   @Get(':id')
@@ -166,17 +178,6 @@ export class ReclamosController {
     );
   }
 
-  //NO FUNCIONA
-  @UseGuards(AuthGuard)
-  @Get('consultar-reclamos-asignados')
-  obtenerMisReclamosAsignados(
-    @Param('id', ParseMongoIdPipe) id: string,
-    @Req() req: RequestWithUsuario,
-  ) {
-    return this.reclamosService.obtenerReclamosAsignados(
-      String(req.usuario._id),
-    );
-  }
   // BORRA ESTO BELU CUANDO HAGAS LA LOGICA DE RECLAMOS QUE ES LA SIMULACIÓN DE NOTIFICACIÓN
   @Post('test-mail')
   async testMail(@Body() body: { email: string }) {

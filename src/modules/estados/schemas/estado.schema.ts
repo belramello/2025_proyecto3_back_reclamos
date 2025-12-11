@@ -7,9 +7,6 @@ export type EstadoDocumentType = Estado & Document;
 export class Estado {
   @Prop({ required: true })
   nombre: string;
-
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Permiso' }] })
-  permisos: string[];
 }
 
 export const EstadoSchema = SchemaFactory.createForClass(Estado);

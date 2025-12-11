@@ -8,7 +8,8 @@ import { ProyectosRepositoryInterface } from './proyectos-repository.interface';
 @Injectable()
 export class ProyectosRepository implements ProyectosRepositoryInterface {
   constructor(
-    @InjectModel(Proyecto.name) private readonly proyectoModel: Model<ProyectoDocument>,
+    @InjectModel(Proyecto.name)
+    private readonly proyectoModel: Model<ProyectoDocument>,
   ) {}
 
   async create(createProyectoDto: CreateProyectoDto): Promise<Proyecto> {
@@ -17,7 +18,6 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
   }
 
   async findAll(): Promise<Proyecto[]> {
-    // Populate para traer los datos del cliente (Usuario)
     return await this.proyectoModel.find().populate('cliente').exec();
   }
 

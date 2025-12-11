@@ -29,8 +29,6 @@ export class UsuarioController {
   // 1. RUTAS ESTÁTICAS / ESPECÍFICAS (VAN PRIMERO)
   // =================================================================
 
-  // --- GESTIÓN DE EMPLEADOS DE UN ÁREA (US-153) ---
-  
   @Post('gestion-empleados')
   async createEmpleado(
     @Body() createUsuarioDto: CreateUsuarioDto,
@@ -52,13 +50,17 @@ export class UsuarioController {
   @Get('empleados-subarea')
   @UseGuards(AuthGuard)
   async findAllEmpleadosDeSubarea(@Req() req: RequestWithUsuario) {
-    return this.usuarioService.findAllEmpleadosDeSubareaDelUsuario(String(req.usuario._id));
+    return this.usuarioService.findAllEmpleadosDeSubareaDelUsuario(
+      String(req.usuario._id),
+    );
   }
 
   @Get('empleados-area')
-  @UseGuards(AuthGuard) 
+  @UseGuards(AuthGuard)
   async findAllEmpleadosDeArea(@Req() req: RequestWithUsuario) {
-    return this.usuarioService.findAllEmpleadosDeAreaDelUsuario(String(req.usuario._id));
+    return this.usuarioService.findAllEmpleadosDeAreaDelUsuario(
+      String(req.usuario._id),
+    );
   }
 
   // --- CRUD GENÉRICO (CREATE) ---
@@ -68,7 +70,7 @@ export class UsuarioController {
   ): Promise<RespuestaUsuarioDto> {
     return this.usuarioService.create(createUsuarioDto);
   }
-  
+
   // --- LISTAR TODOS ---
   @Get()
   async findAll(): Promise<RespuestaUsuarioDto[]> {
@@ -78,7 +80,6 @@ export class UsuarioController {
   // =================================================================
   // 2. RUTAS DINÁMICAS / CON PARÁMETROS (VAN AL FINAL)
   // =================================================================
-  // (Si pones estas arriba, "se comen" a las de gestion-empleados)
 
   @Patch('gestion-empleados/:id')
   async updateEmpleado(
@@ -90,7 +91,9 @@ export class UsuarioController {
 
   @Delete('gestion-empleados/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async removeEmpleado(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
+  async removeEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+  ): Promise<void> {
     await this.usuarioService.removeEmpleado(id);
   }
 

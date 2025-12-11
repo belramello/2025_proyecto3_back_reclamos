@@ -1,4 +1,4 @@
-export class EmpleadoDto {
+export class EstadoDto {
   id: string;
   nombre: string;
 }
