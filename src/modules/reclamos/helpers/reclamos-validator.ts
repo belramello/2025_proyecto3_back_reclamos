@@ -21,6 +21,7 @@ import { ProyectosValidator } from 'src/modules/proyectos/helpers/proyectos-vali
 import { ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
 import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
 import { TipoReclamoValidator } from 'src/modules/tipo-reclamo/helpers/tipo-reclamo-validator';
+import { Estado } from 'src/modules/estados/schemas/estado.schema';
 
 @Injectable()
 export class ReclamosValidator {
@@ -91,6 +92,16 @@ export class ReclamosValidator {
       throw new BadRequestException('El reclamo ya se encuentra resuelto');
     }
     return reclamo.ultimoHistorialEstado.estado?.nombre;
+  }
+
+  async validateReclamoResuelto(reclamo: ReclamoDocumentType): Promise<Estado> {
+    if (reclamo.ultimoHistorialEstado instanceof Types.ObjectId) {
+      throw new BadRequestException('No se puede validar el estado actual');
+    }
+    if (reclamo.ultimoHistorialEstado.estado?.nombre == EstadosEnum.RESUELTO) {
+      return reclamo.ultimoHistorialEstado.estado;
+    }
+    throw new BadRequestException('El reclamo ya se encuentra resuelto');
   }
 
   async validateAreaExistente(areaId: string): Promise<Area> {
