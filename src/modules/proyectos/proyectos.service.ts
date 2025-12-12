@@ -17,7 +17,6 @@ export class ProyectosService {
     return await this.proyectosRepository.findAll();
   }
 
-
   async findAllByCliente(clienteId: string) {
     return await this.proyectosRepository.findByCliente(clienteId);
   }

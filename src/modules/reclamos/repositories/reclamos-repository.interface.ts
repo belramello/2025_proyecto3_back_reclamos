@@ -8,6 +8,7 @@ import { CreateReclamoDto } from '../dto/create-reclamo.dto';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
+  consultarHistorialReclamo(reclamoId: string): Promise<ReclamoDocumentType>;
   crearReclamo(reclamo:CreateReclamoDto, cliente:Usuario):Promise<ReclamoDocumentType>
   consultarHistorialReclamo(reclamoId: string);
   autoasignar(
@@ -60,8 +61,6 @@ export interface IReclamosRepository {
     areaDestino: Area,
     comentario?: string,
   ): Promise<void>;
-  obtenerReclamosAsignadosDeEmpleado(
-    empleadoId: string,
-  ): Promise<ReclamoDocumentType[] | null>;
-  obtenerReclamosPendientesDeArea(nombreArea: string);
+  obtenerReclamosAsignadosDeEmpleado(empleadoId: string): Promise<any[]>;
+  obtenerReclamosAsignadosAUnArea(nombreArea: string): Promise<any[]>;
 }

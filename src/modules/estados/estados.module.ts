@@ -3,6 +3,7 @@ import { EstadosService } from './estados.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Estado, EstadoSchema } from './schemas/estado.schema';
 import { EstadosRepository } from './repositories/estados-repository';
+import { EstadosMapper } from './mappers/estado-mapper';
 
 @Module({
   imports: [
@@ -10,11 +11,13 @@ import { EstadosRepository } from './repositories/estados-repository';
   ],
   providers: [
     EstadosService,
+    EstadosMapper,
     {
       provide: 'IEstadosRepository',
       useClass: EstadosRepository,
     },
   ],
-  exports: [EstadosService],
+
+  exports: [EstadosService, EstadosMapper],
 })
 export class EstadosModule {}

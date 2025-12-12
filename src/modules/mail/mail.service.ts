@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -26,40 +26,48 @@ export class MailService {
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
         subject: 'Bienvenido - Activa tu cuenta',
-        html: html,
+        html,
       });
-      console.log(`Mail enviado a: ${email}`);
     } catch (error) {
       console.error('Error enviando mail:', error);
     }
   }
 
-  // --- NUEVO MÉTODO AGREGADO ---
   async sendReclamoNotification(
     email: string,
     nroTicket: string,
     titulo: string,
     nuevoEstado: string,
-    mensaje: string
+    mensaje: string,
   ) {
     const { getNotificacionReclamoTemplate } = require('./templates/notificacion-reclamo.template');
-    const html = getNotificacionReclamoTemplate(nroTicket, titulo, nuevoEstado, mensaje);
+    const html = getNotificacionReclamoTemplate(
+      nroTicket,
+      titulo,
+      nuevoEstado,
+      mensaje,
+    );
 
     try {
       await this.transporter.sendMail({
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
         subject: `Actualización Reclamo #${nroTicket}`,
-        html: html,
+        html,
       });
-      console.log(`📧 Notificación de reclamo enviada a: ${email}`);
     } catch (error) {
-      console.error('❌ Error enviando notificación de reclamo:', error);
+      throw new InternalServerErrorException(
+        'Error enviando notificación de cambio de estado',
+      );
     }
   }
 
-
-    async enviarNotificacionCreacionReclamo(email: string,nroTicket: string,titulo: string,fechaCreacion: Date,) {
+  async enviarNotificacionCreacionReclamo(
+    email: string,
+    nroTicket: string,
+    titulo: string,
+    fechaCreacion: Date,
+  ) {
     const { getTicketCreationTemplate } = require('./templates/creacion-reclamo.template');
 
     const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
@@ -76,12 +84,31 @@ export class MailService {
       await this.transporter.sendMail({
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
-        subject: `Nuevo reclamo registrado - Ticket #${nroTicket}`,
-        html: html,
+        subject: `Nuevo reclamo creado - Ticket #${nroTicket}`,
+        html,
       });
-
     } catch (error) {
+      throw new InternalServerErrorException(
+        'Error enviando notificación de creación',
+      );
     }
   }
 
+  async sendAsignacionEmpleado(email: string, nroTicket: string) {
+    const { getAsignaciionEmpleadoTemplate } = require('./templates/asignacion-empleado.template');
+    const html = getAsignaciionEmpleadoTemplate(nroTicket);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: `Asignación de Reclamo #${nroTicket}`,
+        html,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error enviando notificación de asignación',
+      );
+    }
+  }
 }

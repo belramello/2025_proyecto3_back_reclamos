@@ -7,12 +7,12 @@ import { TipoAsignacionesEnum } from '../enums/tipoAsignacionesEnum';
 export class CrearAsignacionDto {
   reclamo: Reclamo;
   desdeEmpleado?: Usuario;
-  desdeArea: Area;
+  desdeArea?: Area;
   desdeSubarea?: Subarea;
   haciaEmpleado?: Usuario;
   haciaArea: Area;
   haciaSubarea?: Subarea;
   comentario?: string;
   tipoAsignacion: TipoAsignacionesEnum;
-  historialACerrarId: string;
+  historialACerrarId?: string;
 }

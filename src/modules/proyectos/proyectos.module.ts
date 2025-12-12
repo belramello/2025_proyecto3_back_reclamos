@@ -7,7 +7,9 @@ import { ProyectosRepository } from './repositories/proyectos-repository';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Proyecto.name, schema: ProyectoSchema }]),
+    MongooseModule.forFeature([
+      { name: Proyecto.name, schema: ProyectoSchema },
+    ]),
   ],
   controllers: [ProyectosController],
   providers: [

@@ -7,7 +7,8 @@ import { ReclamosValidator } from './helpers/reclamos-validator';
 import { Usuario, UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 import { MailService } from '../mail/mail.service';
 import { RespuestaCreateReclamoDto } from './dto/respuesta-create-reclamo.dto';
-import { ReclamosMapper } from './mappers/reclamos-mapper';
+import { ReclamosMapper } from './helpers/reclamos-mapper';
+import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 
 @Injectable()
 export class ReclamosService {
@@ -23,12 +24,15 @@ export class ReclamosService {
   create(createReclamoDto: CreateReclamoDto) {
     return 'This action adds a new reclamo';
   }
+
   findAll() {
     return `This action returns all reclamos`;
   }
+
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     return await this.reclamosRepository.findOne(id);
   }
+
   update(id: number, updateReclamoDto: UpdateReclamoDto) {
     return `This action updates a #${id} reclamo`;
   }
@@ -38,7 +42,8 @@ export class ReclamosService {
 
   async consultarHistorialReclamo(id: string) {
     await this.reclamosValidator.validateReclamoExistente(id);
-    return await this.reclamosRepository.consultarHistorialReclamo(id);
+    const reclamo = await this.reclamosRepository.consultarHistorialReclamo(id);
+    return this.reclamosMapper.toRespuestaHistorialReclamoDto(reclamo);
   }
 
   async autoasignarReclamo(id: string, empleado: Usuario) {
@@ -254,18 +259,26 @@ export class ReclamosService {
     );
   }
 
-  async obtenerReclamosAsignados(empleadoId: string) {
+  async obtenerReclamosAsignados(
+    empleadoId: string,
+  ): Promise<ReclamoEnMovimientoDto[]> {
     await this.reclamosValidator.validateEmpleadoExistente(empleadoId);
-    return await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
-      empleadoId,
-    );
+    const reclamos =
+      await this.reclamosRepository.obtenerReclamosAsignadosDeEmpleado(
+        empleadoId,
+      );
+    return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
-  async obtenerReclamosPendientesDeArea(encargado: Usuario) {
+  async obtenerReclamosAsignadosAUnArea(
+    encargado: Usuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
     const area = await this.reclamosValidator.validateEncargado(encargado);
-    return await this.reclamosRepository.obtenerReclamosPendientesDeArea(
-      area.nombre,
-    );
+    const reclamos =
+      await this.reclamosRepository.obtenerReclamosAsignadosAUnArea(
+        area.nombre,
+      );
+    return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
   // --- HELPER PRIVADO PARA ENVIAR EL MAIL ---

@@ -23,11 +23,15 @@ import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 import { CreateReclamoDto } from '../dto/create-reclamo.dto';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
 import { MailService } from 'src/modules/mail/mail.service';
+import { TipoReclamo, TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
+
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
     @InjectModel(Reclamo.name)
     private readonly reclamoModel: Model<ReclamoDocumentType>,
+    @InjectModel(TipoReclamo.name) 
+    private readonly tipoReclamoModel:Model<TipoReclamoDocumentType>,
     private readonly historialAsignacionService: HistorialAsignacionService,
     @Inject(forwardRef(() => HistorialEstadoService))
     private readonly historialEstadoService: HistorialEstadoService,
@@ -110,6 +114,7 @@ export class ReclamosRepository implements IReclamosRepository {
     const nuevoReclamo = new this.reclamoModel(reclamoData);
     let reclamoCreado = await nuevoReclamo.save();
 
+    // 📩 Notificación por mail
     try {
       await this.mailService.enviarNotificacionCreacionReclamo(
         cliente.email,
@@ -121,6 +126,40 @@ export class ReclamosRepository implements IReclamosRepository {
       console.error('Error al notificar la creación del reclamo:', error);
     }
 
+    // 🔎 Obtener el área destino según el tipo de reclamo
+    const tipoReclamoDoc = await this.tipoReclamoModel
+      .findById(reclamoCreado.tipoReclamo)
+      .populate('area'); // suponiendo que TipoReclamo tiene un campo "area"
+
+    const areaDestino = tipoReclamoDoc?.area;
+    if (!areaDestino) {
+      throw new Error('No se encontró el área vinculada al tipo de reclamo');
+    }
+
+    // 📜 Crear historial de asignación
+    const nuevoHistorialAsignacion = await this.historialAsignacionService.create({
+      reclamo: reclamoCreado,
+      haciaArea: areaDestino,
+      tipoAsignacion: TipoAsignacionesEnum.INICIAL,
+    });
+
+    await this.actualizarHistorialAsignacionActual(
+      String(nuevoHistorialAsignacion._id),
+      reclamoCreado,
+    );
+
+    // 📜 Crear historial de estado
+    const nuevoHistorialEstado = await this.historialEstadoService.create({
+      reclamo: reclamoCreado,
+      tipo: TipoCreacionHistorialEnum.INICIAL_PENDIENTE_A_ASIGNAR,
+    });
+
+    await this.actualizarHistorialEstadoActual(
+      String(nuevoHistorialEstado._id),
+      reclamoCreado,
+    );
+
+    // 🔄 Populate final
     reclamoCreado = await reclamoCreado.populate([
       { path: 'proyecto' },
       { path: 'tipoReclamo' },
@@ -129,8 +168,6 @@ export class ReclamosRepository implements IReclamosRepository {
 
     return reclamoCreado;
   }
-
-
 
 
 
@@ -209,7 +246,9 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  async consultarHistorialReclamo(reclamoId: string) {
+  async consultarHistorialReclamo(
+    reclamoId: string,
+  ): Promise<ReclamoDocumentType> {
     try {
       const reclamo = await this.reclamoModel
         .findById(reclamoId)
@@ -246,7 +285,9 @@ export class ReclamosRepository implements IReclamosRepository {
           ],
         })
         .exec();
-
+      if (!reclamo) {
+        throw new NotFoundException(`No se encontró el reclamo ${reclamoId}`);
+      }
       return reclamo;
     } catch (error) {
       throw new Error(
@@ -451,64 +492,181 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  async obtenerReclamosAsignadosDeEmpleado(
-    empleadoId: string,
-  ): Promise<ReclamoDocumentType[] | null> {
+  async obtenerReclamosAsignadosDeEmpleado(empleadoId: string): Promise<any[]> {
     try {
-      return await this.reclamoModel
-        .find({
-          'ultimoHistorialAsignacion.haciaEmpleado': empleadoId,
-          'ultimoHistorialAsignacion.fechaHoraFin': { $exists: false },
-          'ultimoHistorialEstado.estado.nombre': EstadosEnum.EN_PROCESO,
-        })
-        .exec();
+      const objectId = new Types.ObjectId(empleadoId);
+
+      return await this.reclamoModel.aggregate([
+        // 1) Join historial_asignaciones
+        {
+          $lookup: {
+            from: 'historial_asignaciones',
+            localField: 'ultimoHistorialAsignacion',
+            foreignField: '_id',
+            as: 'asig',
+          },
+        },
+        { $unwind: '$asig' },
+        {
+          $lookup: {
+            from: 'historial_estado',
+            localField: 'ultimoHistorialEstado',
+            foreignField: '_id',
+            as: 'estado',
+          },
+        },
+        { $unwind: '$estado' },
+        {
+          $lookup: {
+            from: 'estados',
+            localField: 'estado.estado',
+            foreignField: '_id',
+            as: 'estadoDetalle',
+          },
+        },
+        { $unwind: '$estadoDetalle' },
+        {
+          $lookup: {
+            from: 'proyectos',
+            localField: 'proyecto',
+            foreignField: '_id',
+            as: 'proyectoDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$proyectoDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'cliente',
+            foreignField: '_id',
+            as: 'clienteDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$clienteDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            'asig.haciaEmpleado': objectId,
+            'asig.fechaHoraFin': null,
+            'estadoDetalle.nombre': EstadosEnum.EN_PROCESO,
+          },
+        },
+      ]);
     } catch (error) {
       console.error('Error al obtener reclamos asignados:', error);
       throw error;
     }
   }
 
-  async obtenerReclamosPendientesDeArea(nombreArea: string) {
-    const area = await this.areaService.findOneByNombre(nombreArea);
-
+  async obtenerReclamosAsignadosAUnArea(nombreArea: string): Promise<any[]> {
     try {
+      const area = await this.areaService.findOneByNombre(nombreArea);
       if (!area) {
         throw new NotFoundException(`No se encontró el área ${nombreArea}`);
       }
+      const objectId = new Types.ObjectId(area._id);
+      return await this.reclamoModel.aggregate([
+        // 1) Join historial_asignaciones
+        {
+          $lookup: {
+            from: 'historial_asignaciones',
+            localField: 'ultimoHistorialAsignacion',
+            foreignField: '_id',
+            as: 'asig',
+          },
+        },
+        { $unwind: '$asig' },
 
-      const reclamos = await this.reclamoModel
-        .find()
-        .populate({
-          path: 'ultimoHistorialEstado',
-          populate: { path: 'estado' },
-        })
-        .populate({
-          path: 'ultimoHistorialAsignacion',
-          populate: [{ path: 'haciaArea' }],
-        });
+        // 2) Join historial_estado
+        {
+          $lookup: {
+            from: 'historial_estado',
+            localField: 'ultimoHistorialEstado',
+            foreignField: '_id',
+            as: 'estado',
+          },
+        },
+        { $unwind: '$estado' },
 
-      console.log('reclamos traídos:', reclamos);
+        // 3) Detalle del estado
+        {
+          $lookup: {
+            from: 'estados',
+            localField: 'estado.estado',
+            foreignField: '_id',
+            as: 'estadoDetalle',
+          },
+        },
+        { $unwind: '$estadoDetalle' },
 
-      const reclamosFiltrados = reclamos.filter((r) => {
-        const estadoPendiente =
-          (r.ultimoHistorialEstado as any)?.estado?.nombre ===
-          'Pendiente a Asignar';
+        // 4) Join proyecto
+        {
+          $lookup: {
+            from: 'proyectos',
+            localField: 'proyecto',
+            foreignField: '_id',
+            as: 'proyectoDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$proyectoDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
 
-        const asignacion = r.ultimoHistorialAsignacion as any;
+        // 5) Join cliente
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'cliente',
+            foreignField: '_id',
+            as: 'clienteDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$clienteDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
 
-        const asignacionCorrecta =
-          asignacion &&
-          asignacion.haciaArea?._id.toString() === area._id.toString() &&
-          !asignacion.fechaHoraFin;
+        // 6) FILTRO: asignado actualmente a un área
+        {
+          $match: {
+            'asig.haciaArea': objectId,
+            'asig.haciaEmpleado': null,
+            'asig.haciaSubarea': null,
+            'asig.fechaHoraFin': null,
+            'asig.tipoAsignacion': {
+              $in: [
+                'Inicial',
+                'AsignacionDeAreaAArea',
+                'AsignacionDeEmpleadoAArea',
+              ],
+            },
+          },
+        },
 
-        return estadoPendiente && asignacionCorrecta;
-      });
-      console.log('filtrados:', reclamosFiltrados);
-      return reclamosFiltrados;
+        // 7) FILTRO: estado actual NO es "Resuelto"
+        {
+          $match: {
+            'estadoDetalle.nombre': { $ne: 'Resuelto' },
+          },
+        },
+      ]);
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Error al obtener reclamos pendientes: ${error.message}`,
-      );
+      console.error('Error al obtener reclamos asignados a área:', error);
+      throw error;
     }
   }
 

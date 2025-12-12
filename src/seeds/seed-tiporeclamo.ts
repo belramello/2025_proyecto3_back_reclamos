@@ -1,17 +1,14 @@
-// seed/seed-tipos-reclamo.ts (Asegúrate de tener un archivo .env con MONGO_URI)
 
 import * as dotenv from 'dotenv';
-import { connect, Schema } from 'mongoose';
-import { Types } from 'mongoose'; // Necesitamos Types para trabajar con ObjectId
+import { connect, Schema, Types, Document } from 'mongoose';
 
-// Cargar variables de entorno
 dotenv.config();
 
-// Definición de la interfaz del documento de TipoReclamo para usar en el script
 interface ITipoReclamo extends Document {
-    _id: Types.ObjectId;
-    nombre: string;
-    reclamos: Types.ObjectId[];
+  _id: Types.ObjectId;
+  nombre: string;
+  reclamos: Types.ObjectId[];
+  area: Types.ObjectId;
 }
 
 async function runSeed() {
@@ -29,12 +26,11 @@ async function runSeed() {
   // 2. DEFINICIÓN DEL MODELO (RUNTIME)
   // ──────────────────────────────────────────────────────────
 
-  // Creamos el modelo TipoReclamo
   const TipoReclamoSchema = new Schema(
     {
       nombre: { type: String, required: true, unique: true },
-      // Definición para array de referencias (ObjectId)
-      reclamos: [{ type: Schema.Types.ObjectId, ref: 'Reclamo' }], 
+      reclamos: [{ type: Schema.Types.ObjectId, ref: 'Reclamo' }],
+      area: { type: Schema.Types.ObjectId, ref: 'Area', required: true }, // 👈 agregado
     },
     { collection: 'tipo_reclamo', timestamps: true },
   );
@@ -45,11 +41,15 @@ async function runSeed() {
   // 3. DATOS INICIALES Y ASIGNACIÓN DE IDS
   // ──────────────────────────────────────────────────────────
 
+  // IDs de áreas ya existentes en tu base
+  const AREA_PRODUCTO_ID = new Types.ObjectId('693a4ef79be9ee86380af4b3');
+  const AREA_INFRA_ID = new Types.ObjectId('693a4ef79be9ee86380af4b6');
+
   const TIPOS_DE_RECLAMO_INICIALES = [
-    { name: 'Error de Software', id: new Types.ObjectId() },
-    { name: 'Fallo de Hardware', id: new Types.ObjectId() },
-    { name: 'Solicitud de Cambio', id: new Types.ObjectId() },
-    { name: 'Consulta General', id: new Types.ObjectId() },
+    { name: 'Error de Software', id: new Types.ObjectId(), area: AREA_PRODUCTO_ID },
+    { name: 'Fallo de Hardware', id: new Types.ObjectId(), area: AREA_INFRA_ID },
+    { name: 'Solicitud de Cambio', id: new Types.ObjectId(), area: AREA_PRODUCTO_ID },
+    { name: 'Consulta General', id: new Types.ObjectId(), area: AREA_INFRA_ID },
   ];
 
   console.log('\n🗑️ Limpiando la colección "tipo_reclamo"...');
@@ -58,15 +58,16 @@ async function runSeed() {
   console.log('📌 Insertando Tipos de Reclamo...');
 
   for (const tipo of TIPOS_DE_RECLAMO_INICIALES) {
-    // Usamos el ID pregenerado para asegurar que se cree como ObjectId
-    // y para poder usarlo en referencias futuras si fuera necesario.
     let nuevoTipo = await TipoReclamoModel.create({
-      _id: tipo.id, // 🌟 Asignamos la ID de tipo ObjectId
+      _id: tipo.id,
       nombre: tipo.name,
       reclamos: [],
+      area: tipo.area, // 👈 vinculamos cada tipo a un área
     });
-    
-    console.log(`✔ Tipo creado con ObjectId(${nuevoTipo._id.toString()}): ${tipo.name}`);
+
+    console.log(
+      `✔ Tipo creado con ObjectId(${nuevoTipo._id.toString()}): ${tipo.name} → Área ${tipo.area.toString()}`,
+    );
   }
 
   // ──────────────────────────────────────────────────────────

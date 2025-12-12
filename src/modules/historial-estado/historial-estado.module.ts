@@ -9,11 +9,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ICreacionHistorialStrategy } from './estados-strategies/creacion-historial-strategy.interface';
 import { ResueltoStrategy } from './estados-strategies/resuelto-strategy';
 import { InicialPendienteAAsignarStrategy } from './estados-strategies/pendiente-asignar-inicial-strategy';
-import { ReasignadoPendienteAAsignarStrategy } from './estados-strategies/pendiente-asignar-reasignado-strategy';
 import { EnProcesoStrategy } from './estados-strategies/en-proceso-strategy';
 import { HistorialEstadoRepository } from './repositories/historial-estado.repository';
 import { EstadosModule } from '../estados/estados.module';
 import { ReclamosModule } from '../reclamos/reclamos.module';
+import { HistorialEstadosMapper } from './mappers/historial-estado-mapper';
 
 @Module({
   imports: [
@@ -26,9 +26,9 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
   controllers: [HistorialEstadoController],
   providers: [
     HistorialEstadoService,
+    HistorialEstadosMapper,
     ResueltoStrategy,
     InicialPendienteAAsignarStrategy,
-    ReasignadoPendienteAAsignarStrategy,
     EnProcesoStrategy,
     {
       provide: 'CREACION_HISTORIAL_STRATEGIES',
@@ -36,7 +36,6 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
       inject: [
         ResueltoStrategy,
         InicialPendienteAAsignarStrategy,
-        ReasignadoPendienteAAsignarStrategy,
         EnProcesoStrategy,
       ],
     },
@@ -45,6 +44,6 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
       useClass: HistorialEstadoRepository,
     },
   ],
-  exports: [HistorialEstadoService],
+  exports: [HistorialEstadoService, HistorialEstadosMapper],
 })
 export class HistorialEstadoModule {}

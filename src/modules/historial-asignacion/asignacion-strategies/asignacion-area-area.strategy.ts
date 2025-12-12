@@ -7,6 +7,8 @@ import { TipoAsignacionesEnum } from '../enums/tipoAsignacionesEnum';
 @Injectable()
 export class AsignacionAreaAreaStrategy implements IAsignacionStrategy {
   tipo = TipoAsignacionesEnum.DE_AREA_A_AREA;
+  requiereCierreHistorial = true;
+  requiereNotificacionEmpleado = false;
 
   crearHistorial(data: CrearAsignacionDto): HistorialAsignacion {
     return {

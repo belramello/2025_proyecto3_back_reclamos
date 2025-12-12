@@ -12,15 +12,19 @@ import { HistorialEstadoModule } from '../historial-estado/historial-estado.modu
 import { SubareasModule } from '../subareas/subareas.module';
 import { AreasModule } from '../areas/areas.module';
 import { MailModule } from '../mail/mail.module';
-import { ReclamosMapper } from './mappers/reclamos-mapper';
 import { ContadorModule } from '../contador/contador.module';
 import { HistorialEstado, HistorialEstadoSchema } from '../historial-estado/schema/historial-estado.schema';
+import { ReclamosMapper } from './helpers/reclamos-mapper';
+import { TipoReclamo,TipoReclamoSchema } from '../tipo-reclamo/schemas/tipo-reclamo.schema';
+import { Area,AreaSchema } from '../areas/schemas/area.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Reclamo.name, schema: ReclamoSchema },
       { name: HistorialEstado.name, schema: HistorialEstadoSchema },
+       { name: TipoReclamo.name, schema: TipoReclamoSchema },   
+       { name: Area.name, schema: AreaSchema },
     ]),
     JwtModule,
     AreasModule,
@@ -30,6 +34,7 @@ import { HistorialEstado, HistorialEstadoSchema } from '../historial-estado/sche
     MailModule,
     ContadorModule,
     HistorialEstadoModule,
+    HistorialAsignacionModule,
   ],
   controllers: [ReclamosController],
   providers: [

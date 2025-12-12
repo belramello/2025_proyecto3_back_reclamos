@@ -8,9 +8,9 @@ import { Rol, RolSchema } from '../roles/schema/rol.schema';
 import { Usuario, UsuarioSchema } from './schema/usuario.schema';
 import { RolesModule } from '../roles/roles.module';
 import { UsuariosValidator } from './helpers/usuarios-validator';
-import { UserContext } from './strategies/user-context'; 
-import { ProyectosModule } from '../proyectos/proyectos.module'; 
-import { SubareasModule } from '../subareas/subareas.module'; 
+import { UserContext } from './strategies/user-context';
+import { ProyectosModule } from '../proyectos/proyectos.module';
+import { SubareasModule } from '../subareas/subareas.module';
 import { ReclamosModule } from '../reclamos/reclamos.module';
 import { JwtModule } from '../jwt/jwt.module';
 
@@ -22,7 +22,7 @@ import { JwtModule } from '../jwt/jwt.module';
     ]),
     RolesModule,
     JwtModule,
-    forwardRef(() => ProyectosModule), 
+    forwardRef(() => ProyectosModule),
     forwardRef(() => SubareasModule),
     forwardRef(() => ReclamosModule),
   ],
@@ -35,8 +35,8 @@ import { JwtModule } from '../jwt/jwt.module';
       useClass: UsuarioMongoRepository,
     },
     UsersMapper,
-    UserContext, 
+    UserContext,
   ],
-  exports: [UsuarioService, UsuariosValidator],
+  exports: [UsuarioService, UsuariosValidator, UsersMapper],
 })
 export class UsuarioModule {}
