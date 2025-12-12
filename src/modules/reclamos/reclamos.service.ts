@@ -51,7 +51,8 @@ export class ReclamosService {
     );
     return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
   }
-
+  //ME FALTA POR HACER, VOY A SEGUIR LA LÓGICA QUE HICIERON @MARTIN
+  //async registrarReclamoResuelto()
   findAll() {
     return `This action returns all reclamos`;
   }

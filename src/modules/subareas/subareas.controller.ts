@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param } from '@nestjs/common';
 import { SubareasService } from './subareas.service';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
@@ -26,5 +16,10 @@ export class SubareasController {
     return this.subareasService.findAllSubareasDeUsuario(
       String(req.usuario._id),
     );
+  }
+
+  @Get('area/:id')
+  async findSubAreaDeArea(@Param('id') id: string): Promise<SubareaDto[]> {
+    return this.subareasService.findSubAreaDeArea(id);
   }
 }

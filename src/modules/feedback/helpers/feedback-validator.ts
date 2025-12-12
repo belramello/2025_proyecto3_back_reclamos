@@ -10,6 +10,7 @@ import { ReclamosService } from '../../../modules/reclamos/reclamos.service';
 import { UsuarioService } from '../../../modules/usuario/usuario.service';
 import { Types } from 'mongoose';
 import type { IFeedbackRepository } from '../repository/feedback-repository.interface';
+import { ReclamoDocumentType } from 'src/modules/reclamos/schemas/reclamo.schema';
 
 @Injectable()
 export class FeedbackValidator {
@@ -86,11 +87,37 @@ export class FeedbackValidator {
     }
   }
 
+  validateReclamoResuelto(reclamo: ReclamoDocumentType) {
+    const ultimoHistorialEstado = reclamo.ultimoHistorialEstado as any; // Usamos 'any' para acceder a 'estado' sin problemas de tipado de Mongoose-populated
+
+    if (!ultimoHistorialEstado || ultimoHistorialEstado instanceof Types.ObjectId) {
+      throw new BadRequestException(
+        'El reclamo no tiene un historial de estado o no está poblado completamente (último estado no poblado)',
+      );
+    }
+
+    const estado = ultimoHistorialEstado.estado as any; // Usamos 'any' para acceder a 'nombre'
+
+    if (!estado || estado instanceof Types.ObjectId) {
+      throw new BadRequestException(
+        'El último historial de estado no tiene un estado asociado o no está poblado (estado del historial no poblado)',
+      );
+    }
+
+    // Finalmente, validamos el nombre del estado
+    if (estado.nombre !== 'Resuelto') {
+      throw new BadRequestException(
+        `Solo se puede dejar feedback si el estado del reclamo es "Resuelto". El estado actual es: ${estado.nombre}`,
+      );
+    }
+  }
+
   /** Validación completa */
   async validateCreateFeedback(reclamoId: string, clienteId: string) {
     const reclamo = await this.validateReclamoExistente(reclamoId);
     await this.validateUsuarioExistente(clienteId);
     this.validateUsuarioEsCliente(reclamo, clienteId);
+    this.validateReclamoResuelto(reclamo);
     await this.validateNoFeedbackDuplicado(reclamoId, clienteId);
 
     return reclamo;

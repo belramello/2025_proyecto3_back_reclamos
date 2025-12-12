@@ -6,11 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsuarioService } from '../usuario.service';
-import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
-import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
-import { RespuestaUsuarioDto } from '../dto/respuesta-usuario.dto';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
-import { Area } from 'src/modules/areas/schemas/area.schema';
+import { Usuario } from '../schema/usuario.schema';
+import { RolesEnum } from '../../roles/enums/roles-enum';
+import { Subarea } from '../../subareas/schemas/subarea.schema';
+import { Area } from '../../areas/schemas/area.schema';
 
 @Injectable()
 export class UsuariosValidator {

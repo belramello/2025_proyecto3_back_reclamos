@@ -11,7 +11,7 @@ import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
-import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
@@ -24,6 +24,7 @@ import {
   Proyecto,
   ProyectoDocument,
 } from 'src/modules/proyectos/schemas/proyecto.schema';
+import { Estado } from 'src/modules/estados/schemas/estado.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -600,6 +601,8 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
+//ME FALTA HACER ESTO @MARTIN
+//async registrarResolucion()
   async actualizarHistorialAsignacionActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
