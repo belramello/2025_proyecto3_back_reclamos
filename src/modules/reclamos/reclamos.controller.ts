@@ -20,13 +20,15 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { EmpleadoAASignarDto } from './dto/empleado-a-asignar.dto';
 import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
-import Document from 'mongoose';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
+import { PermisosGuard } from 'src/common/guards/permisos.guard';
 
 @Controller('reclamos')
 export class ReclamosController {
   constructor(private readonly reclamosService: ReclamosService) {}
-  @UseGuards(AuthGuard)
+
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.REGISTRAR_RECLAMO)
   @Post()
   async create(
     @Body() createReclamoDto: CreateReclamoDto,
@@ -34,10 +36,9 @@ export class ReclamosController {
   ) {
     return await this.reclamosService.crearReclamo(
       createReclamoDto,
-      req.usuario, 
+      req.usuario,
     );
   }
-
 
   @Get()
   findAll() {

@@ -4,7 +4,7 @@ import { HistorialAsignacion } from '../../../modules/historial-asignacion/schem
 import { HistorialEstado } from '../../../modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from '../../proyectos/schemas/proyecto.schema';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
-import { Prioridad } from '../dto/respuesta-create-reclamo.dto';
+import { Prioridad } from 'src/modules/historial-asignacion/enums/PrioridadEnum';
 
 export type ReclamoDocumentType = Reclamo & Document;
 
@@ -23,7 +23,7 @@ export class Reclamo {
   //LO PONGO EN REQUIRED: FALSE PARA QUE NO SE ROMPA EL REPOSIOTIO CON EL SEED QUE HICE
   @Prop({
     type: String,
-    enum: ['BAJA', 'MEDIA', 'ALTA'],
+    enum: ['Baja', 'Media', 'Alta'],
     required: false,
   })
   prioridad: Prioridad;

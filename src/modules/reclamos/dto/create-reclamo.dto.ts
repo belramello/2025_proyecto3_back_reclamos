@@ -9,7 +9,7 @@ import {
   IsArray,
   IsMongoId,
 } from 'class-validator';
-import { Prioridad } from './respuesta-create-reclamo.dto';
+import { Prioridad } from 'src/modules/historial-asignacion/enums/PrioridadEnum';
 
 export class CreateReclamoDto {
   @IsString()

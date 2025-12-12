@@ -2,11 +2,7 @@ import { TipoReclamo } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schem
 import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from 'src/modules/proyectos/schemas/proyecto.schema';
-export enum Prioridad {
-  BAJA = 'BAJA',
-  MEDIA = 'MEDIA',
-  ALTA = 'ALTA',
-}
+import { Prioridad } from 'src/modules/historial-asignacion/enums/PrioridadEnum';
 
 export class RespuestaCreateReclamoDto {
   _id: string;

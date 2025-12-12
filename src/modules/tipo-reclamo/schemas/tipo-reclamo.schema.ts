@@ -9,9 +9,6 @@ export class TipoReclamo {
   @Prop({ required: true })
   nombre: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Reclamo' }] })
-  reclamos: Types.ObjectId[];
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Area', required: true })
   area: Area;
 }

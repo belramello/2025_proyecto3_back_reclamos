@@ -1,7 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TipoReclamoDocumentType } from '../schemas/tipo-reclamo.schema';
 import { TipoReclamosService } from '../tipo-reclamo.service';
 
+@Injectable()
 export class TipoReclamoValidator {
   constructor(private readonly tipoReclamoService: TipoReclamosService) {}
 
