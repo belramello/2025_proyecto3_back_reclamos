@@ -1,9 +1,8 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Param } from '@nestjs/common';
 import { SubareasService } from './subareas.service';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import { SubareaDto } from './dto/subarea-de-usuario.dto';
-import type { AreaDocumentType } from '../areas/schemas/area.schema';
 
 @Controller('subareas')
 export class SubareasController {
@@ -19,13 +18,8 @@ export class SubareasController {
     );
   }
 
-  @Get('area')
-  async findSubAreaDeArea(@Req() req: AreaDocumentType): Promise<SubareaDto[]> {
-    const area = req._id;
-    if (area) {
-      return this.subareasService.findSubAreaDeArea(String(area));
-    } else {
-      throw new Error('req.usuario.area is undefined');
-    }
+  @Get('area/:id')
+  async findSubAreaDeArea(@Param('id') id: string): Promise<SubareaDto[]> {
+    return this.subareasService.findSubAreaDeArea(id);
   }
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Subarea, SubareaDocumentType } from '../schemas/subarea.schema';
 import { ISubareasRepository } from './subareas-repository.interface';
+import { Types } from 'mongoose';
 
 export class SubareasRepository implements ISubareasRepository {
   constructor(
@@ -42,7 +43,7 @@ export class SubareasRepository implements ISubareasRepository {
       return await this.subareaModel.find({ area: areaId }).exec();
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al obtener las subareas de la area con el nombre ${areaId}: ${error.message}`,
+        `Error al obtener las subáreas del área con ID ${areaId}: ${error.message}`,
       );
     }
   }
@@ -65,12 +66,16 @@ export class SubareasRepository implements ISubareasRepository {
     }
   }
 
-  async findSubAreaDeArea(areaId: string): Promise<SubareaDocumentType[]> {
+  async findAllPorArea(areaId: string): Promise<SubareaDocumentType[]> {
     try {
-      return await this.subareaModel.find({ area: areaId }).exec();
+      return await this.subareaModel
+        .find({
+          area: new Types.ObjectId(areaId),
+        })
+        .exec();
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al obtener las subareas del area con ID ${areaId}: ${error.message}`,
+        `Error al obtener las subáreas del área con ID ${areaId}: ${error.message}`,
       );
     }
   }
