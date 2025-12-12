@@ -27,4 +27,13 @@ export class SubareasController {
       String(req.usuario._id),
     );
   }
+
+  @Get("area")
+  async findSubAreaDeArea(
+    @Req() req: RequestWithUsuario
+  ): Promise<SubareaDto[]> {
+    return this.subareasService.findSubAreaDeArea(
+      req.usuario.area
+    );
+  }
 }
