@@ -9,7 +9,7 @@ export class TipoReclamosService {
     private readonly tipoReclamosRepository: ITipoReclamosRepository,
   ) {}
 
-  async findById(id: string): Promise<TipoReclamoDocumentType> {
-    return await this.tipoReclamosRepository.findOneById(id);
+  async findOne(id: string): Promise<TipoReclamoDocumentType | null> {
+    return await this.tipoReclamosRepository.findOne(id);
   }
 }

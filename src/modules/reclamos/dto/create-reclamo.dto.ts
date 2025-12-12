@@ -17,8 +17,7 @@ export class CreateReclamoDto {
   titulo: string;
 
   @IsMongoId()
-  @IsOptional()
-  tipoReclamo?: string;
+  tipoReclamo: string;
 
   @IsEnum(Prioridad)
   @IsNotEmpty()

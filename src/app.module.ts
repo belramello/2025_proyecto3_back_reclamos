@@ -16,7 +16,6 @@ import { ReclamosModule } from './modules/reclamos/reclamos.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { ProyectosModule } from './modules/proyectos/proyectos.module';
 import { MailModule } from './modules/mail/mail.module';
-import { ContadorModule } from './modules/contador/contador.module';
 import { TipoReclamoModule } from './modules/tipo-reclamo/tipo-reclamo.module';
 
 @Module({
@@ -41,8 +40,7 @@ import { TipoReclamoModule } from './modules/tipo-reclamo/tipo-reclamo.module';
     FeedbackModule,
     ProyectosModule,
     MailModule,
-    ContadorModule,
-    TipoReclamoModule
+    TipoReclamoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

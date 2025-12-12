@@ -21,7 +21,6 @@ export class Proyecto {
   @Prop({ required: true })
   tipo: string; // Ej: "Desarrollo de Software", "Marketing"
 
-  // Relación con el Cliente (Usuario)
   @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
   cliente: Usuario;
 }

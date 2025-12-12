@@ -9,6 +9,7 @@ import { MailService } from '../mail/mail.service';
 import { RespuestaCreateReclamoDto } from './dto/respuesta-create-reclamo.dto';
 import { ReclamosMapper } from './helpers/reclamos-mapper';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
+import { ReclamosHelper } from './helpers/reclamos-helper';
 
 @Injectable()
 export class ReclamosService {
@@ -19,10 +20,36 @@ export class ReclamosService {
     private readonly reclamosValidator: ReclamosValidator,
     private readonly mailService: MailService,
     private readonly reclamosMapper: ReclamosMapper,
+    private readonly reclamosHelper: ReclamosHelper,
   ) {}
 
-  create(createReclamoDto: CreateReclamoDto) {
-    return 'This action adds a new reclamo';
+  async crearReclamo(
+    createReclamoDto: CreateReclamoDto,
+    cliente: UsuarioDocumentType,
+  ): Promise<RespuestaCreateReclamoDto> {
+    await this.reclamosValidator.validateCliente(cliente);
+    const proyecto = await this.reclamosValidator.validateProyectoDeCliente(
+      cliente,
+      createReclamoDto.proyecto,
+    );
+    const tipoReclamo = await this.reclamosValidator.validateTipoReclamo(
+      createReclamoDto.tipoReclamo,
+    );
+    const reclamoCreado = await this.reclamosRepository.crearReclamo(
+      createReclamoDto,
+      this.reclamosHelper.generarNroDeTicket(),
+      cliente,
+      proyecto,
+      tipoReclamo,
+    );
+
+    await this.mailService.enviarNotificacionCreacionReclamo(
+      cliente.email,
+      reclamoCreado.nroTicket,
+      reclamoCreado.titulo,
+      new Date(),
+    );
+    return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
   }
 
   findAll() {
@@ -336,16 +363,4 @@ export class ReclamosService {
       message: 'Prueba de correo ejecutada. Revisa tu bandeja de entrada.',
     };
   }
-
-  async crearReclamo(createReclamoDto: CreateReclamoDto,cliente: UsuarioDocumentType,): Promise<RespuestaCreateReclamoDto> {
-    await this.reclamosValidator.validateClienteReclamo(cliente);
-
-    const reclamoCreado = await this.reclamosRepository.crearReclamo(
-      createReclamoDto,
-      cliente,
-    );
-
-    return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
-  }
-
 }

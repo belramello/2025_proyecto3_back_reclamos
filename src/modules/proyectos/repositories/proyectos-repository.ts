@@ -17,6 +17,20 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
     return await createdProyecto.save();
   }
 
+  async findOne(id: string): Promise<ProyectoDocument | null> {
+    try {
+      const proyecto = await this.proyectoModel
+        .findById(id)
+        .populate('cliente')
+        .exec();
+      return proyecto;
+    } catch (error) {
+      throw new Error(
+        `Error al obtener el proyecto con ID ${id}: ${error.message}`,
+      );
+    }
+  }
+
   async findAll(): Promise<Proyecto[]> {
     return await this.proyectoModel.find().populate('cliente').exec();
   }

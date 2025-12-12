@@ -1,8 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ITipoReclamosRepository } from './tiporeclamo-repository.interface';
-import { TipoReclamo,TipoReclamoDocumentType } from '../schemas/tipo-reclamo.schema';
-import { NotFoundException, Injectable } from '@nestjs/common';
+import {
+  TipoReclamo,
+  TipoReclamoDocumentType,
+} from '../schemas/tipo-reclamo.schema';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class TipoReclamosRepository implements ITipoReclamosRepository {
@@ -23,13 +26,11 @@ export class TipoReclamosRepository implements ITipoReclamosRepository {
     }
   }
 
-  async findOneById(id: string): Promise<TipoReclamoDocumentType> {
-    const doc = await this.tipoReclamoModel.findById(id).exec();
-
-    if (!doc) {
-      throw new NotFoundException(`Tipo de reclamo con ID ${id} no encontrado.`);
-    }
-
+  async findOne(id: string): Promise<TipoReclamoDocumentType | null> {
+    const doc = await this.tipoReclamoModel
+      .findById(id)
+      .populate('area')
+      .exec();
     return doc;
   }
 }

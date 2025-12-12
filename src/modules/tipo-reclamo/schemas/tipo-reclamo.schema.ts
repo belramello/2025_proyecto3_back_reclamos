@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types,Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Area } from 'src/modules/areas/schemas/area.schema';
 
@@ -12,8 +12,8 @@ export class TipoReclamo {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Reclamo' }] })
   reclamos: Types.ObjectId[];
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Area', required: false })
-  area: Area; 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Area', required: true })
+  area: Area;
 }
 
 export const TipoReclamoSchema = SchemaFactory.createForClass(TipoReclamo);
