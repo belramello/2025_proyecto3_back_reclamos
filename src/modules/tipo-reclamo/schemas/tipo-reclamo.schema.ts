@@ -5,9 +5,6 @@ import { Types } from 'mongoose';
 export class TipoReclamo {
   @Prop({ required: true })
   nombre: string;
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Reclamo' }] })
-  reclamos: Types.ObjectId[];
 }
 
 export const TipoReclamoSchema = SchemaFactory.createForClass(TipoReclamo);

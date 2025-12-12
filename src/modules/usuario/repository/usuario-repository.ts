@@ -27,9 +27,10 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const userDoc = new this.userModel({
         ...userData,
         rol: rol,
+        subarea: userData.subarea ? new Types.ObjectId(userData.subarea) : null,
       });
       const created = await userDoc.save();
-      // Buscamos de nuevo para devolverlo populado si fuera necesario, 
+      // Buscamos de nuevo para devolverlo populado si fuera necesario,
       // o simplemente devolvemos 'created' si no requieres popular nada extra inmediatamente.
       // Mantengo tu lógica de buscarlo:
       const user = await this.findOne(created._id.toString());
