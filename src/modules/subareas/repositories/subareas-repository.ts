@@ -64,4 +64,14 @@ export class SubareasRepository implements ISubareasRepository {
       );
     }
   }
+
+  async findSubAreaDeArea(areaId: string): Promise<SubareaDocumentType[]> {
+    try {
+      return await this.subareaModel.find({ area: areaId }).exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener las subareas del area con ID ${areaId}: ${error.message}`,
+      );
+    }
+  }
 }

@@ -50,4 +50,10 @@ export class SubareasService {
   async findOne(id: string): Promise<Subarea | null> {
     return await this.subareasRepository.findOne(id);
   }
+
+  async findSubAreaDeArea(areaID: string): Promise<SubareaDto[]> {
+    const subareas =
+      await this.subareasRepository.findAllSubareasDeArea(areaID);
+    return this.subareasMapper.toSubareasDtos(subareas);
+  }
 }
