@@ -114,7 +114,12 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     try {
       const doc = await this.userModel
         .findById(id)
-        .populate('rol')
+        .populate({
+          path: 'rol',
+          populate: {
+            path: 'permisos',
+          },
+        })
         .populate('area')
         .populate({
           path: 'subarea',

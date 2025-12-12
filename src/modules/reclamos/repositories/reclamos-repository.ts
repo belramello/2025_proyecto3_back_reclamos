@@ -1,9 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, Document } from 'mongoose';
 import { IReclamosRepository } from './reclamos-repository.interface';
 import { Reclamo, ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { HistorialAsignacionService } from '../../../modules/historial-asignacion/historial-asignacion.service';
-import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
+import {
+  Usuario,
+  UsuarioDocumentType,
+} from '../../../modules/usuario/schema/usuario.schema';
 import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
@@ -12,6 +15,15 @@ import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
+import { CreateReclamoDto } from '../dto/create-reclamo.dto';
+import {
+  TipoReclamo,
+  TipoReclamoDocumentType,
+} from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
+import {
+  Proyecto,
+  ProyectoDocument,
+} from 'src/modules/proyectos/schemas/proyecto.schema';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -23,28 +35,55 @@ export class ReclamosRepository implements IReclamosRepository {
     private readonly areaService: AreasService,
   ) {}
 
-  async create(reclamo: ReclamoDocumentType, areaDestino: Area) {
-    //cuando se cree el ReclamoDocumentType, pasarle eso al nuevoHistorial. Ahora se está pasando como parámetro en el método, pero en realidad se tiene que pasar lo que se guarde en la base de datos y BORRAR EL PARÁMETRO DEL METODO CREATE.
-    //EL AREA DESTINO QUE TAMB SE RECIBE COMO PARÁMETRO EN REALIDAD SE TIENE QUE DETERMINAR DE ACUERDO AL TIPO DE RECLAMO. TIENE QUE HABER UNA VINCULACIÓN ENTRE EL TIPO DE RECLAMO Y EL ÁREA EN QUE CAE DE ACUERDO AL TIPO.
-    const nuevoHistorial = {
-      reclamo: reclamo, //aca esta reclamo q le llega por parametro, pero en realidad le tiene que llegar el reclamo que se guarda en la base de datos.
-      haciaArea: areaDestino,
-      tipoAsignacion: TipoAsignacionesEnum.INICIAL,
+  async crearReclamo(
+    reclamoDto: CreateReclamoDto,
+    nroTicket: string,
+    cliente: UsuarioDocumentType,
+    proyecto: ProyectoDocument,
+    tipoReclamo: TipoReclamoDocumentType,
+  ): Promise<ReclamoDocumentType> {
+    const reclamoData = {
+      ...reclamoDto,
+      nroTicket: nroTicket,
+      usuario: cliente._id,
+      proyecto: proyecto._id,
+      tipoReclamo: tipoReclamo._id,
+      estado: EstadosEnum.PENDIENTE_A_ASIGNAR,
+      fechaCreacion: new Date(),
+      historialEstados: [],
+      ultimoHistorialEstado: null,
     };
+    const nuevoReclamo = new this.reclamoModel(reclamoData);
+    let reclamoCreado = await nuevoReclamo.save();
+
+    const areaDestino = tipoReclamo.area;
+    if (!areaDestino) {
+      throw new Error('No se encontró el área vinculada al tipo de reclamo');
+    }
     const nuevoHistorialAsignacion =
-      await this.historialAsignacionService.create(nuevoHistorial);
+      await this.historialAsignacionService.create({
+        reclamo: reclamoCreado,
+        haciaArea: areaDestino,
+        tipoAsignacion: TipoAsignacionesEnum.INICIAL,
+      });
     await this.actualizarHistorialAsignacionActual(
       String(nuevoHistorialAsignacion._id),
-      reclamo,
+      reclamoCreado,
     );
     const nuevoHistorialEstado = await this.historialEstadoService.create({
-      reclamo: reclamo,
+      reclamo: reclamoCreado,
       tipo: TipoCreacionHistorialEnum.INICIAL_PENDIENTE_A_ASIGNAR,
     });
     await this.actualizarHistorialEstadoActual(
       String(nuevoHistorialEstado._id),
-      reclamo,
+      reclamoCreado,
     );
+    reclamoCreado = await reclamoCreado.populate([
+      { path: 'proyecto' },
+      { path: 'tipoReclamo' },
+      { path: 'historialEstados' },
+    ]);
+    return reclamoCreado;
   }
 
   async autoasignar(
@@ -104,6 +143,13 @@ export class ReclamosRepository implements IReclamosRepository {
             { path: 'haciaArea' },
             { path: 'haciaSubarea' },
             { path: 'haciaEmpleado' },
+          ],
+        })
+        .populate({
+          path: 'proyecto',
+          populate: [
+            //Agregué esta parte para que mi herno juan pueda enviar notifiaciones
+            { path: 'cliente', select: 'email nombre' },
           ],
         })
         .exec();

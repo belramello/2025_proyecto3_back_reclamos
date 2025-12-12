@@ -1,34 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TipoReclamoService } from './tipo-reclamo.service';
-import { CreateTipoReclamoDto } from './dto/create-tipo-reclamo.dto';
-import { UpdateTipoReclamoDto } from './dto/update-tipo-reclamo.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { TipoReclamosService } from './tipo-reclamo.service';
+import { TipoReclamoDocumentType } from './schemas/tipo-reclamo.schema';
 
 @Controller('tipo-reclamo')
 export class TipoReclamoController {
-  constructor(private readonly tipoReclamoService: TipoReclamoService) {}
-
-  @Post()
-  create(@Body() createTipoReclamoDto: CreateTipoReclamoDto) {
-    return this.tipoReclamoService.create(createTipoReclamoDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.tipoReclamoService.findAll();
-  }
+  constructor(private readonly tipoReclamoService: TipoReclamosService) {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tipoReclamoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTipoReclamoDto: UpdateTipoReclamoDto) {
-    return this.tipoReclamoService.update(+id, updateTipoReclamoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tipoReclamoService.remove(+id);
+  async findOneById(
+    @Param('id') id: string,
+  ): Promise<TipoReclamoDocumentType | null> {
+    return await this.tipoReclamoService.findOne(id);
   }
 }

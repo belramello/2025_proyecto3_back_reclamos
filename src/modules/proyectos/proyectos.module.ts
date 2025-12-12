@@ -4,6 +4,7 @@ import { ProyectosService } from './proyectos.service';
 import { ProyectosController } from './proyectos.controller';
 import { Proyecto, ProyectoSchema } from './schemas/proyecto.schema';
 import { ProyectosRepository } from './repositories/proyectos-repository';
+import { ProyectosValidator } from './helpers/proyectos-validator';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { ProyectosRepository } from './repositories/proyectos-repository';
       provide: 'ProyectosRepositoryInterface',
       useClass: ProyectosRepository,
     },
+    ProyectosValidator,
   ],
-  exports: [ProyectosService],
+  exports: [ProyectosService, ProyectosValidator],
 })
 export class ProyectosModule {}

@@ -12,19 +12,38 @@ import { HistorialEstadoModule } from '../historial-estado/historial-estado.modu
 import { SubareasModule } from '../subareas/subareas.module';
 import { AreasModule } from '../areas/areas.module';
 import { MailModule } from '../mail/mail.module';
+import {
+  HistorialEstado,
+  HistorialEstadoSchema,
+} from '../historial-estado/schema/historial-estado.schema';
 import { ReclamosMapper } from './helpers/reclamos-mapper';
+import {
+  TipoReclamo,
+  TipoReclamoSchema,
+} from '../tipo-reclamo/schemas/tipo-reclamo.schema';
+import { Area, AreaSchema } from '../areas/schemas/area.schema';
+import { ReclamosHelper } from './helpers/reclamos-helper';
+import { ProyectosModule } from '../proyectos/proyectos.module';
+import { TipoReclamoModule } from '../tipo-reclamo/tipo-reclamo.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Reclamo.name, schema: ReclamoSchema }]),
+    MongooseModule.forFeature([
+      { name: Reclamo.name, schema: ReclamoSchema },
+      { name: HistorialEstado.name, schema: HistorialEstadoSchema },
+      { name: TipoReclamo.name, schema: TipoReclamoSchema },
+      { name: Area.name, schema: AreaSchema },
+    ]),
     JwtModule,
     AreasModule,
-    forwardRef(() => HistorialEstadoModule),
     HistorialAsignacionModule,
     forwardRef(() => UsuarioModule),
     forwardRef(() => SubareasModule),
     MailModule,
+    HistorialEstadoModule,
     HistorialAsignacionModule,
+    ProyectosModule,
+    TipoReclamoModule,
   ],
   controllers: [ReclamosController],
   providers: [
@@ -35,6 +54,7 @@ import { ReclamosMapper } from './helpers/reclamos-mapper';
     },
     ReclamosValidator,
     ReclamosMapper,
+    ReclamosHelper,
   ],
   exports: [ReclamosService],
 })

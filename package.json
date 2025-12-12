@@ -17,6 +17,7 @@
     "seed:roles": "ts-node src/seeds/seed-roles-permisos.ts",
     "seed:reclamos": "ts-node src/seeds/seed-reclamos.ts",
     "seed:usuarios": "ts-node src/seeds/seed-usuarios.ts",
+    "seed:tipo-area": "ts-node src/seeds/seed-tipo-area.ts",
     "seed:clientes": "ts-node src/seeds/seed-clientes-proyectos.ts",
     "seed:caminos": "ts-node src/seeds/seed-camino-reclamos.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
