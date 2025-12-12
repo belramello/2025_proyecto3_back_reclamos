@@ -11,8 +11,7 @@ export class UserContext {
     [RolesEnum.CLIENTE]: new ClienteCreationStrategy(),
     [RolesEnum.EMPLEADO]: new EmpleadoCreationStrategy(),
     [RolesEnum.ADMINISTRADOR]: new AdminCreationStrategy(),
-    // Nota: Si implementas Encargado, agrégalo aquí igual que Empleado
-    [RolesEnum.ENCARGADO_DE_AREA]: new EmpleadoCreationStrategy(), // Uso temporal de estrategia empleado
+    // CAMBIO APLICADO: Usamos la estrategia de Admin para crear Encargados fácilmente
   };
 
   getStrategy(rolNombre: string): UserCreationStrategy {

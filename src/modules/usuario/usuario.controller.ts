@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  Query, // Importar Query
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -17,36 +18,34 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { RolesEnum } from '../roles/enums/roles-enum';
-
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  // =================================================================
-  // 1. RUTAS ESTÁTICAS / ESPECÍFICAS (VAN PRIMERO)
-  // =================================================================
-
   @Post('gestion-empleados')
+  @UseGuards(AuthGuard)
   async createEmpleado(
     @Body() createUsuarioDto: CreateUsuarioDto,
+    @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
     const dtoEmpleado = { ...createUsuarioDto, rol: RolesEnum.EMPLEADO };
-    return this.usuarioService.create(dtoEmpleado);
+    return this.usuarioService.create(dtoEmpleado, req.usuario);
   }
 
-  // --- REGISTRO DE CLIENTES ---
   @Post('registrar-cliente')
+  @UseGuards(AuthGuard)
   async createCliente(
     @Body() createUsuarioDto: CreateUsuarioDto,
+    @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
     const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
-    return this.usuarioService.create(dtoCliente);
+    return this.usuarioService.create(dtoCliente, req.usuario);
   }
 
-  // --- LISTADOS ESPECÍFICOS ---
   @Get('empleados-subarea')
   @UseGuards(AuthGuard)
   async findAllEmpleadosDeSubarea(@Req() req: RequestWithUsuario) {
@@ -63,7 +62,6 @@ export class UsuarioController {
     );
   }
 
-  // --- CRUD GENÉRICO (CREATE) ---
   @Post()
   async create(
     @Body() createUsuarioDto: CreateUsuarioDto,
@@ -71,15 +69,13 @@ export class UsuarioController {
     return this.usuarioService.create(createUsuarioDto);
   }
 
-  // --- LISTAR TODOS ---
+  // --- MODIFICADO PARA PAGINACIÓN ---
   @Get()
-  async findAll(): Promise<RespuestaUsuarioDto[]> {
-    return this.usuarioService.findAll();
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<RespuestaUsuarioDto[]> {
+    return this.usuarioService.findAll(paginationDto);
   }
-
-  // =================================================================
-  // 2. RUTAS DINÁMICAS / CON PARÁMETROS (VAN AL FINAL)
-  // =================================================================
 
   @Patch('gestion-empleados/:id')
   async updateEmpleado(
