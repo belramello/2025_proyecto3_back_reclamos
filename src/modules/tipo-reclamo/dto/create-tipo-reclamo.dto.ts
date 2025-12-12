@@ -1,1 +1,4 @@
-export class CreateTipoReclamoDto {}
+export class CreateTipoReclamoDto {
+  _id: string;
+  nombre: string;
+}

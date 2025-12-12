@@ -29,7 +29,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         rol: rol,
       });
       const created = await userDoc.save();
-      // Buscamos de nuevo para devolverlo populado si fuera necesario, 
+      // Buscamos de nuevo para devolverlo populado si fuera necesario,
       // o simplemente devolvemos 'created' si no requieres popular nada extra inmediatamente.
       // Mantengo tu lógica de buscarlo:
       const user = await this.findOne(created._id.toString());
@@ -113,7 +113,12 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     try {
       const doc = await this.userModel
         .findById(id)
-        .populate('rol')
+        .populate({
+          path: 'rol',
+          populate: {
+            path: 'permisos',
+          },
+        })
         .populate('area')
         .populate({
           path: 'subarea',

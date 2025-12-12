@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ProyectosRepositoryInterface } from './repositories/proyectos-repository.interface';
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
+import { Proyecto, ProyectoDocument } from './schemas/proyecto.schema';
 
 @Injectable()
 export class ProyectosService {
@@ -11,6 +12,10 @@ export class ProyectosService {
 
   async create(createProyectoDto: CreateProyectoDto) {
     return await this.proyectosRepository.create(createProyectoDto);
+  }
+
+  async findOne(id: string): Promise<ProyectoDocument | null> {
+    return await this.proyectosRepository.findOne(id);
   }
 
   async findAll() {

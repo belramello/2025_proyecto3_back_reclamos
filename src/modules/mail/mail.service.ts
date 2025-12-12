@@ -26,9 +26,8 @@ export class MailService {
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
         subject: 'Bienvenido - Activa tu cuenta',
-        html: html,
+        html,
       });
-      console.log(`Mail enviado a: ${email}`);
     } catch (error) {
       console.error('Error enviando mail:', error);
     }
@@ -41,9 +40,7 @@ export class MailService {
     nuevoEstado: string,
     mensaje: string,
   ) {
-    const {
-      getNotificacionReclamoTemplate,
-    } = require('./templates/notificacion-reclamo.template');
+    const { getNotificacionReclamoTemplate } = require('./templates/notificacion-reclamo.template');
     const html = getNotificacionReclamoTemplate(
       nroTicket,
       titulo,
@@ -56,20 +53,49 @@ export class MailService {
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
         subject: `Actualización Reclamo #${nroTicket}`,
-        html: html,
+        html,
       });
     } catch (error) {
-      new InternalServerErrorException(
-        'Error enviando notificación de asignación de empleado:',
-        error,
+      throw new InternalServerErrorException(
+        'Error enviando notificación de cambio de estado',
+      );
+    }
+  }
+
+  async enviarNotificacionCreacionReclamo(
+    email: string,
+    nroTicket: string,
+    titulo: string,
+    fechaCreacion: Date,
+  ) {
+    const { getTicketCreationTemplate } = require('./templates/creacion-reclamo.template');
+
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const html = getTicketCreationTemplate(nroTicket, titulo, fechaFormateada);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: `Nuevo reclamo creado - Ticket #${nroTicket}`,
+        html,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error enviando notificación de creación',
       );
     }
   }
 
   async sendAsignacionEmpleado(email: string, nroTicket: string) {
-    const {
-      getAsignaciionEmpleadoTemplate,
-    } = require('./templates/asignacion-empleado.template');
+    const { getAsignaciionEmpleadoTemplate } = require('./templates/asignacion-empleado.template');
     const html = getAsignaciionEmpleadoTemplate(nroTicket);
 
     try {
@@ -77,12 +103,11 @@ export class MailService {
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
         to: email,
         subject: `Asignación de Reclamo #${nroTicket}`,
-        html: html,
+        html,
       });
     } catch (error) {
-      new InternalServerErrorException(
-        'Error enviando notificación de asignación de empleado:',
-        error,
+      throw new InternalServerErrorException(
+        'Error enviando notificación de asignación',
       );
     }
   }

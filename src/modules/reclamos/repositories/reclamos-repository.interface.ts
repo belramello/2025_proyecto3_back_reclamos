@@ -1,11 +1,25 @@
-import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
+import {
+  Usuario,
+  UsuarioDocumentType,
+} from '../../../modules/usuario/schema/usuario.schema';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
 import { Area } from 'src/modules/areas/schemas/area.schema';
+import { CreateReclamoDto } from '../dto/create-reclamo.dto';
+import { ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
+import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
   consultarHistorialReclamo(reclamoId: string): Promise<ReclamoDocumentType>;
+  crearReclamo(
+    reclamo: CreateReclamoDto,
+    nroTicket: string,
+    cliente: UsuarioDocumentType,
+    proyecto: ProyectoDocument,
+    tipoReclamo: TipoReclamoDocumentType,
+  ): Promise<ReclamoDocumentType>;
+  consultarHistorialReclamo(reclamoId: string);
   autoasignar(
     reclamo: ReclamoDocumentType,
     empleado: Usuario,
