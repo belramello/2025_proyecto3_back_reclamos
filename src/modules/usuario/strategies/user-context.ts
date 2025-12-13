@@ -4,6 +4,7 @@ import { UserCreationStrategy } from './user-creation.strategy.interface';
 import { ClienteCreationStrategy } from './cliente-creation.strategy';
 import { EmpleadoCreationStrategy } from './empleado-creation.strategy';
 import { AdminCreationStrategy } from './admin-creation.strategy';
+import { EncargadoCreationStrategy } from './encargado-creation.strategy';
 
 @Injectable()
 export class UserContext {
@@ -12,7 +13,7 @@ export class UserContext {
     [RolesEnum.EMPLEADO]: new EmpleadoCreationStrategy(),
     [RolesEnum.ADMINISTRADOR]: new AdminCreationStrategy(),
     // Nota: Si implementas Encargado, agrégalo aquí igual que Empleado
-    [RolesEnum.ENCARGADO_DE_AREA]: new EmpleadoCreationStrategy(), // Uso temporal de estrategia empleado
+    [RolesEnum.ENCARGADO_DE_AREA]: new EncargadoCreationStrategy(), // Uso temporal de estrategia empleado
   };
 
   getStrategy(rolNombre: string): UserCreationStrategy {

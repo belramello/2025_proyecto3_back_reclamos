@@ -199,4 +199,116 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       );
     }
   }
+
+    async countByAreaAndRole(areaId: string, roleId: string): Promise<number> {
+    try {
+      const areaObjectId = new Types.ObjectId(areaId);
+      const roleObjectId = new Types.ObjectId(roleId);
+
+      const query = {
+        $and: [
+          {
+            $or: [
+              { area: areaId },               
+              { area: areaObjectId },         
+              { "area._id": areaObjectId },   
+            ],
+          },
+          {
+            $or: [
+              { rol: roleObjectId },        
+              { "rol._id": roleObjectId },    
+            ],
+          },
+        ],
+      };
+
+
+      const count = await this.userModel.countDocuments(query);
+
+  
+
+      return count;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al contar encargados del área ${areaId}: ${error.message}`,
+      );
+    }
+  }
+
+
+
+
+  async findByIdSimple(id: string): Promise<UsuarioDocumentType | null> {
+      try {
+
+        return await this.userModel
+          .findById(id)
+          .populate('area'). exec();
+      } catch (error) {
+        throw new InternalServerErrorException(
+          `Error al buscar usuario por ID simple: ${error.message}`,
+        );
+      }
+  }
+  async guardarTokenReset(
+    email: string,
+    token: string,
+    expiration: Date,
+  ): Promise<void> {
+    try {
+      await this.userModel.updateOne(
+        { email },
+        { passwordResetToken: token, passwordResetExpiration: expiration },
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al guardar token de reset para email ${email}: ${error.message}`,
+      );
+    }
+  }
+
+  async findOneByResetToken(
+    token: string,
+  ): Promise<UsuarioDocumentType | null> {
+    try {
+      const doc = await this.userModel
+        .findOne({
+          passwordResetToken: token,
+          passwordResetExpiration: { $gt: new Date() },
+        })
+        .exec();
+
+      return doc ?? null;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar usuario con token ${token}: ${error.message}`,
+      );
+    }
+  }
+
+  async updatePassword(id: string, newPassword: string): Promise<void> {
+    try {
+      const result = await this.userModel
+        .updateOne(
+          { _id: id },
+          {
+            contraseña: newPassword,
+            passwordResetToken: null,
+            passwordResetExpiration: null,
+          },
+        )
+        .exec();
+
+      if (result.matchedCount === 0) {
+        throw new NotFoundException(
+          `Usuario con ID ${id} no encontrado para actualizar contraseña.`,
+        );
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar la contraseña del usuario con ID ${id}: ${error.message}`,
+      );
+    }
+  }
 }

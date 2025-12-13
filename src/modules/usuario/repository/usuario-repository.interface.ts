@@ -22,4 +22,13 @@ export interface IUsuarioRepository {
   findByEmail(email: string): Promise<UsuarioDocumentType | null>;
   
   findByToken(token: string): Promise<UsuarioDocumentType | null>;
+  countByAreaAndRole(areaId: string, role: string): Promise<number>;
+  findByIdSimple(id: string): Promise<UsuarioDocumentType | null>;
+  guardarTokenReset(
+    email: string,
+    token: string,
+    expiration: Date,
+  ): Promise<void>;
+  findOneByResetToken(token: string): Promise<UsuarioDocumentType | null>;
+  updatePassword(id: string, newPassword: string): Promise<void>;
 }

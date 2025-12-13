@@ -4,8 +4,8 @@ dotenv.config();
 import { connect, Schema, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-
-const ROL_CLIENTE = '693a4f2ccf7e16b0abbe2bd0'; 
+const ROL_CLIENTE = '693a4f2ccf7e16b0abbe2bd0';
+const ROL_ADMINISTRADOR = '693a4f2ccf7e16b0abbe2bc4';
 
 async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
@@ -19,7 +19,6 @@ async function runSeed() {
 
   const conn = await connect(uri, { dbName: 'R3cl4mos' });
   console.log('🔗 Conectado a MongoDB');
-
 
   const Usuario = conn.model(
     'Usuario',
@@ -60,8 +59,19 @@ async function runSeed() {
     },
   ];
 
+  // ✅ ADMIN SEPARADO
+  const admin = {
+    nombreUsuario: 'admin',
+    email: 'admin@admin.com',
+    contraseña: 'admin123',
+    nombre: 'Administrador General',
+    rol: ROL_ADMINISTRADOR,
+    area: null,
+    subarea: null,
+  };
+
   // --------------------------------------------
-  //   CREAR USUARIOS
+  //   CREAR CLIENTES
   // --------------------------------------------
   for (const c of clientes) {
     const existe = await Usuario.findOne({ email: c.email });
@@ -81,7 +91,27 @@ async function runSeed() {
     console.log(`✔ Cliente creado: ${c.email}`);
   }
 
-  console.log('\n🎉 SEED COMPLETO: Clientes generados correctamente');
+  // --------------------------------------------
+  //   CREAR ADMIN
+  // --------------------------------------------
+  console.log('\n📌 Creando ADMIN...');
+
+  const existeAdmin = await Usuario.findOne({ email: admin.email });
+
+  if (existeAdmin) {
+    console.log(`↪ Ya existe el admin: ${admin.email}`);
+  } else {
+    const hashedAdmin = await hashPassword(admin.contraseña);
+
+    await Usuario.create({
+      ...admin,
+      contraseña: hashedAdmin,
+    });
+
+    console.log(`✔ Admin creado: ${admin.email}`);
+  }
+
+  console.log('\n🎉 SEED COMPLETO: Usuarios generados correctamente');
   process.exit(0);
 }
 
