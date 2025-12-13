@@ -10,6 +10,7 @@ import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
 import { SubareasService } from 'src/modules/subareas/subareas.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
@@ -30,9 +31,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         subarea: userData.subarea ? new Types.ObjectId(userData.subarea) : null,
       });
       const created = await userDoc.save();
-      // Buscamos de nuevo para devolverlo populado si fuera necesario,
-      // o simplemente devolvemos 'created' si no requieres popular nada extra inmediatamente.
-      // Mantengo tu lógica de buscarlo:
+      
       const user = await this.findOne(created._id.toString());
       if (!user) {
         throw new InternalServerErrorException(`Error al crear el usuario`);
@@ -45,13 +44,21 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async findAll(): Promise<UsuarioDocumentType[]> {
+  // --- MODIFICADO PARA PAGINACIÓN ---
+  async findAll(paginationDto: PaginationDto): Promise<UsuarioDocumentType[]> {
     try {
-      const docs = await this.userModel.find().exec();
+      const { limit = 5, page = 1 } = paginationDto;
+      const skip = (page - 1) * limit;
+
+      const docs = await this.userModel
+        .find()
+        .limit(limit)
+        .skip(skip)
+        .exec();
       return docs;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al buscar todos los usuarios.`,
+        `Error al buscar todos los usuarios paginados.`,
       );
     }
   }
@@ -142,7 +149,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const doc = await this.userModel
         .findOne({ email })
         .populate('rol')
-        .populate('rol.permisos') // Asegúrate que 'permisos' sea el campo correcto en tu schema de Rol
+        .populate('rol.permisos')
         .exec();
       if (!doc) {
         return null;
@@ -189,10 +196,8 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  // --- CORRECCIÓN AQUÍ ---
   async findByToken(token: string): Promise<UsuarioDocumentType | null> {
     try {
-      // Corregido: 'this.usuarioModel' no existía, debe ser 'this.userModel'
       return await this.userModel.findOne({ tokenActivacion: token }).exec();
     } catch (error) {
       throw new InternalServerErrorException(

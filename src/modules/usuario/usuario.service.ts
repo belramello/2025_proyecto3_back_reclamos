@@ -23,12 +23,11 @@ import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
-<<<<<<< HEAD
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+
 import { RolesService } from '../roles/roles.service';
 import { ConfigService } from '@nestjs/config';
-=======
 import { SubareasValidator } from '../subareas/helpers/subareas-validator';
->>>>>>> e597a7848d3c5d8d583b8bcf1f9e9f77dfb36fa0
 
 @Injectable()
 export class UsuarioService {
@@ -44,7 +43,6 @@ export class UsuarioService {
     private readonly userContext: UserContext,
     @Inject(forwardRef(() => ProyectosService))
     private readonly proyectosService: ProyectosService,
-    // Inyectamos ReclamosService para validar eliminación
     @Inject(forwardRef(() => ReclamosService))
     private readonly reclamosService: ReclamosService,
     private readonly rolesService: RolesService,
@@ -53,6 +51,7 @@ export class UsuarioService {
 
   async create(
     createUsuarioDto: CreateUsuarioDto,
+    actor?: UsuarioDocumentType, 
   ): Promise<RespuestaUsuarioDto> {
     const existe = await this.usuariosRepository.findByEmail(
       createUsuarioDto.email,
@@ -75,7 +74,12 @@ export class UsuarioService {
 
     const strategy = this.userContext.getStrategy(nombreRol);
 
-    strategy.validate(createUsuarioDto);
+    await strategy.validate(createUsuarioDto, {
+      actor: actor,
+      validators: {
+        usuarios: this.usuariosValidator,
+      },
+    });
 
     const usuarioData = await strategy.prepareData(createUsuarioDto);
 
@@ -96,7 +100,7 @@ export class UsuarioService {
       await this.proyectosService.create({
         ...createUsuarioDto.proyecto,
         cliente: String(nuevoUsuario._id),
-      });
+      }, actor);
     }
 
     return this.usuarioMappers.toResponseDto(nuevoUsuario);
@@ -106,12 +110,9 @@ export class UsuarioService {
     id: string,
     updateDto: UpdateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    // A. Buscamos el empleado actual
     const empleadoActual = await this.findOneForAuth(id);
 
-    // B. Verificamos si cambió el email
     if (updateDto.email && updateDto.email !== empleadoActual.email) {
-      // 1. Validar que el nuevo email no esté en uso
       const existe = await this.usuariosRepository.findByEmail(updateDto.email);
       if (existe) {
         throw new ConflictException(
@@ -119,7 +120,6 @@ export class UsuarioService {
         );
       }
 
-      //Generar nueva lógica de activación (Token + Pass Temp)
       const token = crypto.randomBytes(32).toString('hex');
       const expiracion = new Date();
       expiracion.setHours(expiracion.getHours() + 24);
@@ -128,7 +128,6 @@ export class UsuarioService {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(passTemp, salt);
 
-      //Preparamos la data a actualizar
       const dataAActualizar = {
         ...this.usuarioMappers.toPartialEntity(updateDto),
         email: updateDto.email,
@@ -137,13 +136,11 @@ export class UsuarioService {
         tokenExpiracion: expiracion,
       };
 
-      //Actualizamos en BD
       const empleadoActualizado = await this.usuariosRepository.update(
         id,
         dataAActualizar,
       );
 
-      //ENVIAR EMAIL AL NUEVO CORREO
       const nombreRol = empleadoActual.rol
         ? (empleadoActual.rol as any).nombre || RolesEnum.EMPLEADO
         : RolesEnum.EMPLEADO;
@@ -160,7 +157,6 @@ export class UsuarioService {
     }
   }
 
-  //Elimina un empleado SOLO si no tiene reclamos asignados.
   async removeEmpleado(id: string): Promise<void> {
     const reclamosAsignados =
       await this.reclamosService.obtenerReclamosAsignados(id);
@@ -173,6 +169,7 @@ export class UsuarioService {
 
     await this.usuariosRepository.remove(id);
   }
+
   async activateUser(id: string, hashContraseña: string): Promise<void> {
     await this.usuariosRepository.update(id, {
       contraseña: hashContraseña,
@@ -183,8 +180,9 @@ export class UsuarioService {
     console.log(`Usuario ${id} activado exitosamente a las ${new Date()}`);
   }
 
-  async findAll(): Promise<RespuestaUsuarioDto[]> {
-    const usuarios = await this.usuariosRepository.findAll();
+  // --- MODIFICADO PARA PAGINACIÓN ---
+  async findAll(paginationDto: PaginationDto): Promise<RespuestaUsuarioDto[]> {
+    const usuarios = await this.usuariosRepository.findAll(paginationDto);
     return usuarios.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
