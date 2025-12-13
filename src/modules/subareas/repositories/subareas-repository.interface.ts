@@ -5,4 +5,5 @@ export interface ISubareasRepository {
   findAllSubareasDeArea(nombreArea: string): Promise<SubareaDocumentType[]>;
   findAllByAreaId(areaId: string): Promise<SubareaDocumentType[]>;
   findOneByNombre(nombre: string): Promise<SubareaDocumentType | null>;
+  findAllPorArea(areaId: string): Promise<SubareaDocumentType[]>;
 }

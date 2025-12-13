@@ -17,6 +17,11 @@ import { Area } from '../../../modules/areas/schemas/area.schema';
 import { SubareasValidator } from '../../../modules/subareas/helpers/subareas-validator';
 import { UsuariosValidator } from '../../../modules/usuario/helpers/usuarios-validator';
 import { AreasValidator } from '../../../modules/areas/helpers/areas-validator';
+import { ProyectosValidator } from 'src/modules/proyectos/helpers/proyectos-validator';
+import { ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
+import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
+import { TipoReclamoValidator } from 'src/modules/tipo-reclamo/helpers/tipo-reclamo-validator';
+import { Estado } from 'src/modules/estados/schemas/estado.schema';
 
 @Injectable()
 export class ReclamosValidator {
@@ -26,6 +31,8 @@ export class ReclamosValidator {
     private readonly subareasValidator: SubareasValidator,
     private readonly usuariosValidator: UsuariosValidator,
     private readonly areasValidator: AreasValidator,
+    private readonly proyectosValidator: ProyectosValidator,
+    private readonly tipoReclamoValidator: TipoReclamoValidator,
   ) {}
 
   async validateReclamoExistente(id: string): Promise<ReclamoDocumentType> {
@@ -34,6 +41,14 @@ export class ReclamosValidator {
       throw new NotFoundException(`El reclamo con ID ${id} no existe`);
     }
     return reclamo;
+  }
+
+  async validateTipoReclamo(
+    tipoReclamoId: string,
+  ): Promise<TipoReclamoDocumentType> {
+    return await this.tipoReclamoValidator.validateTipoReclamoExistente(
+      tipoReclamoId,
+    );
   }
 
   async validateReclamoPendienteAAsignar(
@@ -53,6 +68,20 @@ export class ReclamosValidator {
     return;
   }
 
+  async validateProyectoDeCliente(
+    cliente: Usuario,
+    proyecto: string,
+  ): Promise<ProyectoDocument> {
+    const proyectoCliente =
+      await this.proyectosValidator.validateProyectoExistente(proyecto);
+    if (proyectoCliente.cliente.nombreUsuario !== cliente.nombreUsuario) {
+      throw new UnauthorizedException(
+        `El usuario no es el cliente del proyecto`,
+      );
+    }
+    return proyectoCliente;
+  }
+
   async validateReclamoNoResuelto(
     reclamo: ReclamoDocumentType,
   ): Promise<string> {
@@ -63,6 +92,16 @@ export class ReclamosValidator {
       throw new BadRequestException('El reclamo ya se encuentra resuelto');
     }
     return reclamo.ultimoHistorialEstado.estado?.nombre;
+  }
+
+  async validateReclamoResuelto(reclamo: ReclamoDocumentType): Promise<Estado> {
+    if (reclamo.ultimoHistorialEstado instanceof Types.ObjectId) {
+      throw new BadRequestException('No se puede validar el estado actual');
+    }
+    if (reclamo.ultimoHistorialEstado.estado?.nombre == EstadosEnum.RESUELTO) {
+      return reclamo.ultimoHistorialEstado.estado;
+    }
+    throw new BadRequestException('El reclamo ya se encuentra resuelto');
   }
 
   async validateAreaExistente(areaId: string): Promise<Area> {
@@ -240,5 +279,13 @@ export class ReclamosValidator {
       await this.validateEmpleadoConSubarea(empleadoOrigen);
     this.validateMismaSubarea(subareaEmpleadoOrigen, subareaEmpleadoDestino);
     return [empleadoDestino, subareaEmpleadoDestino];
+  }
+
+  async validateCliente(cliente: Usuario): Promise<void> {
+    if (!cliente || cliente.rol.nombre !== RolesEnum.CLIENTE) {
+      throw new UnauthorizedException(
+        `El usuario no es un cliente autorizado para realizar reclamos`,
+      );
+    }
   }
 }

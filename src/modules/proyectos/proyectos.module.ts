@@ -6,6 +6,8 @@ import { Proyecto, ProyectoSchema } from './schemas/proyecto.schema';
 import { ProyectosRepository } from './repositories/proyectos-repository';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { JwtModule } from '../jwt/jwt.module';
+import { ProyectosValidator } from './helpers/proyectos-validator';
+
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Proyecto.name, schema: ProyectoSchema }]),
@@ -19,7 +21,8 @@ import { JwtModule } from '../jwt/jwt.module';
       provide: 'ProyectosRepositoryInterface',
       useClass: ProyectosRepository,
     },
+    ProyectosValidator,
   ],
-  exports: [ProyectosService],
+  exports: [ProyectosService, ProyectosValidator],
 })
 export class ProyectosModule {}

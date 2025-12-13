@@ -1,26 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTipoReclamoDto } from './dto/create-tipo-reclamo.dto';
-import { UpdateTipoReclamoDto } from './dto/update-tipo-reclamo.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ITipoReclamosRepository } from './repositories/tiporeclamo-repository.interface';
+import { TipoReclamoDocumentType } from './schemas/tipo-reclamo.schema';
 
 @Injectable()
-export class TipoReclamoService {
-  create(createTipoReclamoDto: CreateTipoReclamoDto) {
-    return 'This action adds a new tipoReclamo';
-  }
+export class TipoReclamosService {
+  constructor(
+    @Inject('ITipoReclamosRepository')
+    private readonly tipoReclamosRepository: ITipoReclamosRepository,
+  ) {}
 
-  findAll() {
-    return `This action returns all tipoReclamo`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} tipoReclamo`;
-  }
-
-  update(id: number, updateTipoReclamoDto: UpdateTipoReclamoDto) {
-    return `This action updates a #${id} tipoReclamo`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} tipoReclamo`;
+  async findOne(id: string): Promise<TipoReclamoDocumentType | null> {
+    return await this.tipoReclamosRepository.findOne(id);
   }
 }

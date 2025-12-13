@@ -4,7 +4,7 @@ import { HistorialAsignacion } from '../../../modules/historial-asignacion/schem
 import { HistorialEstado } from '../../../modules/historial-estado/schema/historial-estado.schema';
 import { Proyecto } from '../../proyectos/schemas/proyecto.schema';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
-import { Prioridad } from '../dto/respuesta-create-reclamo.dto';
+import { Prioridad } from 'src/modules/historial-asignacion/enums/PrioridadEnum';
 
 export type ReclamoDocumentType = Reclamo & Document;
 

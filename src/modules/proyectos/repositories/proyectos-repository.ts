@@ -23,7 +23,7 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
     return await createdProyecto.save();
   }
 
-  // --- MODIFICADO PARA PAGINACIÓN ---
+  // --- Mantenemos TU versión (Paginación) ---
   async findAll(paginationDto: PaginationDto): Promise<Proyecto[]> {
     const { limit = 5, page = 1 } = paginationDto;
     const skip = (page - 1) * limit;
@@ -34,6 +34,21 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
       .skip(skip)
       .populate('cliente')
       .exec();
+  }
+
+  // --- Mantenemos el findOne de tu compañera (Develop) ---
+  async findOne(id: string): Promise<ProyectoDocument | null> {
+    try {
+      const proyecto = await this.proyectoModel
+        .findById(id)
+        .populate('cliente')
+        .exec();
+      return proyecto;
+    } catch (error) {
+      throw new Error(
+        `Error al obtener el proyecto con ID ${id}: ${error.message}`,
+      );
+    }
   }
 
   async findByCliente(clienteId: string): Promise<Proyecto[]> {

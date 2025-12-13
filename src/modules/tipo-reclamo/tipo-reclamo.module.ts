@@ -1,14 +1,28 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TipoReclamoService } from './tipo-reclamo.service';
+import { TipoReclamosService } from './tipo-reclamo.service';
 import { TipoReclamoController } from './tipo-reclamo.controller';
-import { TipoReclamoSchema } from './schemas/tipo-reclamo.schema';
+import { TipoReclamo, TipoReclamoSchema } from './schemas/tipo-reclamo.schema';
+import { Area, AreaSchema } from '../areas/schemas/area.schema';
+import { TipoReclamosRepository } from './repositories/tiporeclamo-repository';
+import { TipoReclamoValidator } from './helpers/tipo-reclamo-validator';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'TipoReclamo', schema: TipoReclamoSchema }]),
+    MongooseModule.forFeature([
+      { name: TipoReclamo.name, schema: TipoReclamoSchema },
+      { name: Area.name, schema: AreaSchema },
+    ]),
   ],
   controllers: [TipoReclamoController],
-  providers: [TipoReclamoService],
+  providers: [
+    TipoReclamosService,
+    {
+      provide: 'ITipoReclamosRepository',
+      useClass: TipoReclamosRepository,
+    },
+    TipoReclamoValidator,
+  ],
+  exports: [TipoReclamosService, TipoReclamoValidator],
 })
 export class TipoReclamoModule {}

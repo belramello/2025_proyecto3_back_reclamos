@@ -4,6 +4,8 @@ import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { UsuariosValidator } from '../usuario/helpers/usuarios-validator';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import {ProyectoDocument } from './schemas/proyecto.schema';
+
 
 @Injectable()
 export class ProyectosService {
@@ -27,9 +29,12 @@ export class ProyectosService {
     return await this.proyectosRepository.create(createProyectoDto);
   }
 
-  // --- MODIFICADO PARA PAGINACIÓN ---
   async findAll(paginationDto: PaginationDto) {
     return await this.proyectosRepository.findAll(paginationDto);
+  }
+
+  async findOne(id: string): Promise<ProyectoDocument | null> {
+    return await this.proyectosRepository.findOne(id);
   }
 
   async findAllByCliente(clienteId: string) {

@@ -11,7 +11,6 @@ import { Usuario } from '../schema/usuario.schema';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
 import { SubareasService } from 'src/modules/subareas/subareas.service';
 import { Types } from 'mongoose'; // Necesitamos importar Types para el tipado fuerte
-
 @Injectable()
 export class UsuariosValidator {
   constructor(

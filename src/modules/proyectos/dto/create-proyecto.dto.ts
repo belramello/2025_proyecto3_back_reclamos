@@ -5,6 +5,7 @@ import {
   IsMongoId,
   IsOptional,
 } from 'class-validator';
+import { TipoProyecto } from '../enums/TipoProyectoEnum';
 
 export class CreateProyectoDto {
   @IsString({ message: 'El título debe ser texto.' })
@@ -28,7 +29,7 @@ export class CreateProyectoDto {
 
   @IsString({ message: 'El tipo de proyecto es obligatorio.' })
   @IsNotEmpty()
-  tipo: string;
+  tipo: TipoProyecto;
 
   @IsMongoId({ message: 'El ID del cliente no es válido.' })
   @IsNotEmpty({ message: 'El cliente es obligatorio.' })

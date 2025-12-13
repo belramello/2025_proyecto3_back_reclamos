@@ -22,6 +22,7 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { SubareasValidator } from '../subareas/helpers/subareas-validator';
 
 @Injectable()
 export class UsuarioService {
@@ -32,6 +33,7 @@ export class UsuarioService {
     @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
     private readonly rolesValidator: RolesValidator,
+    private readonly subareaValidator: SubareasValidator,
     private readonly mailService: MailService,
     private readonly userContext: UserContext,
     @Inject(forwardRef(() => ProyectosService))
@@ -54,6 +56,13 @@ export class UsuarioService {
     const rolEncontrado = await this.rolesValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
+
+    if (createUsuarioDto.subarea) {
+      await this.subareaValidator.validateSubareaExistente(
+        createUsuarioDto.subarea,
+      );
+    }
+
     const nombreRol = rolEncontrado.nombre;
 
     const strategy = this.userContext.getStrategy(nombreRol);
