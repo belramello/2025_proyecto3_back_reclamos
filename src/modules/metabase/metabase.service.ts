@@ -4,6 +4,7 @@ import { MetabaseStrategy } from './strategies/metabase-strategy';
 import { AdministradorStrategy } from './strategies/administrador-strategy';
 import { EncargadoStrategy } from './strategies/encargado-strategy';
 import { EmpleadoStrategy } from './strategies/empleado-strategy';
+import { ClienteStrategy } from './strategies/cliente-strategy';
 
 @Injectable()
 export class MetabaseService {
@@ -33,6 +34,8 @@ export class MetabaseService {
         return new EncargadoStrategy();
       case RolesEnum.EMPLEADO:
         return new EmpleadoStrategy();
+      case RolesEnum.CLIENTE:
+        return new ClienteStrategy();
       default:
         throw new Error('No se encontró un rol válido');
     }

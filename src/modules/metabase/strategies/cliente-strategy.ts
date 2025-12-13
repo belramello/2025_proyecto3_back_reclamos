@@ -1,9 +1,9 @@
 import { MetabaseStrategy } from './metabase-strategy';
 
-export class EncargadoStrategy implements MetabaseStrategy {
+export class ClienteStrategy implements MetabaseStrategy {
   generatePayloard(userId: string) {
     const payload = {
-      resource: { dashboard: 11 },
+      resource: { dashboard: 13 },
       params: {
         id: userId,
       },
