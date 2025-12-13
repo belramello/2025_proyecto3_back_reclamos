@@ -22,6 +22,7 @@ import { SubareaAAsignarDto } from './dto/subarea-a-asignar.dto';
 import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -40,9 +41,13 @@ export class ReclamosController {
     );
   }
 
-  @Get()
-  findAll() {
-    return this.reclamosService.findAll();
+  @UseGuards(AuthGuard)
+  @Get('reclamos-cliente')
+  obtenerReclamosDelCliente(
+    @Req() req: RequestWithUsuario,
+  ): Promise<ReclamosDelClienteDto[]> {
+    console.log('CONTROLLER usuario:', req.usuario);
+    return this.reclamosService.obtenerReclamosDelCliente(req.usuario);
   }
 
   @UseGuards(AuthGuard)

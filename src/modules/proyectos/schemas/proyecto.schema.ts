@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Usuario } from '../../usuario/schema/usuario.schema';
+import { TipoProyecto } from '../enums/TipoProyectoEnum';
 
 export type ProyectoDocument = Proyecto & Document;
 
@@ -18,8 +19,11 @@ export class Proyecto {
   @Prop({ required: true })
   fechaInicio: Date;
 
-  @Prop({ required: true })
-  tipo: string; // Ej: "Desarrollo de Software", "Marketing"
+  @Prop({
+    required: true,
+    enum: Object.values(TipoProyecto),
+  })
+  tipo: TipoProyecto;
 
   @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
   cliente: Usuario;

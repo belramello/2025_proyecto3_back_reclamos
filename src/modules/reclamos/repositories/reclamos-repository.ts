@@ -11,7 +11,7 @@ import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
-import { forwardRef, Inject, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
@@ -24,6 +24,8 @@ import {
   Proyecto,
   ProyectoDocument,
 } from 'src/modules/proyectos/schemas/proyecto.schema';
+import { Estado } from 'src/modules/estados/schemas/estado.schema';
+import { ReclamosDelClienteDto } from '../dto/reclamos-del-cliente.dto';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -600,6 +602,8 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
+//ME FALTA HACER ESTO @MARTIN
+//async registrarResolucion()
   async actualizarHistorialAsignacionActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
@@ -614,4 +618,49 @@ export class ReclamosRepository implements IReclamosRepository {
       );
     }
   }
+
+
+  async obtenerReclamosDelCliente(
+  usuarioId: string,
+): Promise<ReclamoDocumentType[]> {
+  try {
+    return await this.reclamoModel
+  .find({ usuario: new Types.ObjectId(usuarioId) })
+  .populate('tipoReclamo')
+  .populate('proyecto')
+  .populate({
+    path: 'historialEstados',
+    populate: { path: 'estado' },
+  })
+  .populate({
+  path: 'historialAsignaciones',
+  populate: [
+    { path: 'desdeArea' },
+    { path: 'haciaArea' },
+    { path: 'desdeSubarea' },
+    { path: 'haciaSubarea' },
+    { path: 'deEmpleado' },
+    { path: 'haciaEmpleado' },
+  ],
+})
+.populate({
+  path: 'ultimoHistorialAsignacion',
+  populate: [
+    { path: 'desdeArea' },
+    { path: 'haciaArea' },
+    { path: 'desdeSubarea' },
+    { path: 'haciaSubarea' },
+    { path: 'deEmpleado' },
+    { path: 'haciaEmpleado' },
+  ],
+})
+
+  .exec();
+
+  } catch (error) {
+    throw new InternalServerErrorException(
+      `Error al obtener los reclamos del cliente: ${error.message}`,
+    );
+  }
+}
 }

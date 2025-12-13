@@ -23,8 +23,12 @@ import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
+<<<<<<< HEAD
 import { RolesService } from '../roles/roles.service';
 import { ConfigService } from '@nestjs/config';
+=======
+import { SubareasValidator } from '../subareas/helpers/subareas-validator';
+>>>>>>> e597a7848d3c5d8d583b8bcf1f9e9f77dfb36fa0
 
 @Injectable()
 export class UsuarioService {
@@ -35,6 +39,7 @@ export class UsuarioService {
     @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
     private readonly rolesValidator: RolesValidator,
+    private readonly subareaValidator: SubareasValidator,
     private readonly mailService: MailService,
     private readonly userContext: UserContext,
     @Inject(forwardRef(() => ProyectosService))
@@ -59,6 +64,13 @@ export class UsuarioService {
     const rolEncontrado = await this.rolesValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
+
+    if (createUsuarioDto.subarea) {
+      await this.subareaValidator.validateSubareaExistente(
+        createUsuarioDto.subarea,
+      );
+    }
+
     const nombreRol = rolEncontrado.nombre;
 
     const strategy = this.userContext.getStrategy(nombreRol);

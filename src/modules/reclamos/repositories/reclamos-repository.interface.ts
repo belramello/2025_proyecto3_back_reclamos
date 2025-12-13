@@ -8,6 +8,7 @@ import { Area } from 'src/modules/areas/schemas/area.schema';
 import { CreateReclamoDto } from '../dto/create-reclamo.dto';
 import { ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
 import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
+import { ReclamosDelClienteDto } from '../dto/reclamos-del-cliente.dto';
 
 export interface IReclamosRepository {
   findOne(id: string): Promise<ReclamoDocumentType | null>;
@@ -72,4 +73,5 @@ export interface IReclamosRepository {
   ): Promise<void>;
   obtenerReclamosAsignadosDeEmpleado(empleadoId: string): Promise<any[]>;
   obtenerReclamosAsignadosAUnArea(nombreArea: string): Promise<any[]>;
+  obtenerReclamosDelCliente(usuarioId: string): Promise<ReclamoDocumentType[]>;
 }
