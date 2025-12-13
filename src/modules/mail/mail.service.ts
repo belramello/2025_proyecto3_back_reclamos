@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { getResetPasswordTemplate } from './templates/resetear-contraseña.template';
 
 @Injectable()
 export class MailService {
@@ -111,4 +112,23 @@ export class MailService {
       );
     }
   }
+
+  async sendPasswordReset(email: string, nombre: string, resetUrl: string) {
+    const html = getResetPasswordTemplate(nombre, resetUrl);
+
+    try {
+      await this.transporter.sendMail({
+        from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,
+        to: email,
+        subject: 'Recuperación de Contraseña - Gestión de Reclamos',
+        html,
+      });
+    } catch (error) {
+      console.error('Error enviando mail de reseteo de contraseña:', error);
+      throw new InternalServerErrorException(
+        'Error enviando mail de reseteo de contraseña',
+      );
+    }
+  }
+
 }

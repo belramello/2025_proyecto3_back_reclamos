@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -22,6 +24,9 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+
+import { RolesService } from '../roles/roles.service';
+import { ConfigService } from '@nestjs/config';
 import { SubareasValidator } from '../subareas/helpers/subareas-validator';
 
 @Injectable()
@@ -40,6 +45,8 @@ export class UsuarioService {
     private readonly proyectosService: ProyectosService,
     @Inject(forwardRef(() => ReclamosService))
     private readonly reclamosService: ReclamosService,
+    private readonly rolesService: RolesService,
+    private readonly configService:ConfigService,
   ) {}
 
   async create(
@@ -254,4 +261,133 @@ export class UsuarioService {
     );
     return this.usuarioMappers.toEmpleadoDtos(empleados);
   }
+
+  async updateEncargado(
+    id: string,
+    updateDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+
+    const encargadoActual = await this.findOneForAuth(id);
+
+    if (updateDto.email && updateDto.email !== encargadoActual.email) {
+
+      const existe = await this.usuariosRepository.findByEmail(updateDto.email);
+      if (existe) {
+        throw new ConflictException(
+          'El nuevo correo electrónico ya está en uso.',
+        );
+      }
+
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiracion = new Date();
+      expiracion.setHours(expiracion.getHours() + 24);
+
+      const passTemp = crypto.randomBytes(10).toString('hex');
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(passTemp, salt);
+
+      const dataAActualizar = {
+        ...this.usuarioMappers.toPartialEntity(updateDto),
+        email: updateDto.email,
+        contraseña: hash,
+        tokenActivacion: token,
+        tokenExpiracion: expiracion,
+      };
+
+
+      const encargadoActualizado = await this.usuariosRepository.update(
+        id,
+        dataAActualizar,
+      );
+
+      const nombreRol = encargadoActual.rol
+        ? (encargadoActual.rol as any).nombre || RolesEnum.ENCARGADO_DE_AREA
+        : RolesEnum.ENCARGADO_DE_AREA;
+
+      await this.mailService.sendUserActivation(
+        encargadoActualizado.email,
+        token,
+        nombreRol,
+      );
+
+      return this.usuarioMappers.toResponseDto(encargadoActualizado);
+    } else {
+      return this.update(id, updateDto);
+    }
+  }
+
+
+    async removeEncargado(id: string): Promise<void> {
+    const encargado = await this.usuariosRepository.findByIdSimple(id);
+    console.log('Encargado encontrado:', encargado);
+
+    if (!encargado) {
+      throw new NotFoundException('El encargado no existe.');
+    }
+
+    const areaObj = encargado.area as any;
+    const areaId = areaObj?._id?.toString() || null;
+
+    if (!areaId) {
+      throw new ConflictException(
+        'El encargado no tiene un área asignada, no se puede eliminar.',
+      );
+    }
+
+    const encargadoRoleId = await this.rolesService.findByName(
+      RolesEnum.ENCARGADO_DE_AREA,
+    );
+
+    if (!encargadoRoleId) {
+      throw new InternalServerErrorException(
+        'No se pudo encontrar el ID del rol de encargado.',
+      );
+    }
+
+    const cantidadEncargados =
+      await this.usuariosRepository.countByAreaAndRole(
+        areaId,
+        encargadoRoleId._id.toString(),
+      );
+
+    if (cantidadEncargados <= 1) {
+      throw new ConflictException(
+        'No se puede eliminar al encargado porque es el único en su área.',
+      );
+    }
+    await this.usuariosRepository.remove(id);
+  }
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usuariosRepository.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiration = new Date(Date.now() + 3600000); //1 hora.
+    await this.usuariosRepository.guardarTokenReset(email, token, expiration);
+    const resetUrl = `${this.configService.get(
+      'FRONTEND_URL',
+    )}/reset-password?token=${token}`;
+
+    await this.mailService.sendPasswordReset(email, user.nombre, resetUrl);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.usuariosRepository.findOneByResetToken(token);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+    if (
+      !user.passwordResetExpiration ||
+      user.passwordResetExpiration < new Date()
+    ) {
+      throw new BadRequestException('Token inválido o expirado');
+    }
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    await this.usuariosRepository.updatePassword(user.id, hashedPassword);
+  }
+
+  
+
 }

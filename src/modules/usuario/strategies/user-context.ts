@@ -4,6 +4,7 @@ import { UserCreationStrategy } from './user-creation.strategy.interface';
 import { ClienteCreationStrategy } from './cliente-creation.strategy';
 import { EmpleadoCreationStrategy } from './empleado-creation.strategy';
 import { AdminCreationStrategy } from './admin-creation.strategy';
+import { EncargadoCreationStrategy } from './encargado-creation.strategy';
 
 @Injectable()
 export class UserContext {
@@ -11,7 +12,8 @@ export class UserContext {
     [RolesEnum.CLIENTE]: new ClienteCreationStrategy(),
     [RolesEnum.EMPLEADO]: new EmpleadoCreationStrategy(),
     [RolesEnum.ADMINISTRADOR]: new AdminCreationStrategy(),
-    // CAMBIO APLICADO: Usamos la estrategia de Admin para crear Encargados fácilmente
+    // Nota: Si implementas Encargado, agrégalo aquí igual que Empleado
+    [RolesEnum.ENCARGADO_DE_AREA]: new EncargadoCreationStrategy(), // Uso temporal de estrategia empleado
   };
 
   getStrategy(rolNombre: string): UserCreationStrategy {

@@ -25,6 +25,7 @@ import {
   ProyectoDocument,
 } from 'src/modules/proyectos/schemas/proyecto.schema';
 import { Estado } from 'src/modules/estados/schemas/estado.schema';
+import { ReclamosDelClienteDto } from '../dto/reclamos-del-cliente.dto';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -617,4 +618,49 @@ export class ReclamosRepository implements IReclamosRepository {
       );
     }
   }
+
+
+  async obtenerReclamosDelCliente(
+  usuarioId: string,
+): Promise<ReclamoDocumentType[]> {
+  try {
+    return await this.reclamoModel
+  .find({ usuario: new Types.ObjectId(usuarioId) })
+  .populate('tipoReclamo')
+  .populate('proyecto')
+  .populate({
+    path: 'historialEstados',
+    populate: { path: 'estado' },
+  })
+  .populate({
+  path: 'historialAsignaciones',
+  populate: [
+    { path: 'desdeArea' },
+    { path: 'haciaArea' },
+    { path: 'desdeSubarea' },
+    { path: 'haciaSubarea' },
+    { path: 'deEmpleado' },
+    { path: 'haciaEmpleado' },
+  ],
+})
+.populate({
+  path: 'ultimoHistorialAsignacion',
+  populate: [
+    { path: 'desdeArea' },
+    { path: 'haciaArea' },
+    { path: 'desdeSubarea' },
+    { path: 'haciaSubarea' },
+    { path: 'deEmpleado' },
+    { path: 'haciaEmpleado' },
+  ],
+})
+
+  .exec();
+
+  } catch (error) {
+    throw new InternalServerErrorException(
+      `Error al obtener los reclamos del cliente: ${error.message}`,
+    );
+  }
+}
 }

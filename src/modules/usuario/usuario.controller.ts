@@ -21,6 +21,11 @@ import { RolesEnum } from '../roles/enums/roles-enum';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enums/permisos-enum';
+import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -112,5 +117,50 @@ export class UsuarioController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
     await this.usuarioService.remove(id);
+  }
+
+
+
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
+  @Post('encargados')
+  async createEncargado(
+    @Body() createUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    const dtoEncargado = { ...createUsuarioDto, rol: RolesEnum.ENCARGADO_DE_AREA };
+    return this.usuarioService.create(dtoEncargado);
+  }
+
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
+
+  @Patch('encargados/:id')
+  async updateEncargado(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioService.updateEncargado(id, updateUsuarioDto);
+  }
+
+
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
+
+  @Delete('encargados/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeEncargado(
+    @Param('id', ParseMongoIdPipe) id: string,
+  ): Promise<void> {
+    await this.usuarioService.removeEncargado(id);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
+    await this.usuarioService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.usuarioService.resetPassword(dto.token, dto.contraseña);
   }
 }

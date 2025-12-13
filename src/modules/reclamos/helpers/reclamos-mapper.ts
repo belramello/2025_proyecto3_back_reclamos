@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ReclamoDocumentType } from '../schemas/reclamo.schema';
 import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
-import { Proyecto, ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
+import {
+  Proyecto,
+  ProyectoDocument,
+} from 'src/modules/proyectos/schemas/proyecto.schema';
 import { HistorialAsignacion } from 'src/modules/historial-asignacion/schemas/historial-asignacion.schema';
 import { HistorialEstado } from 'src/modules/historial-estado/schema/historial-estado.schema';
 import { RespuestaCreateReclamoDto } from '../dto/respuesta-create-reclamo.dto';
@@ -12,6 +15,10 @@ import { RespuestaHistorialReclamoDto } from '../dto/respuesta-historial-reclamo
 import { HistorialAsignacionesMapper } from 'src/modules/historial-asignacion/mappers/historial-asignaciones-mapper';
 import { HistorialEstadosMapper } from 'src/modules/historial-estado/mappers/historial-estado-mapper';
 import { ReclamoEnMovimientoDto } from '../dto/reclamo-en-movimiento.dto';
+import {
+  ReclamoPobladoDelCliente,
+  ReclamosDelClienteDto,
+} from '../dto/reclamos-del-cliente.dto';
 
 @Injectable()
 export class ReclamosMapper {
@@ -21,7 +28,7 @@ export class ReclamosMapper {
   ) {}
 
   toRespuestaCreateReclamoDto(
-    reclamo: ReclamoDocumentType
+    reclamo: ReclamoDocumentType,
   ): RespuestaCreateReclamoDto {
     return {
       _id: String(reclamo._id),
@@ -32,8 +39,7 @@ export class ReclamosMapper {
 
       historialAsignaciones:
         (reclamo.historialAsignaciones as HistorialAsignacion[]) ?? [],
-      historialEstados:
-        (reclamo.historialEstados as HistorialEstado[]) ?? [],
+      historialEstados: (reclamo.historialEstados as HistorialEstado[]) ?? [],
 
       ultimoHistorialAsignacion:
         (reclamo.ultimoHistorialAsignacion as HistorialAsignacion) ?? undefined,
@@ -49,10 +55,7 @@ export class ReclamosMapper {
     };
   }
 
-
-  toReclamoResponseDto(
-    reclamo: ReclamoDocumentType
-  ): ReclamoResponseDto {
+  toReclamoResponseDto(reclamo: ReclamoDocumentType): ReclamoResponseDto {
     return {
       nroTicket: reclamo.nroTicket,
       titulo: reclamo.titulo,
@@ -67,11 +70,10 @@ export class ReclamosMapper {
   }
 
   toReclamosResponseList(
-    reclamos: ReclamoDocumentType[]
+    reclamos: ReclamoDocumentType[],
   ): ReclamoResponseDto[] {
     return reclamos.map((r) => this.toReclamoResponseDto(r));
   }
-
 
   toRespuestaFindAllPaginatedReclamoDto(paginated: {
     reclamos: ReclamoDocumentType[];
@@ -87,7 +89,6 @@ export class ReclamosMapper {
     };
   }
 
- 
   toRespuestaHistorialReclamoDto(
     historialReclamo: ReclamoDocumentType,
   ): RespuestaHistorialReclamoDto {
@@ -98,9 +99,10 @@ export class ReclamosMapper {
       nivelCriticidad: historialReclamo.nivelCriticidad,
       descripcion: historialReclamo.descripcion,
 
-      historialAsignaciones: this.historialAsignacionesMapper.toHistorialAsignacionesDtos(
-        historialReclamo.historialAsignaciones,
-      ),
+      historialAsignaciones:
+        this.historialAsignacionesMapper.toHistorialAsignacionesDtos(
+          historialReclamo.historialAsignaciones,
+        ),
 
       historialEstados: this.historialEstadosMapper.toHistorialEstadosDtos(
         historialReclamo.historialEstados,
@@ -108,7 +110,6 @@ export class ReclamosMapper {
     };
   }
 
- 
   toReclamoEnMovimientoDto(reclamo: any): ReclamoEnMovimientoDto {
     return {
       reclamoId: String(reclamo._id),
@@ -134,16 +135,42 @@ export class ReclamosMapper {
   }
 
   private mapTipoReclamo(
-    tipo: TipoReclamoDocumentType | Types.ObjectId | null | undefined
+    tipo: TipoReclamoDocumentType | Types.ObjectId | null | undefined,
   ): TipoReclamoDocumentType | undefined {
     if (!tipo || tipo instanceof Types.ObjectId) return undefined;
     return tipo;
   }
 
   private mapProyecto(
-    proyecto: Proyecto | ProyectoDocument | Types.ObjectId | null | undefined
+    proyecto: Proyecto | ProyectoDocument | Types.ObjectId | null | undefined,
   ): ProyectoDocument | undefined {
     if (!proyecto || proyecto instanceof Types.ObjectId) return undefined;
     return proyecto as ProyectoDocument;
+  }
+
+  toReclamoDelClienteDto(reclamo: ReclamoDocumentType): ReclamosDelClienteDto {
+    return {
+      nroTicket: reclamo.nroTicket,
+      titulo: reclamo.titulo,
+      tipoReclamo: this.mapTipoReclamo(reclamo.tipoReclamo),
+      prioridad: reclamo.prioridad,
+      nivelCriticidad: reclamo.nivelCriticidad,
+      proyecto: this.mapProyecto(reclamo.proyecto),
+      descripcion: reclamo.descripcion,
+      resumenResolucion: reclamo.resumenResolucion,
+      historialEstado: this.historialEstadosMapper.toHistorialEstadosDtos(
+        reclamo.historialEstados,
+      ),
+      historialAsignacion:
+        this.historialAsignacionesMapper.toHistorialAsignacionesDtos(
+          reclamo.historialAsignaciones,
+        ),
+    };
+  }
+
+  toReclamosDelClienteList(
+    reclamos: ReclamoDocumentType[],
+  ): ReclamosDelClienteDto[] {
+    return reclamos.map((r) => this.toReclamoDelClienteDto(r));
   }
 }
