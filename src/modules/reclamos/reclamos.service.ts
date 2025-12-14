@@ -53,7 +53,6 @@ export class ReclamosService {
     );
     return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
   }
-  //ME FALTA POR HACER, VOY A SEGUIR LA LÓGICA QUE HICIERON @MARTIN
 
   async cerrarReclamo(
     cerrarReclamo: CerrarReclamoDto,
@@ -87,14 +86,6 @@ export class ReclamosService {
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     return await this.reclamosRepository.findOne(id);
   }
-
-  update(id: number, updateReclamoDto: UpdateReclamoDto) {
-    return `This action updates a #${id} reclamo`;
-  }
-  remove(id: number) {
-    return `This action removes a #${id} reclamo`;
-  }
-
   async consultarHistorialReclamo(id: string) {
     await this.reclamosValidator.validateReclamoExistente(id);
     const reclamo = await this.reclamosRepository.consultarHistorialReclamo(id);
