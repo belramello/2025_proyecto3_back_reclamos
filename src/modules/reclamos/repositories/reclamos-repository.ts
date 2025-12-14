@@ -619,6 +619,39 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
+  async cerrarReclamo(
+    reclamo: ReclamoDocumentType,
+    resumenResolucion: string,
+    empleado: Usuario) : Promise<void> {
+      try {
+        await this.agregarResolucionAlReclamo(reclamo, resumenResolucion);
+        const nuevoHistorialEstado = await this.historialEstadoService.create({
+          reclamo: reclamo,
+          usuarioResponsable: empleado,
+          historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
+          tipo: TipoCreacionHistorialEnum.RESUELTO,
+        });
+        await this.actualizarHistorialEstadoActual(
+          String(nuevoHistorialEstado._id),
+          reclamo,
+        );
+      } catch (error) {
+        console.error('Error al cerrar el reclamo:', error);
+        throw error;
+      }
+    }
+
+    async agregarResolucionAlReclamo(
+      reclamo: ReclamoDocumentType,
+      resumenResolucion: string): Promise<void> {
+      try {
+        reclamo.resumenResolucion = resumenResolucion;
+        await reclamo.save();
+      } catch (error) {
+        console.error('Error al agregar la resolución al reclamo:', error);
+        throw error;
+      }
+    }
 
   async obtenerReclamosDelCliente(
   usuarioId: string,
