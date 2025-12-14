@@ -23,6 +23,7 @@ import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
+import { CerrarReclamoDto } from './dto/cerrar-reclamo.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -41,12 +42,24 @@ export class ReclamosController {
     );
   }
 
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CERRAR_RECLAMO)
+  @Post()
+  async cerrarReclamo(
+    @Body() cerrarReclamoDto: CerrarReclamoDto,
+    @Req() req: RequestWithUsuario,
+  ) {
+    return await this.reclamosService.cerrarReclamo(
+      cerrarReclamoDto,
+      req.usuario,
+    );
+  }
+
   @UseGuards(AuthGuard)
   @Get('reclamos-cliente')
   obtenerReclamosDelCliente(
     @Req() req: RequestWithUsuario,
   ): Promise<ReclamosDelClienteDto[]> {
-    console.log('CONTROLLER usuario:', req.usuario);
     return this.reclamosService.obtenerReclamosDelCliente(req.usuario);
   }
 
