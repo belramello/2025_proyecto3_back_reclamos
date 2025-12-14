@@ -1,7 +1,7 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  BadRequestException 
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
@@ -11,8 +11,8 @@ import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
-import * as bcrypt from 'bcrypt'; 
-import { ActivarCuentaDto } from './dto/activar-cuenta.dto'; 
+import * as bcrypt from 'bcrypt';
+import { ActivarCuentaDto } from './dto/activar-cuenta.dto';
 
 @Injectable()
 export class AuthService {
@@ -53,7 +53,7 @@ export class AuthService {
 
     const payload = {
       email: nuevoUsuario.email,
-      sub: nuevoUsuario.id, 
+      sub: nuevoUsuario.id,
     };
 
     const accessToken = this.jwtService.generateToken(payload, 'auth');
@@ -67,21 +67,25 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<LoginResponseDto> {
-    const tokens = this.jwtService.refreshToken(refreshToken);
-    const payload = this.jwtService.getPayload(refreshToken, 'refresh') as {
-      sub: string;
-      email: string;
-    };
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      payload,
+    } = this.jwtService.refreshToken(refreshToken);
+
     const user = await this.authValidator.validarUsuarioExistente(payload.sub);
+
     return this.authMapper.toLoginResponseDto(
-      tokens.accessToken,
-      tokens.refreshToken || refreshToken,
+      accessToken,
+      newRefreshToken || refreshToken,
       user,
     );
   }
 
   // --- MÉTODO ACTUALIZADO ---
-  async activarCuenta(activarCuentaDto: ActivarCuentaDto): Promise<{ message: string }> {
+  async activarCuenta(
+    activarCuentaDto: ActivarCuentaDto,
+  ): Promise<{ message: string }> {
     const { token, contraseña } = activarCuentaDto;
 
     // 1. Buscar usuario por token
@@ -93,7 +97,9 @@ export class AuthService {
 
     // 2. Verificar expiración
     if (usuario.tokenExpiracion && new Date() > usuario.tokenExpiracion) {
-      throw new BadRequestException('El token ha expirado. Solicite uno nuevo.');
+      throw new BadRequestException(
+        'El token ha expirado. Solicite uno nuevo.',
+      );
     }
 
     // 3. Hashear nueva contraseña
