@@ -15,10 +15,8 @@ import { RespuestaHistorialReclamoDto } from '../dto/respuesta-historial-reclamo
 import { HistorialAsignacionesMapper } from 'src/modules/historial-asignacion/mappers/historial-asignaciones-mapper';
 import { HistorialEstadosMapper } from 'src/modules/historial-estado/mappers/historial-estado-mapper';
 import { ReclamoEnMovimientoDto } from '../dto/reclamo-en-movimiento.dto';
-import {
-  ReclamoPobladoDelCliente,
-  ReclamosDelClienteDto,
-} from '../dto/reclamos-del-cliente.dto';
+import { ReclamosDelClienteDto } from '../dto/reclamos-del-cliente.dto';
+import { RespuestaCerrarReclamoDto } from '../dto/respuesta-cerrar-reclamo.dto';
 
 @Injectable()
 export class ReclamosMapper {
@@ -172,5 +170,18 @@ export class ReclamosMapper {
     reclamos: ReclamoDocumentType[],
   ): ReclamosDelClienteDto[] {
     return reclamos.map((r) => this.toReclamoDelClienteDto(r));
+  }
+
+  toRespuestaCerrarReclamoDto(
+    reclamo: ReclamoDocumentType,
+  ): RespuestaCerrarReclamoDto {
+    return {
+      _id: String(reclamo._id),
+      nroTicket: reclamo.nroTicket,
+      tipoReclamo: this.mapTipoReclamo(reclamo.tipoReclamo),
+      prioridad: reclamo.prioridad,
+      nivelCriticidad: reclamo.nivelCriticidad,
+      resumenResolucion: reclamo.resumenResolucion,
+    };
   }
 }

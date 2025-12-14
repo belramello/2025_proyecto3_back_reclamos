@@ -1,6 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
-import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
@@ -72,6 +71,7 @@ export class ReclamosService {
       'Reclamo Cerrado',
       `El reclamo fue resuelto con éxito, el resumen de resolución es: ${reclamo.resumenResolucion}`,
     );
+    return this.reclamosMapper.toRespuestaCerrarReclamoDto(reclamo);
   }
   async obtenerReclamosDelCliente(
     req: UsuarioDocumentType,
