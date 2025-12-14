@@ -36,6 +36,7 @@ export class JwtService {
   refreshToken(refreshToken: string): {
     accessToken: string;
     refreshToken?: string;
+    payload: Payload;
   } {
     try {
       const payload = this.jwtService.verify<Payload>(refreshToken, {
@@ -43,24 +44,28 @@ export class JwtService {
       });
 
       const currentTime = Math.floor(Date.now() / 1000);
-
-      if (!payload.exp) {
-        throw new UnauthorizedException(
-          'Token inválido o sin fecha de expiración',
-        );
-      }
-
-      const timeToExpire = (payload.exp - currentTime) / 60;
+      const timeToExpire = payload.exp ? (payload.exp - currentTime) / 60 : 0;
 
       if (timeToExpire < 30) {
         return {
-          accessToken: this.generateToken(payload, 'auth'),
-          refreshToken: this.generateToken(payload, 'refresh'),
+          accessToken: this.generateToken(
+            { email: payload.email, sub: payload.sub },
+            'auth',
+          ),
+          refreshToken: this.generateToken(
+            { email: payload.email, sub: payload.sub },
+            'refresh',
+          ),
+          payload,
         };
       }
 
       return {
-        accessToken: this.generateToken(payload, 'auth'),
+        accessToken: this.generateToken(
+          { email: payload.email, sub: payload.sub },
+          'auth',
+        ),
+        payload,
       };
     } catch {
       throw new UnauthorizedException('Token de refresh inválido o expirado');
