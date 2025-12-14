@@ -11,6 +11,7 @@ import { ReclamosMapper } from './helpers/reclamos-mapper';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { ReclamosHelper } from './helpers/reclamos-helper';
 import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
+import { CerrarReclamoDto } from './dto/cerrar-reclamo.dto';
 
 @Injectable()
 export class ReclamosService {
@@ -53,16 +54,33 @@ export class ReclamosService {
     return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
   }
   //ME FALTA POR HACER, VOY A SEGUIR LA LÓGICA QUE HICIERON @MARTIN
-  //async registrarReclamoResuelto()
+
+  async cerrarReclamo(
+    cerrarReclamo: CerrarReclamoDto,
+    usuario: UsuarioDocumentType,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(
+      cerrarReclamo.reclamoId,
+    );
+    await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
+    await this.reclamosRepository.cerrarReclamo(
+      reclamo,
+      cerrarReclamo.resumenResolucion,
+      usuario,
+    );
+    await this.notificarCliente(
+      reclamo,
+      'Reclamo Cerrado',
+      `El reclamo fue resuelto con éxito, el resumen de resolución es: ${reclamo.resumenResolucion}`,
+    );
+  }
   async obtenerReclamosDelCliente(
     req: UsuarioDocumentType,
   ): Promise<ReclamosDelClienteDto[]> {
-    console.log('SERVICE usuario._id:', req._id);
     await this.reclamosValidator.validateCliente(req);
     const reclamos = await this.reclamosRepository.obtenerReclamosDelCliente(
       String(req._id),
     );
-    console.log('SERVICE reclamos encontrados:', reclamos.length);
     return this.reclamosMapper.toReclamosDelClienteList(reclamos);
   }
 
