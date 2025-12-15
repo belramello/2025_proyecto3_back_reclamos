@@ -8,14 +8,22 @@ import { Feedback, FeedbackDocument } from '../schemas/feedback.schema';
 import { IFeedbackRepository } from './feedback-repository.interface';
 import { Model } from 'mongoose';
 import { InternalServerErrorException } from '@nestjs/common';
+import { UsuarioDocumentType } from 'src/modules/usuario/schema/usuario.schema';
+import { ReclamoDocumentType } from 'src/modules/reclamos/schemas/reclamo.schema';
 
 export class FeedbackRepository implements IFeedbackRepository {
   constructor(
     @InjectModel(Feedback.name)
     private readonly feedbackModel: Model<FeedbackDocument>,
   ) {}
-  async createFeedback(feedback: CreateFeedbackDto): Promise<FeedbackDocument> {
+  async createFeedback(
+    feedback: CreateFeedbackDto,
+    reclamo: ReclamoDocumentType,
+    usuario: UsuarioDocumentType,
+  ): Promise<FeedbackDocument> {
     const retro = new this.feedbackModel(feedback);
+    retro.cliente = usuario._id;
+    retro.reclamo = reclamo._id;
     return await retro.save();
   }
   async findAllPaginated(

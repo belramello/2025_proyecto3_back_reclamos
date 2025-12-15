@@ -16,8 +16,8 @@ export class FeedbackMapper {
     return {
       valoracion: feedback.valoracion,
       comentario: feedback.comentario,
-      reclamo: this.mapReclamo(feedback.reclamo) as Reclamo,
-      cliente: this.mapUsuario(feedback.cliente) as Usuario,
+      reclamo: feedback.reclamo as Types.ObjectId,
+      cliente: feedback.cliente as Types.ObjectId,
       fechaCreacion: feedback.fechaCreacion,
     };
   }
