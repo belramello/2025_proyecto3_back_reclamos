@@ -20,6 +20,4 @@ export class CreateFeedbackDto {
   @IsMongoId()
   reclamo: string;
 
-  @IsMongoId()
-  cliente: string;
 }

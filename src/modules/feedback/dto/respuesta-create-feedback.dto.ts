@@ -1,10 +1,8 @@
-import { Usuario } from '../../../modules/usuario/schema/usuario.schema';
-import { Reclamo } from '../../../modules/reclamos/schemas/reclamo.schema';
-
+import { Types } from 'mongoose';
 export class RespuestaCreateFeedbackDto {
   valoracion: number;
   comentario?: string;
-  reclamo: Reclamo;
-  cliente: Usuario;
+  reclamo: Types.ObjectId;
+  cliente: Types.ObjectId;
   fechaCreacion: Date;
 }
