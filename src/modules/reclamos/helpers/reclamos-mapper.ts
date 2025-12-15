@@ -109,22 +109,23 @@ export class ReclamosMapper {
   }
 
   toReclamoEnMovimientoDto(reclamo: any): ReclamoEnMovimientoDto {
+    console.log(reclamo.clienteDetalle)
     return {
       reclamoId: String(reclamo._id),
       reclamoNroTicket: reclamo.nroTicket,
       reclamoTitulo: reclamo.titulo,
 
-      nombreProyecto: reclamo.proyectoDetalle?.nombre || null,
+      nombreProyecto: reclamo.proyectoDetalle?.titulo || null,
+      
 
-      nombreApellidoCliente: reclamo.clienteDetalle
-        ? `${reclamo.clienteDetalle.nombre} ${reclamo.clienteDetalle.apellido}`
-        : null,
+      nombreApellidoCliente:reclamo.clienteDetalle?.nombre || null,
 
       fechaHoraInicioAsignacion: reclamo.asig?.fechaAsignacion,
       nivelCriticidad: reclamo.nivelCriticidad,
       prioridad: reclamo.prioridad,
       nombreEstado: reclamo.estadoDetalle?.nombre,
       tipoAsignacion: reclamo.asig?.tipoAsignacion,
+      subAreaAsignada: reclamo.asig?.desdeSubarea|| null,
     };
   }
 
