@@ -635,6 +635,9 @@ export class ReclamosRepository implements IReclamosRepository {
           String(nuevoHistorialEstado._id),
           reclamo,
         );
+        await this.historialEstadoService.cerrarHistorial(
+          String(reclamo.ultimoHistorialEstado._id),
+        );
       } catch (error) {
         console.error('Error al cerrar el reclamo:', error);
         throw error;
