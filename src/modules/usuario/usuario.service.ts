@@ -23,12 +23,9 @@ import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 import { ReclamosService } from '../reclamos/reclamos.service';
-<<<<<<< HEAD
 import { RolesService } from '../roles/roles.service';
 import { ConfigService } from '@nestjs/config';
-=======
 import { SubareasValidator } from '../subareas/helpers/subareas-validator';
->>>>>>> e597a7848d3c5d8d583b8bcf1f9e9f77dfb36fa0
 
 @Injectable()
 export class UsuarioService {
