@@ -1,6 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
-import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { IReclamosRepository } from './repositories/reclamos-repository.interface';
 import { ReclamoDocumentType } from './schemas/reclamo.schema';
 import { ReclamosValidator } from './helpers/reclamos-validator';
@@ -11,6 +10,7 @@ import { ReclamosMapper } from './helpers/reclamos-mapper';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { ReclamosHelper } from './helpers/reclamos-helper';
 import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
+import { CerrarReclamoDto } from './dto/cerrar-reclamo.dto';
 
 @Injectable()
 export class ReclamosService {
@@ -52,31 +52,40 @@ export class ReclamosService {
     );
     return this.reclamosMapper.toRespuestaCreateReclamoDto(reclamoCreado);
   }
-  //ME FALTA POR HACER, VOY A SEGUIR LA LÓGICA QUE HICIERON @MARTIN
-  //async registrarReclamoResuelto()
+
+  async cerrarReclamo(
+    cerrarReclamo: CerrarReclamoDto,
+    usuario: UsuarioDocumentType,
+  ) {
+    const reclamo = await this.reclamosValidator.validateReclamoExistente(
+      cerrarReclamo.reclamoId,
+    );
+    await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
+    await this.reclamosRepository.cerrarReclamo(
+      reclamo,
+      cerrarReclamo.resumenResolucion,
+      usuario,
+    );
+    await this.notificarCliente(
+      reclamo,
+      'Reclamo Cerrado',
+      `El reclamo fue resuelto con éxito, el resumen de resolución es: ${reclamo.resumenResolucion}`,
+    );
+    return this.reclamosMapper.toRespuestaCerrarReclamoDto(reclamo);
+  }
   async obtenerReclamosDelCliente(
     req: UsuarioDocumentType,
   ): Promise<ReclamosDelClienteDto[]> {
-    console.log('SERVICE usuario._id:', req._id);
     await this.reclamosValidator.validateCliente(req);
     const reclamos = await this.reclamosRepository.obtenerReclamosDelCliente(
       String(req._id),
     );
-    console.log('SERVICE reclamos encontrados:', reclamos.length);
     return this.reclamosMapper.toReclamosDelClienteList(reclamos);
   }
 
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     return await this.reclamosRepository.findOne(id);
   }
-
-  update(id: number, updateReclamoDto: UpdateReclamoDto) {
-    return `This action updates a #${id} reclamo`;
-  }
-  remove(id: number) {
-    return `This action removes a #${id} reclamo`;
-  }
-
   async consultarHistorialReclamo(id: string) {
     await this.reclamosValidator.validateReclamoExistente(id);
     const reclamo = await this.reclamosRepository.consultarHistorialReclamo(id);

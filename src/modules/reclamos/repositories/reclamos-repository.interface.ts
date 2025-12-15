@@ -74,4 +74,9 @@ export interface IReclamosRepository {
   obtenerReclamosAsignadosDeEmpleado(empleadoId: string): Promise<any[]>;
   obtenerReclamosAsignadosAUnArea(nombreArea: string): Promise<any[]>;
   obtenerReclamosDelCliente(usuarioId: string): Promise<ReclamoDocumentType[]>;
+  cerrarReclamo(
+    reclamo: ReclamoDocumentType,
+    resumenResolucion: string,
+    empleado: Usuario,
+  ): Promise<void>;
 }

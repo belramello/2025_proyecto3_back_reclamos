@@ -5,13 +5,11 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { ReclamosService } from './reclamos.service';
 import { CreateReclamoDto } from './dto/create-reclamo.dto';
-import { UpdateReclamoDto } from './dto/update-reclamo.dto';
 import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 import { AuthGuard } from '../../middlewares/auth.middleware';
 import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
@@ -23,6 +21,7 @@ import { AreaAAsignarDto } from './dto/area-a-asignar.dto';
 import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
+import type { CerrarReclamoDto } from './dto/cerrar-reclamo.dto';
 
 @Controller('reclamos')
 export class ReclamosController {
@@ -41,12 +40,24 @@ export class ReclamosController {
     );
   }
 
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CERRAR_RECLAMO)
+  @Post('cerrar')
+  async cerrarReclamo(
+    @Body() cerrarReclamoDto: CerrarReclamoDto,
+    @Req() req: RequestWithUsuario,
+  ) {
+    return await this.reclamosService.cerrarReclamo(
+      cerrarReclamoDto,
+      req.usuario,
+    );
+  }
+
   @UseGuards(AuthGuard)
   @Get('reclamos-cliente')
   obtenerReclamosDelCliente(
     @Req() req: RequestWithUsuario,
   ): Promise<ReclamosDelClienteDto[]> {
-    console.log('CONTROLLER usuario:', req.usuario);
     return this.reclamosService.obtenerReclamosDelCliente(req.usuario);
   }
 
@@ -79,16 +90,6 @@ export class ReclamosController {
   @Get('historial/:id')
   consultarHistorialReclamo(@Param('id', ParseMongoIdPipe) id: string) {
     return this.reclamosService.consultarHistorialReclamo(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReclamoDto: UpdateReclamoDto) {
-    return this.reclamosService.update(+id, updateReclamoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reclamosService.remove(+id);
   }
 
   @UseGuards(AuthGuard)

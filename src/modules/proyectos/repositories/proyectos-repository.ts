@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Proyecto, ProyectoDocument } from '../schemas/proyecto.schema';
 import { CreateProyectoDto } from '../dto/create-proyecto.dto';
 import { ProyectosRepositoryInterface } from './proyectos-repository.interface';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ProyectosRepository implements ProyectosRepositoryInterface {
@@ -13,10 +14,29 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
   ) {}
 
   async create(createProyectoDto: CreateProyectoDto): Promise<Proyecto> {
-    const createdProyecto = new this.proyectoModel(createProyectoDto);
+    const { cliente, ...restoDatos } = createProyectoDto;
+    
+    const createdProyecto = new this.proyectoModel({
+      ...restoDatos,
+      cliente: new Types.ObjectId(cliente),
+    });
     return await createdProyecto.save();
   }
 
+  // --- Mantenemos TU versión (Paginación) ---
+  async findAll(paginationDto: PaginationDto): Promise<Proyecto[]> {
+    const { limit = 5, page = 1 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    return await this.proyectoModel
+      .find()
+      .limit(limit)
+      .skip(skip)
+      .populate('cliente')
+      .exec();
+  }
+
+  // --- Mantenemos el findOne de tu compañera (Develop) ---
   async findOne(id: string): Promise<ProyectoDocument | null> {
     try {
       const proyecto = await this.proyectoModel
@@ -31,11 +51,7 @@ export class ProyectosRepository implements ProyectosRepositoryInterface {
     }
   }
 
-  async findAll(): Promise<Proyecto[]> {
-    return await this.proyectoModel.find().populate('cliente').exec();
-  }
-
   async findByCliente(clienteId: string): Promise<Proyecto[]> {
-    return await this.proyectoModel.find({ cliente: clienteId }).exec();
+    return await this.proyectoModel.find({ cliente: new Types.ObjectId(clienteId) }).exec();
   }
 }
