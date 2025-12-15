@@ -18,6 +18,7 @@ export class ReclamoPobladoDelCliente {
 
 //Controller
 export class ReclamosDelClienteDto {
+  _id: string;
   nroTicket: string;
   titulo: string;
   tipoReclamo?: TipoReclamo | undefined;

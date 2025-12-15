@@ -149,6 +149,7 @@ export class ReclamosMapper {
 
   toReclamoDelClienteDto(reclamo: ReclamoDocumentType): ReclamosDelClienteDto {
     return {
+      _id: String(reclamo._id),
       nroTicket: reclamo.nroTicket,
       titulo: reclamo.titulo,
       tipoReclamo: this.mapTipoReclamo(reclamo.tipoReclamo),
