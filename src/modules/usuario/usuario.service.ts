@@ -247,20 +247,39 @@ export class UsuarioService {
     return this.usuarioMappers.toEmpleadoDtos(empleados);
   }
 
+  // --- ¡AQUÍ ESTÁ LA MODIFICACIÓN CLAVE! ---
   async findAllEmpleadosDeAreaDelUsuario(
     usuarioId: string,
   ): Promise<EmpleadoDto[]> {
+    // 1. Validaciones
     const usuario =
       await this.usuariosValidator.validateEncargadoExistente(usuarioId);
 
     const area =
       await this.usuariosValidator.validateAreaAsignadaAEncargado(usuario);
 
+    // 2. Obtener empleados
     const empleados = await this.usuariosRepository.findAllEmpleadosDeArea(
       area.nombre,
     );
-    return this.usuarioMappers.toEmpleadoDtos(empleados);
+    
+    // 3. Convertir a DTOs básicos
+    const empleadosDtos = this.usuarioMappers.toEmpleadoDtos(empleados);
+
+    // 4. Calcular Reclamos Asignados para cada uno
+    const empleadosConReclamos = await Promise.all(
+      empleadosDtos.map(async (dto) => {
+        // Consultamos al servicio de reclamos
+        const reclamos = await this.reclamosService.obtenerReclamosAsignados(dto.id);
+        // Asignamos la cantidad (0 si es null)
+        dto.cantidadReclamos = reclamos ? reclamos.length : 0;
+        return dto;
+      }),
+    );
+
+    return empleadosConReclamos;
   }
+  // ----------------------------------------
 
   async updateEncargado(
     id: string,
@@ -387,7 +406,4 @@ export class UsuarioService {
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     await this.usuariosRepository.updatePassword(user.id, hashedPassword);
   }
-
-  
-
 }

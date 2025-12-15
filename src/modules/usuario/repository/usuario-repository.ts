@@ -44,7 +44,6 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  // --- MODIFICADO PARA PAGINACIÓN ---
   async findAll(paginationDto: PaginationDto): Promise<UsuarioDocumentType[]> {
     try {
       const { limit = 5, page = 1 } = paginationDto;
@@ -52,6 +51,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
       const docs = await this.userModel
         .find()
+        .populate('subarea') 
         .limit(limit)
         .skip(skip)
         .exec();
@@ -70,6 +70,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const subareaObjectId = new Types.ObjectId(subareaId);
       const docs = await this.userModel
         .find({ subarea: subareaObjectId })
+        .populate('subarea') // <--- ESTO ARREGLA LA TABLA DEL FRONTEND
         .exec();
       return docs;
     } catch (error) {
@@ -228,12 +229,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
           },
         ],
       };
-
-
       const count = await this.userModel.countDocuments(query);
-
-  
-
       return count;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -242,12 +238,8 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-
-
-
   async findByIdSimple(id: string): Promise<UsuarioDocumentType | null> {
       try {
-
         return await this.userModel
           .findById(id)
           .populate('area'). exec();
@@ -257,6 +249,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         );
       }
   }
+
   async guardarTokenReset(
     email: string,
     token: string,
