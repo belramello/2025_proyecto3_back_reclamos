@@ -12,4 +12,8 @@ export class TipoReclamosService {
   async findOne(id: string): Promise<TipoReclamoDocumentType | null> {
     return await this.tipoReclamosRepository.findOne(id);
   }
+  
+  async findAll(): Promise<TipoReclamoDocumentType[]> {
+    return this.tipoReclamosRepository.findAll();
+  }
 }
