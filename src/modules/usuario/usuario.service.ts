@@ -175,18 +175,52 @@ export class UsuarioService {
       contraseña: hashContraseña,
       tokenActivacion: null,
       tokenExpiracion: null,
+      estado: "Activo"
     } as any);
 
     console.log(`Usuario ${id} activado exitosamente a las ${new Date()}`);
   }
 
-  // --- MODIFICADO PARA PAGINACIÓN ---
-  async findAll(paginationDto: PaginationDto): Promise<RespuestaUsuarioDto[]> {
-    const usuarios = await this.usuariosRepository.findAll(paginationDto);
-    return usuarios.map((usuario) =>
+  // --- MODIFICADO: Devuelve { data, total, page, limit, totalPages } ---
+  async findAll(paginationDto: PaginationDto): Promise<any> {
+    
+    // Limpieza de busqueda
+    if (!paginationDto.busqueda || paginationDto.busqueda.trim() === '') {
+        delete paginationDto.busqueda;
+    }
+
+    // Conversión de nombre de rol a ID
+    if (paginationDto.rol) {
+        const rolEntity = await this.rolesService.findByName(paginationDto.rol as any);
+        if (rolEntity) {
+            paginationDto.rol = rolEntity._id.toString();
+        } else {
+            // Si el rol no existe, ponemos un ID dummy para que no traiga nada
+            paginationDto.rol = "000000000000000000000000"; 
+        }
+    }
+
+    // Llamada al repositorio que ahora devuelve data y total
+    const { data, total } = await this.usuariosRepository.findAll(paginationDto);
+    
+    // Mapeo a DTOs
+    const dataMapped = data.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
+
+    // Calculo de páginas
+    const limit = paginationDto.limit || 10;
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+        data: dataMapped,
+        total,
+        page: paginationDto.page || 1,
+        limit,
+        totalPages
+    };
   }
+  // ------------------------------------------------------------
 
   async findOne(id: string): Promise<RespuestaUsuarioDto> {
     const usuario = await this.usuariosRepository.findOne(id);
@@ -247,7 +281,6 @@ export class UsuarioService {
     return this.usuarioMappers.toEmpleadoDtos(empleados);
   }
 
-  // --- ¡AQUÍ ESTÁ LA MODIFICACIÓN CLAVE! ---
   async findAllEmpleadosDeAreaDelUsuario(
     usuarioId: string,
   ): Promise<EmpleadoDto[]> {
@@ -279,7 +312,6 @@ export class UsuarioService {
 
     return empleadosConReclamos;
   }
-  // ----------------------------------------
 
   async updateEncargado(
     id: string,
