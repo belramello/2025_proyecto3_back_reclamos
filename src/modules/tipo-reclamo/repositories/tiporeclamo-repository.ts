@@ -33,7 +33,7 @@ export class TipoReclamosRepository implements ITipoReclamosRepository {
       .exec();
     return doc;
   }
-    async findAll(): Promise<TipoReclamoDocumentType[]> {
+  async findAll(): Promise<TipoReclamoDocumentType[]> {
     return this.tipoReclamoModel.find().exec();
   }
 }

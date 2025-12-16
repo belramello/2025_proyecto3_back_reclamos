@@ -46,49 +46,53 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
   // --- ¡MÉTODO CORREGIDO PARA PAGINACIÓN REAL! ---
   // Ahora devuelve { data, total }
-  async findAll(paginationDto: PaginationDto): Promise<any> { 
+    async findAll(paginationDto: PaginationDto): Promise<any> {
     try {
       const { limit = 5, page = 1, rol, busqueda } = paginationDto;
       const skip = (page - 1) * limit;
 
       const filters: any = {};
 
-      // Filtro por ROL
       if (rol) {
-          filters.rol = new Types.ObjectId(rol);
+        filters.rol = new Types.ObjectId(rol);
       }
 
-      // Filtro por BÚSQUEDA
       if (busqueda) {
-          filters.$or = [
-              { nombre: { $regex: busqueda, $options: 'i' } },
-              { email: { $regex: busqueda, $options: 'i' } }
-          ];
+        filters.$or = [
+          { nombre: { $regex: busqueda, $options: 'i' } },
+          { email: { $regex: busqueda, $options: 'i' } },
+        ];
       }
 
-      // 1. Consulta de DATOS
       const queryData = this.userModel
         .find(filters)
-        .populate('subarea') 
+        .populate({
+          path: 'subarea',
+          populate: {
+            path: 'area',
+          },
+        })
         .populate('rol')
         .limit(limit)
         .skip(skip)
-        .sort({ createdAt: -1 }); // Ordenamos por fecha de creación descendente
+        .sort({ createdAt: -1 });
 
-      // 2. Consulta de TOTAL (Conteo)
       const queryCount = this.userModel.countDocuments(filters);
 
-      // Ejecutamos ambas en paralelo
-      const [data, total] = await Promise.all([queryData.exec(), queryCount.exec()]);
-        
+      const [data, total] = await Promise.all([
+        queryData.exec(),
+        queryCount.exec(),
+      ]);
+
       return { data, total };
     } catch (error) {
-      console.error("Error en findAll repositorio:", error);
+      console.error('Error en findAll repositorio:', error);
       throw new InternalServerErrorException(
         `Error al buscar usuarios paginados: ${error.message}`,
       );
     }
   }
+
   // -------------------------
 
   async findAllEmpleadosBySubareaId(
