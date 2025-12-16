@@ -31,6 +31,15 @@ import { RespuestaHistorialReclamoDto } from './dto/respuesta-historial-reclamo.
 export class ReclamosController {
   constructor(private readonly reclamosService: ReclamosService) {}
 
+  
+  @PermisoRequerido(PermisosEnum.AUTO_ASIGNAR_RECLAMO)
+  @Get('reclamos-subarea')
+  obtenerReclamosAsignadosAUnSubArea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
+    return this.reclamosService.obtenerReclamosAsignadosAUnSubArea(req.usuario);
+  }
+
   @PermisoRequerido(PermisosEnum.REGISTRAR_RECLAMO)
   @Post()
   async create(
@@ -186,4 +195,5 @@ export class ReclamosController {
       areaAAsignarDto.areaId,
     );
   }
+
 }

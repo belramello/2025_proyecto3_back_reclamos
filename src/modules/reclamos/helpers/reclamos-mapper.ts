@@ -117,7 +117,7 @@ export class ReclamosMapper {
       prioridad: reclamo.prioridad,
       nombreEstado: reclamo.estadoDetalle?.nombre,
       tipoAsignacion: reclamo.asig?.tipoAsignacion,
-      subAreaAsignada: reclamo.asig?.desdeSubarea || null,
+      subAreaAsignada: reclamo.asig?.desdeSubarea || reclamo.asig?.haciaSubarea || null,
     };
   }
 

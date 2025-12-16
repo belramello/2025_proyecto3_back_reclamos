@@ -349,4 +349,20 @@ export class ReclamosService {
       );
     }
   }
+
+
+  async obtenerReclamosAsignadosAUnSubArea(
+    empleado: Usuario,
+  ): Promise<ReclamoEnMovimientoDto[]> {
+    console.log('Empleado que realiza la consulta:', empleado);
+    const subarea =
+      await this.reclamosValidator.validateEmpleadoConSubarea(empleado);
+      console.log('Subarea del empleado:', subarea);
+    const reclamos =
+      await this.reclamosRepository.obtenerReclamosAsignadosAUnSubArea(
+        subarea.nombre,
+      );
+    console.log(reclamos);
+    return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
+  }
 }
