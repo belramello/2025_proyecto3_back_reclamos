@@ -157,11 +157,11 @@ export class UsuarioService {
 
     const { data, total } =
       await this.usuariosRepository.findAll(paginationDto);
-
+    console.log(data);
     const dataMapped = data.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
-
+    console.log(dataMapped);
     const limit = paginationDto.limit || 10;
     const totalPages = Math.ceil(total / limit);
 
