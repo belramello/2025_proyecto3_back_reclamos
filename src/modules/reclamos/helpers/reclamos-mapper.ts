@@ -94,6 +94,7 @@ export class ReclamosMapper {
       prioridad: historialReclamo.prioridad,
       nivelCriticidad: historialReclamo.nivelCriticidad,
       descripcion: historialReclamo.descripcion,
+      imagenUrl: historialReclamo.imagenUrl,
       historialAsignaciones:
         this.historialAsignacionesMapper.toHistorialAsignacionesDtos(
           historialReclamo.historialAsignaciones,
@@ -105,7 +106,6 @@ export class ReclamosMapper {
   }
 
   toReclamoEnMovimientoDto(reclamo: any): ReclamoEnMovimientoDto {
-    console.log(reclamo.clienteDetalle);
     return {
       reclamoId: String(reclamo._id),
       reclamoNroTicket: reclamo.nroTicket,
@@ -117,6 +117,7 @@ export class ReclamosMapper {
       prioridad: reclamo.prioridad,
       nombreEstado: reclamo.estadoDetalle?.nombre,
       tipoAsignacion: reclamo.asig?.tipoAsignacion,
+      imagenUrl: reclamo.imagenUrl,
       subAreaAsignada: reclamo.asig?.desdeSubarea || null,
     };
   }

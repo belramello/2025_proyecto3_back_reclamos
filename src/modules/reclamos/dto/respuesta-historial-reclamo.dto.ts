@@ -2,7 +2,7 @@ import { HistorialAsignacionDto } from 'src/modules/historial-asignacion/dto/his
 import { HistorialEstadoDto } from 'src/modules/historial-estado/dto/historial-estado.dto';
 
 export class RespuestaHistorialReclamoDto {
-  //imagenUrl: string[] | null;
+  imagenUrl?: string[] | null;
   nroTicket: string;
   titulo: string;
   //tipoReclamo: string;
