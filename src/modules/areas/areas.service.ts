@@ -13,9 +13,6 @@ export class AreasService {
     private readonly areasRepository: IAreaRepository,
     private readonly areasMapper: AreasMapper,
   ) {}
-  create(createAreaDto: CreateAreaDto) {
-    return 'This action adds a new area';
-  }
 
   async findAll(): Promise<AreaDto[]> {
     const areas = await this.areasRepository.findAll();
@@ -28,13 +25,5 @@ export class AreasService {
 
   async findOneByNombre(nombre: string): Promise<AreaDocumentType | null> {
     return await this.areasRepository.findOneByNombre(nombre);
-  }
-
-  update(id: number, updateAreaDto: UpdateAreaDto) {
-    return `This action updates a #${id} area`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} area`;
   }
 }

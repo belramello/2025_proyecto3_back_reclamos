@@ -10,7 +10,9 @@ import { ProyectosValidator } from './helpers/proyectos-validator';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Proyecto.name, schema: ProyectoSchema }]),
+    MongooseModule.forFeature([
+      { name: Proyecto.name, schema: ProyectoSchema },
+    ]),
     forwardRef(() => UsuarioModule),
     JwtModule,
   ],

@@ -10,7 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
-  Query, // Importar Query
+  Query,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -26,13 +26,15 @@ import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   @Post('gestion-empleados')
-  @UseGuards(AuthGuard)
   async createEmpleado(
     @Body() createUsuarioDto: CreateUsuarioDto,
     @Req() req: RequestWithUsuario,
@@ -42,7 +44,8 @@ export class UsuarioController {
   }
 
   @Post('registrar-cliente')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   async createCliente(
     @Body() createUsuarioDto: CreateUsuarioDto,
     @Req() req: RequestWithUsuario,
@@ -52,29 +55,27 @@ export class UsuarioController {
   }
 
   @Get('empleados-subarea')
-  @UseGuards(AuthGuard)
-  async findAllEmpleadosDeSubarea(@Req() req: RequestWithUsuario) {
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.MOVER_RECLAMO)
+  async findAllEmpleadosDeSubarea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<EmpleadoDto[]> {
     return this.usuarioService.findAllEmpleadosDeSubareaDelUsuario(
       String(req.usuario._id),
     );
   }
 
   @Get('empleados-area')
-  @UseGuards(AuthGuard)
-  async findAllEmpleadosDeArea(@Req() req: RequestWithUsuario) {
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  async findAllEmpleadosDeArea(
+    @Req() req: RequestWithUsuario,
+  ): Promise<EmpleadoDto[]> {
     return this.usuarioService.findAllEmpleadosDeAreaDelUsuario(
       String(req.usuario._id),
     );
   }
 
-  @Post()
-  async create(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-  ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioService.create(createUsuarioDto);
-  }
-
-  // --- MODIFICADO PARA PAGINACIÓN ---
   @Get()
   async findAll(
     @Query() paginationDto: PaginationDto,
@@ -83,6 +84,8 @@ export class UsuarioController {
   }
 
   @Patch('gestion-empleados/:id')
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   async updateEmpleado(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
@@ -91,6 +94,8 @@ export class UsuarioController {
   }
 
   @Delete('gestion-empleados/:id')
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeEmpleado(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -119,21 +124,21 @@ export class UsuarioController {
     await this.usuarioService.remove(id);
   }
 
-
-
   @UseGuards(AuthGuard, PermisosGuard)
   @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   @Post('encargados')
   async createEncargado(
     @Body() createUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    const dtoEncargado = { ...createUsuarioDto, rol: RolesEnum.ENCARGADO_DE_AREA };
+    const dtoEncargado = {
+      ...createUsuarioDto,
+      rol: RolesEnum.ENCARGADO_DE_AREA,
+    };
     return this.usuarioService.create(dtoEncargado);
   }
 
   @UseGuards(AuthGuard, PermisosGuard)
   @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-
   @Patch('encargados/:id')
   async updateEncargado(
     @Param('id', ParseMongoIdPipe) id: string,
@@ -142,10 +147,8 @@ export class UsuarioController {
     return this.usuarioService.updateEncargado(id, updateUsuarioDto);
   }
 
-
   @UseGuards(AuthGuard, PermisosGuard)
   @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-
   @Delete('encargados/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeEncargado(

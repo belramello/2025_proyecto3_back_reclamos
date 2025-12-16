@@ -29,6 +29,7 @@ export class ReclamosValidator {
     @Inject(forwardRef(() => ReclamosService))
     private readonly reclamosService: ReclamosService,
     private readonly subareasValidator: SubareasValidator,
+    @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
     private readonly areasValidator: AreasValidator,
     private readonly proyectosValidator: ProyectosValidator,
@@ -123,7 +124,6 @@ export class ReclamosValidator {
     return;
   }
 
-  //Validar subárea perteneciente a área determinada.
   async validateSubareaExistenteYValida(
     id: string,
     area: Area,
@@ -131,7 +131,7 @@ export class ReclamosValidator {
     const subarea = await this.subareasValidator.validateSubareaExistente(id);
     if (subarea.area.nombre !== area.nombre) {
       throw new UnauthorizedException(
-        `El subarea a asignar no pertenece a la área del usuario.`,
+        `El subarea a asignar no pertenece al área del usuario.`,
       );
     }
     return subarea;

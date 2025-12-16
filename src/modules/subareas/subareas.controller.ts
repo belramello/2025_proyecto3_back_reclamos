@@ -3,13 +3,17 @@ import { SubareasService } from './subareas.service';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import { SubareaDto } from './dto/subarea-de-usuario.dto';
+import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enums/permisos-enum';
 
+@UseGuards(AuthGuard, PermisosGuard)
 @Controller('subareas')
 export class SubareasController {
   constructor(private readonly subareasService: SubareasService) {}
 
-  @UseGuards(AuthGuard)
   @Get('subareas-de-usuario')
+  @PermisoRequerido(PermisosEnum.MOVER_RECLAMO)
   async findAllSubareasDeEmpleado(
     @Req() req: RequestWithUsuario,
   ): Promise<SubareaDto[]> {
@@ -19,7 +23,8 @@ export class SubareasController {
   }
 
   @Get('area/:id')
-  async findSubAreaDeArea(@Param('id') id: string): Promise<SubareaDto[]> {
+  @PermisoRequerido(PermisosEnum.ASIGNAR_RECLAMOS)
+  async findSubareaDeArea(@Param('id') id: string): Promise<SubareaDto[]> {
     return this.subareasService.findSubAreaDeArea(id);
   }
 }

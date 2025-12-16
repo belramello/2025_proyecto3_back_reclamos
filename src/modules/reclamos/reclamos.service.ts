@@ -11,6 +11,8 @@ import { ReclamoEnMovimientoDto } from './dto/reclamo-en-movimiento.dto';
 import { ReclamosHelper } from './helpers/reclamos-helper';
 import { ReclamosDelClienteDto } from './dto/reclamos-del-cliente.dto';
 import { CerrarReclamoDto } from './dto/cerrar-reclamo.dto';
+import { RespuestaCerrarReclamoDto } from './dto/respuesta-cerrar-reclamo.dto';
+import { RespuestaHistorialReclamoDto } from './dto/respuesta-historial-reclamo.dto';
 
 @Injectable()
 export class ReclamosService {
@@ -43,7 +45,6 @@ export class ReclamosService {
       proyecto,
       tipoReclamo,
     );
-
     await this.mailService.enviarNotificacionCreacionReclamo(
       cliente.email,
       reclamoCreado.nroTicket,
@@ -56,7 +57,7 @@ export class ReclamosService {
   async cerrarReclamo(
     cerrarReclamo: CerrarReclamoDto,
     usuario: UsuarioDocumentType,
-  ) {
+  ): Promise<RespuestaCerrarReclamoDto> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(
       cerrarReclamo.reclamoId,
     );
@@ -74,11 +75,11 @@ export class ReclamosService {
     return this.reclamosMapper.toRespuestaCerrarReclamoDto(reclamo);
   }
   async obtenerReclamosDelCliente(
-    req: UsuarioDocumentType,
+    cliente: UsuarioDocumentType,
   ): Promise<ReclamosDelClienteDto[]> {
-    await this.reclamosValidator.validateCliente(req);
+    await this.reclamosValidator.validateCliente(cliente);
     const reclamos = await this.reclamosRepository.obtenerReclamosDelCliente(
-      String(req._id),
+      String(cliente._id),
     );
     return this.reclamosMapper.toReclamosDelClienteList(reclamos);
   }
@@ -86,7 +87,10 @@ export class ReclamosService {
   async findOne(id: string): Promise<ReclamoDocumentType | null> {
     return await this.reclamosRepository.findOne(id);
   }
-  async consultarHistorialReclamo(id: string) {
+
+  async consultarHistorialReclamo(
+    id: string,
+  ): Promise<RespuestaHistorialReclamoDto> {
     await this.reclamosValidator.validateReclamoExistente(id);
     const reclamo = await this.reclamosRepository.consultarHistorialReclamo(id);
     return this.reclamosMapper.toRespuestaHistorialReclamoDto(reclamo);
@@ -106,7 +110,6 @@ export class ReclamosService {
       subarea,
       estadoActual,
     );
-
     await this.notificarCliente(
       reclamo,
       'En Proceso',
@@ -119,7 +122,7 @@ export class ReclamosService {
     empleado: Usuario,
     subareaId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
     const area = await this.reclamosValidator.validateAreaReclamoParaEncargado(
@@ -136,8 +139,6 @@ export class ReclamosService {
       subarea,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
@@ -150,7 +151,7 @@ export class ReclamosService {
     encargado: Usuario,
     empleadoId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     const estadoActual =
       await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
@@ -171,8 +172,6 @@ export class ReclamosService {
       estadoActual,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       'En Proceso',
@@ -185,7 +184,7 @@ export class ReclamosService {
     encargado: Usuario,
     areaId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     const estadoActual =
       await this.reclamosValidator.validateReclamoNoResuelto(reclamo);
@@ -202,8 +201,6 @@ export class ReclamosService {
       areaDestino,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       estadoActual,
@@ -216,7 +213,7 @@ export class ReclamosService {
     empleadoOrigen: Usuario,
     empleadoDestinoId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
     this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleadoOrigen);
@@ -225,7 +222,6 @@ export class ReclamosService {
         empleadoDestinoId,
         empleadoOrigen,
       );
-
     await this.reclamosRepository.reasignarReclamoAEmpleado(
       reclamo,
       empleadoOrigen,
@@ -233,8 +229,6 @@ export class ReclamosService {
       subarea,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       'En Proceso',
@@ -247,7 +241,7 @@ export class ReclamosService {
     empleado: Usuario,
     subareaId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
     const subareaOrigen =
@@ -258,7 +252,6 @@ export class ReclamosService {
         subareaId,
         subareaOrigen.area,
       );
-
     await this.reclamosRepository.reasignarReclamoASubarea(
       reclamo,
       empleado,
@@ -266,8 +259,6 @@ export class ReclamosService {
       subareaDestino,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
@@ -280,7 +271,7 @@ export class ReclamosService {
     empleado: Usuario,
     areaId: string,
     comentario?: string,
-  ) {
+  ): Promise<void> {
     const reclamo = await this.reclamosValidator.validateReclamoExistente(id);
     await this.reclamosValidator.validateReclamoEnProceso(reclamo);
     const subareaOrigen =
@@ -288,7 +279,6 @@ export class ReclamosService {
     this.reclamosValidator.validateEmpleadoAsignado(reclamo, empleado);
     const areaDestino =
       await this.reclamosValidator.validateAreaExistente(areaId);
-
     await this.reclamosRepository.reasignarReclamoAArea(
       reclamo,
       empleado,
@@ -296,8 +286,6 @@ export class ReclamosService {
       areaDestino,
       comentario,
     );
-
-    // Notificación
     await this.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
@@ -327,30 +315,24 @@ export class ReclamosService {
     return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 
-  // --- HELPER PRIVADO PARA ENVIAR EL MAIL ---
+  //helper para el envío de mail.
   private async notificarCliente(
     reclamo: ReclamoDocumentType,
     nuevoEstado: string,
     mensaje: string,
-  ) {
+  ): Promise<void> {
     try {
       let emailCliente: string | null = null;
-
-      // Intentamos obtener el mail del campo 'usuario' (si existe en el schema actualizado)
       const usuario: any = reclamo.usuario;
       if (usuario && usuario.email) {
         emailCliente = usuario.email;
       }
-
-      // Si no, intentamos vía proyecto -> cliente
       if (!emailCliente) {
         const proyecto: any = reclamo.proyecto;
         if (proyecto && proyecto.cliente && proyecto.cliente.email) {
           emailCliente = proyecto.cliente.email;
         }
       }
-
-      // Si encontramos email, enviamos
       if (emailCliente) {
         await this.mailService.sendReclamoNotification(
           emailCliente,
@@ -366,20 +348,5 @@ export class ReclamosService {
         error,
       );
     }
-  }
-  // BORRA ESTO BELU CUANDO HAGAS LA LOGICA DE RECLAMOS QUE ES LA SIMULACIÓN DE NOTIFICACIÓN
-  // --- MÉTODO TEMPORAL PARA PROBAR EN POSTMAN ---
-  async simularNotificacion(emailDestino: string) {
-    console.log('🧪 Iniciando prueba de mail manual...');
-    await this.mailService.sendReclamoNotification(
-      emailDestino,
-      'TICKET-9999', // Nro Ticket Falso
-      'Reclamo de Prueba', // Título Falso
-      'Resuelto', // Nuevo Estado
-      'Esta es una prueba manual desde Postman para verificar la conexión SMTP.',
-    );
-    return {
-      message: 'Prueba de correo ejecutada. Revisa tu bandeja de entrada.',
-    };
   }
 }

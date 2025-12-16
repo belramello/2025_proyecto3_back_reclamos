@@ -1,33 +1,48 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { ProyectosService } from './proyectos.service';
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enums/permisos-enum';
+import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { Proyecto } from './schemas/proyecto.schema';
 
 @Controller('proyectos')
 export class ProyectosController {
   constructor(private readonly proyectosService: ProyectosService) {}
 
+  @UseGuards(AuthGuard, PermisosGuard)
   @Post()
-  @UseGuards(AuthGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_PROYECTOS)
   create(
     @Body() createProyectoDto: CreateProyectoDto,
-    @Req() req: RequestWithUsuario
+    @Req() req: RequestWithUsuario,
   ) {
     return this.proyectosService.create(createProyectoDto, req.usuario);
   }
 
-  // --- MODIFICADO PARA PAGINACIÓN ---
+  @UseGuards(AuthGuard, PermisosGuard)
   @Get()
-  findAll(
-    @Query() paginationDto: PaginationDto,
-  ) {
+  @PermisoRequerido(PermisosEnum.CREAR_PROYECTOS)
+  findAll(@Query() paginationDto: PaginationDto) {
     return this.proyectosService.findAll(paginationDto);
   }
 
+  @UseGuards(AuthGuard, PermisosGuard)
   @Get('cliente/:clienteId')
-  findByCliente(@Param('clienteId') clienteId: string) {
+  @PermisoRequerido(PermisosEnum.VER_RECLAMO)
+  findByCliente(@Param('clienteId') clienteId: string): Promise<Proyecto[]> {
     return this.proyectosService.findAllByCliente(clienteId);
   }
 }

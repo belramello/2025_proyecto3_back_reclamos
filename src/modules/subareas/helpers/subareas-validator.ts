@@ -14,8 +14,7 @@ export class SubareasValidator {
   constructor(
     @Inject(forwardRef(() => SubareasService))
     private readonly subareasService: SubareasService,
-    
-    // Agregamos @Inject(forwardRef(...)) 
+
     @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
   ) {}

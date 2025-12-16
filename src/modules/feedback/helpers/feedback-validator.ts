@@ -25,11 +25,9 @@ export class FeedbackValidator {
   /** 1. Validar que el reclamo existe */
   async validateReclamoExistente(reclamoId: string) {
     const reclamo = await this.reclamosService.findOne(reclamoId);
-
     if (!reclamo) {
       throw new NotFoundException(`El reclamo con ID ${reclamoId} no existe`);
     }
-
     return reclamo;
   }
 
@@ -90,7 +88,10 @@ export class FeedbackValidator {
   validateReclamoResuelto(reclamo: ReclamoDocumentType) {
     const ultimoHistorialEstado = reclamo.ultimoHistorialEstado as any; // Usamos 'any' para acceder a 'estado' sin problemas de tipado de Mongoose-populated
 
-    if (!ultimoHistorialEstado || ultimoHistorialEstado instanceof Types.ObjectId) {
+    if (
+      !ultimoHistorialEstado ||
+      ultimoHistorialEstado instanceof Types.ObjectId
+    ) {
       throw new BadRequestException(
         'El reclamo no tiene un historial de estado o no está poblado completamente (último estado no poblado)',
       );
@@ -113,13 +114,15 @@ export class FeedbackValidator {
   }
 
   /** Validación completa */
-  async validateCreateFeedback(reclamoId: string, clienteId: string) {
+  async validateCreateFeedback(
+    reclamoId: string,
+    clienteId: string,
+  ): Promise<ReclamoDocumentType> {
     const reclamo = await this.validateReclamoExistente(reclamoId);
     await this.validateUsuarioExistente(clienteId);
     this.validateUsuarioEsCliente(reclamo, clienteId);
     this.validateReclamoResuelto(reclamo);
     await this.validateNoFeedbackDuplicado(reclamoId, clienteId);
-
     return reclamo;
   }
 }

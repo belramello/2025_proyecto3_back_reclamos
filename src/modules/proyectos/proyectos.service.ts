@@ -4,8 +4,7 @@ import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { UsuariosValidator } from '../usuario/helpers/usuarios-validator';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import {ProyectoDocument } from './schemas/proyecto.schema';
-
+import { Proyecto, ProyectoDocument } from './schemas/proyecto.schema';
 
 @Injectable()
 export class ProyectosService {
@@ -18,14 +17,14 @@ export class ProyectosService {
 
   async create(
     createProyectoDto: CreateProyectoDto,
-    actor?: UsuarioDocumentType
+    actor?: UsuarioDocumentType,
   ) {
     if (actor) {
       await this.usuariosValidator.validateAdminExistente(String(actor._id));
     }
-    
-    await this.usuariosValidator.validateClienteExistente(createProyectoDto.cliente);
-
+    await this.usuariosValidator.validateClienteExistente(
+      createProyectoDto.cliente,
+    );
     return await this.proyectosRepository.create(createProyectoDto);
   }
 
@@ -37,7 +36,7 @@ export class ProyectosService {
     return await this.proyectosRepository.findOne(id);
   }
 
-  async findAllByCliente(clienteId: string) {
+  async findAllByCliente(clienteId: string): Promise<Proyecto[]> {
     return await this.proyectosRepository.findByCliente(clienteId);
   }
 }
