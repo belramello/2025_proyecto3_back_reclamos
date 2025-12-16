@@ -324,6 +324,7 @@ export class ReclamosService {
       await this.reclamosRepository.obtenerReclamosAsignadosAUnArea(
         area.nombre,
       );
+    console.log('Reclamos:', reclamos);
     return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
   }
 

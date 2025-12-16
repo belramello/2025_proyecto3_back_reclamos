@@ -11,7 +11,12 @@ import { Subarea } from '../../../modules/subareas/schemas/subarea.schema';
 import { TipoAsignacionesEnum } from '../../../modules/historial-asignacion/enums/tipoAsignacionesEnum';
 import { HistorialEstadoService } from '../../../modules/historial-estado/historial-estado.service';
 import { TipoCreacionHistorialEnum } from '../../../modules/historial-estado/enums/tipo-creacion-historial.enum';
-import { forwardRef, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
@@ -459,7 +464,7 @@ export class ReclamosRepository implements IReclamosRepository {
         {
           $lookup: {
             from: 'usuarios',
-            localField: 'cliente',
+            localField: 'usuario',
             foreignField: '_id',
             as: 'clienteDetalle',
           },
@@ -492,7 +497,6 @@ export class ReclamosRepository implements IReclamosRepository {
       }
       const objectId = new Types.ObjectId(area._id);
       return await this.reclamoModel.aggregate([
-        // 1) Join historial_asignaciones
         {
           $lookup: {
             from: 'historial_asignaciones',
@@ -502,8 +506,6 @@ export class ReclamosRepository implements IReclamosRepository {
           },
         },
         { $unwind: '$asig' },
-
-        // 2) Join historial_estado
         {
           $lookup: {
             from: 'historial_estado',
@@ -513,8 +515,6 @@ export class ReclamosRepository implements IReclamosRepository {
           },
         },
         { $unwind: '$estado' },
-
-        // 3) Detalle del estado
         {
           $lookup: {
             from: 'estados',
@@ -524,8 +524,6 @@ export class ReclamosRepository implements IReclamosRepository {
           },
         },
         { $unwind: '$estadoDetalle' },
-
-        // 4) Join proyecto
         {
           $lookup: {
             from: 'proyectos',
@@ -540,12 +538,10 @@ export class ReclamosRepository implements IReclamosRepository {
             preserveNullAndEmptyArrays: true,
           },
         },
-
-        // 5) Join cliente
         {
           $lookup: {
             from: 'usuarios',
-            localField: 'cliente',
+            localField: 'usuario',
             foreignField: '_id',
             as: 'clienteDetalle',
           },
@@ -556,8 +552,6 @@ export class ReclamosRepository implements IReclamosRepository {
             preserveNullAndEmptyArrays: true,
           },
         },
-
-        // 6) FILTRO: asignado actualmente a un área
         {
           $match: {
             'asig.haciaArea': objectId,
@@ -573,8 +567,6 @@ export class ReclamosRepository implements IReclamosRepository {
             },
           },
         },
-
-        // 7) FILTRO: estado actual NO es "Resuelto"
         {
           $match: {
             'estadoDetalle.nombre': { $ne: 'Resuelto' },
@@ -602,8 +594,8 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-//ME FALTA HACER ESTO @MARTIN
-//async registrarResolucion()
+  //ME FALTA HACER ESTO @MARTIN
+  //async registrarResolucion()
   async actualizarHistorialAsignacionActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
@@ -622,81 +614,82 @@ export class ReclamosRepository implements IReclamosRepository {
   async cerrarReclamo(
     reclamo: ReclamoDocumentType,
     resumenResolucion: string,
-    empleado: Usuario) : Promise<void> {
-      try {
-        await this.agregarResolucionAlReclamo(reclamo, resumenResolucion);
-        const nuevoHistorialEstado = await this.historialEstadoService.create({
-          reclamo: reclamo,
-          usuarioResponsable: empleado,
-          historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
-          tipo: TipoCreacionHistorialEnum.RESUELTO,
-        });
-        await this.actualizarHistorialEstadoActual(
-          String(nuevoHistorialEstado._id),
-          reclamo,
-        );
-        await this.historialEstadoService.cerrarHistorial(
-          String(reclamo.ultimoHistorialEstado._id),
-        );
-      } catch (error) {
-        console.error('Error al cerrar el reclamo:', error);
-        throw error;
-      }
+    empleado: Usuario,
+  ): Promise<void> {
+    try {
+      await this.agregarResolucionAlReclamo(reclamo, resumenResolucion);
+      const nuevoHistorialEstado = await this.historialEstadoService.create({
+        reclamo: reclamo,
+        usuarioResponsable: empleado,
+        historiaACerrarId: String(reclamo.ultimoHistorialEstado._id),
+        tipo: TipoCreacionHistorialEnum.RESUELTO,
+      });
+      await this.actualizarHistorialEstadoActual(
+        String(nuevoHistorialEstado._id),
+        reclamo,
+      );
+      await this.historialEstadoService.cerrarHistorial(
+        String(reclamo.ultimoHistorialEstado._id),
+      );
+    } catch (error) {
+      console.error('Error al cerrar el reclamo:', error);
+      throw error;
     }
+  }
 
-    async agregarResolucionAlReclamo(
-      reclamo: ReclamoDocumentType,
-      resumenResolucion: string): Promise<void> {
-      try {
-        reclamo.resumenResolucion = resumenResolucion;
-        await reclamo.save();
-      } catch (error) {
-        console.error('Error al agregar la resolución al reclamo:', error);
-        throw error;
-      }
+  async agregarResolucionAlReclamo(
+    reclamo: ReclamoDocumentType,
+    resumenResolucion: string,
+  ): Promise<void> {
+    try {
+      reclamo.resumenResolucion = resumenResolucion;
+      await reclamo.save();
+    } catch (error) {
+      console.error('Error al agregar la resolución al reclamo:', error);
+      throw error;
     }
+  }
 
   async obtenerReclamosDelCliente(
-  usuarioId: string,
-): Promise<ReclamoDocumentType[]> {
-  try {
-    return await this.reclamoModel
-  .find({ usuario: new Types.ObjectId(usuarioId) })
-  .populate('tipoReclamo')
-  .populate('proyecto')
-  .populate({
-    path: 'historialEstados',
-    populate: { path: 'estado' },
-  })
-  .populate({
-  path: 'historialAsignaciones',
-  populate: [
-    { path: 'desdeArea' },
-    { path: 'haciaArea' },
-    { path: 'desdeSubarea' },
-    { path: 'haciaSubarea' },
-    { path: 'deEmpleado' },
-    { path: 'haciaEmpleado' },
-  ],
-})
-.populate({
-  path: 'ultimoHistorialAsignacion',
-  populate: [
-    { path: 'desdeArea' },
-    { path: 'haciaArea' },
-    { path: 'desdeSubarea' },
-    { path: 'haciaSubarea' },
-    { path: 'deEmpleado' },
-    { path: 'haciaEmpleado' },
-  ],
-})
+    usuarioId: string,
+  ): Promise<ReclamoDocumentType[]> {
+    try {
+      return await this.reclamoModel
+        .find({ usuario: new Types.ObjectId(usuarioId) })
+        .populate('tipoReclamo')
+        .populate('proyecto')
+        .populate({
+          path: 'historialEstados',
+          populate: { path: 'estado' },
+        })
+        .populate({
+          path: 'historialAsignaciones',
+          populate: [
+            { path: 'desdeArea' },
+            { path: 'haciaArea' },
+            { path: 'desdeSubarea' },
+            { path: 'haciaSubarea' },
+            { path: 'deEmpleado' },
+            { path: 'haciaEmpleado' },
+          ],
+        })
+        .populate({
+          path: 'ultimoHistorialAsignacion',
+          populate: [
+            { path: 'desdeArea' },
+            { path: 'haciaArea' },
+            { path: 'desdeSubarea' },
+            { path: 'haciaSubarea' },
+            { path: 'deEmpleado' },
+            { path: 'haciaEmpleado' },
+          ],
+        })
 
-  .exec();
-
-  } catch (error) {
-    throw new InternalServerErrorException(
-      `Error al obtener los reclamos del cliente: ${error.message}`,
-    );
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener los reclamos del cliente: ${error.message}`,
+      );
+    }
   }
-}
 }
