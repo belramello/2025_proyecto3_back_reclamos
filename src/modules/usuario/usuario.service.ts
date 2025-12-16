@@ -224,7 +224,10 @@ export class UsuarioService {
     const empleados = await this.usuariosRepository.findAllEmpleadosDeSubarea(
       subarea.nombre,
     );
-    return this.usuarioMappers.toEmpleadoDtos(empleados);
+    const empleadosFiltrados = empleados.filter(
+      (empleado) => empleado.id.toString() !== usuarioId,
+    );
+    return this.usuarioMappers.toEmpleadoDtos(empleadosFiltrados);
   }
 
   async findAllEmpleadosDeAreaDelUsuario(

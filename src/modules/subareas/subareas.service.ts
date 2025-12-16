@@ -32,14 +32,21 @@ export class SubareasService {
         throw new BadRequestException(
           'El usuario no tiene subarea asignada ni area asignada',
         );
-      } else {
-        nombreArea = usuario.area.nombre;
       }
+      nombreArea = usuario.area.nombre;
     } else {
       nombreArea = usuario.subarea.area.nombre;
     }
     const subareas =
       await this.subareasRepository.findAllSubareasDeArea(nombreArea);
+    if (usuario.subarea != null) {
+      const nombreSubareaUsuario = usuario.subarea.nombre;
+      const subareasFiltradas = subareas.filter(
+        (subarea) => subarea.nombre !== nombreSubareaUsuario,
+      );
+      return this.subareasMapper.toSubareasDtos(subareasFiltradas);
+    }
+
     return this.subareasMapper.toSubareasDtos(subareas);
   }
 
