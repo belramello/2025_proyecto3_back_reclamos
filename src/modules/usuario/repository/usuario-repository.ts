@@ -28,10 +28,11 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const userDoc = new this.userModel({
         ...userData,
         rol: rol,
+        area: userData.area ? new Types.ObjectId(userData.area) : null,
         subarea: userData.subarea ? new Types.ObjectId(userData.subarea) : null,
       });
       const created = await userDoc.save();
-      
+
       const user = await this.findOne(created._id.toString());
       if (!user) {
         throw new InternalServerErrorException(`Error al crear el usuario`);
@@ -44,9 +45,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  // --- ¡MÉTODO CORREGIDO PARA PAGINACIÓN REAL! ---
-  // Ahora devuelve { data, total }
-    async findAll(paginationDto: PaginationDto): Promise<any> {
+  async findAll(paginationDto: PaginationDto): Promise<any> {
     try {
       const { limit = 5, page = 1, rol, busqueda } = paginationDto;
       const skip = (page - 1) * limit;
@@ -93,8 +92,6 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  // -------------------------
-
   async findAllEmpleadosBySubareaId(
     subareaId: string,
   ): Promise<UsuarioDocumentType[]> {
@@ -102,7 +99,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const subareaObjectId = new Types.ObjectId(subareaId);
       const docs = await this.userModel
         .find({ subarea: subareaObjectId })
-        .populate('subarea') 
+        .populate('subarea')
         .exec();
       return docs;
     } catch (error) {
@@ -239,7 +236,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-    async countByAreaAndRole(areaId: string, roleId: string): Promise<number> {
+  async countByAreaAndRole(areaId: string, roleId: string): Promise<number> {
     try {
       const areaObjectId = new Types.ObjectId(areaId);
       const roleObjectId = new Types.ObjectId(roleId);
@@ -248,16 +245,13 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
         $and: [
           {
             $or: [
-              { area: areaId },              
-              { area: areaObjectId },        
-              { "area._id": areaObjectId },  
+              { area: areaId },
+              { area: areaObjectId },
+              { 'area._id': areaObjectId },
             ],
           },
           {
-            $or: [
-              { rol: roleObjectId },        
-              { "rol._id": roleObjectId },    
-            ],
+            $or: [{ rol: roleObjectId }, { 'rol._id': roleObjectId }],
           },
         ],
       };
@@ -271,15 +265,13 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
   }
 
   async findByIdSimple(id: string): Promise<UsuarioDocumentType | null> {
-      try {
-        return await this.userModel
-          .findById(id)
-          .populate('area'). exec();
-      } catch (error) {
-        throw new InternalServerErrorException(
-          `Error al buscar usuario por ID simple: ${error.message}`,
-        );
-      }
+    try {
+      return await this.userModel.findById(id).populate('area').exec();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar usuario por ID simple: ${error.message}`,
+      );
+    }
   }
 
   async guardarTokenReset(
@@ -309,7 +301,6 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
           passwordResetExpiration: { $gt: new Date() },
         })
         .exec();
-
       return doc ?? null;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -330,7 +321,6 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
           },
         )
         .exec();
-
       if (result.matchedCount === 0) {
         throw new NotFoundException(
           `Usuario con ID ${id} no encontrado para actualizar contraseña.`,

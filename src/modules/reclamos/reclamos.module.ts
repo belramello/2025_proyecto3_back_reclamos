@@ -44,6 +44,7 @@ import { TipoReclamoModule } from '../tipo-reclamo/tipo-reclamo.module';
     HistorialAsignacionModule,
     ProyectosModule,
     TipoReclamoModule,
+    forwardRef(() => UsuarioModule),
   ],
   controllers: [ReclamosController],
   providers: [

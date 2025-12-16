@@ -6,8 +6,7 @@ import { RespuestaFindAllPaginatedFeedbackDTO } from './dto/respuesta-find-all-p
 import { FeedbackValidator } from './helpers/feedback-validator';
 import { FeedbackMapper } from './mappers/feedback-mapper';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
-import { ReclamosValidator } from '../reclamos/helpers/reclamos-validator';
-import { ReclamosService } from '../reclamos/reclamos.service';
+import { RespuestaCreateFeedbackDto } from './dto/respuesta-create-feedback.dto';
 
 @Injectable()
 export class FeedbackService {
@@ -17,22 +16,16 @@ export class FeedbackService {
     @Inject(forwardRef(() => FeedbackValidator))
     private readonly feedbackValidator: FeedbackValidator,
     private readonly feedbackmapper: FeedbackMapper,
-    private readonly reclamoService: ReclamosService,
   ) {}
+
   async create(
     createFeedbackDto: CreateFeedbackDto,
     usuario: UsuarioDocumentType,
-  ) {
-    await this.feedbackValidator.validateCreateFeedback(
+  ): Promise<RespuestaCreateFeedbackDto> {
+    const reclamo = await this.feedbackValidator.validateCreateFeedback(
       createFeedbackDto.reclamo,
       String(usuario._id),
     );
-    const reclamo = await this.reclamoService.findOne(
-      createFeedbackDto.reclamo,
-    );
-    if (!reclamo) {
-      throw new Error('Reclamo no encontrado');
-    }
     return this.feedbackmapper.toRespuestaCreateFeedback(
       await this.feedbackRepository.createFeedback(
         createFeedbackDto,

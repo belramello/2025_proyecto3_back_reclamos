@@ -34,7 +34,6 @@ export class ReclamosMapper {
       tipoReclamo: this.mapTipoReclamo(reclamo.tipoReclamo),
       prioridad: reclamo.prioridad,
       nivelCriticidad: reclamo.nivelCriticidad,
-
       historialAsignaciones:
         (reclamo.historialAsignaciones as HistorialAsignacion[]) ?? [],
       historialEstados: (reclamo.historialEstados as HistorialEstado[]) ?? [],
@@ -43,7 +42,6 @@ export class ReclamosMapper {
         (reclamo.ultimoHistorialAsignacion as HistorialAsignacion) ?? undefined,
       ultimoHistorialEstado:
         (reclamo.ultimoHistorialEstado as HistorialEstado) ?? undefined,
-
       proyecto: this.mapProyecto(reclamo.proyecto),
       descripcion: reclamo.descripcion,
       imagenUrl: reclamo.imagenUrl,
@@ -96,12 +94,11 @@ export class ReclamosMapper {
       prioridad: historialReclamo.prioridad,
       nivelCriticidad: historialReclamo.nivelCriticidad,
       descripcion: historialReclamo.descripcion,
-
+      imagenUrl: historialReclamo.imagenUrl,
       historialAsignaciones:
         this.historialAsignacionesMapper.toHistorialAsignacionesDtos(
           historialReclamo.historialAsignaciones,
         ),
-
       historialEstados: this.historialEstadosMapper.toHistorialEstadosDtos(
         historialReclamo.historialEstados,
       ),
@@ -109,23 +106,19 @@ export class ReclamosMapper {
   }
 
   toReclamoEnMovimientoDto(reclamo: any): ReclamoEnMovimientoDto {
-    console.log(reclamo.clienteDetalle)
     return {
       reclamoId: String(reclamo._id),
       reclamoNroTicket: reclamo.nroTicket,
       reclamoTitulo: reclamo.titulo,
-
       nombreProyecto: reclamo.proyectoDetalle?.titulo || null,
-      
-
-      nombreApellidoCliente:reclamo.clienteDetalle?.nombre || null,
-
+      nombreApellidoCliente: reclamo.clienteDetalle?.nombre || null,
       fechaHoraInicioAsignacion: reclamo.asig?.fechaAsignacion,
       nivelCriticidad: reclamo.nivelCriticidad,
       prioridad: reclamo.prioridad,
       nombreEstado: reclamo.estadoDetalle?.nombre,
       tipoAsignacion: reclamo.asig?.tipoAsignacion,
-      subAreaAsignada: reclamo.asig?.desdeSubarea|| null,
+      imagenUrl: reclamo.imagenUrl,
+      subAreaAsignada: reclamo.asig?.desdeSubarea || null,
     };
   }
 

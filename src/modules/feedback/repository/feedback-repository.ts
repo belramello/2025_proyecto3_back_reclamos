@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateFeedbackDto } from '../dto/create-feedback.dto';
 import { Feedback, FeedbackDocument } from '../schemas/feedback.schema';
@@ -16,6 +12,7 @@ export class FeedbackRepository implements IFeedbackRepository {
     @InjectModel(Feedback.name)
     private readonly feedbackModel: Model<FeedbackDocument>,
   ) {}
+
   async createFeedback(
     feedback: CreateFeedbackDto,
     reclamo: ReclamoDocumentType,
@@ -26,6 +23,7 @@ export class FeedbackRepository implements IFeedbackRepository {
     retro.reclamo = reclamo._id;
     return await retro.save();
   }
+
   async findAllPaginated(
     page: number,
     limit: number,
@@ -37,7 +35,6 @@ export class FeedbackRepository implements IFeedbackRepository {
   }> {
     try {
       const skip = (page - 1) * limit;
-
       const [feedback, total] = await Promise.all([
         this.feedbackModel
           .find()
@@ -50,7 +47,6 @@ export class FeedbackRepository implements IFeedbackRepository {
 
         this.feedbackModel.countDocuments().exec(),
       ]);
-
       return {
         feedback,
         total,
@@ -64,7 +60,10 @@ export class FeedbackRepository implements IFeedbackRepository {
     }
   }
 
-  async findByReclamoYCliente(reclamoId: string, clienteId: string) {
+  async findByReclamoYCliente(
+    reclamoId: string,
+    clienteId: string,
+  ): Promise<FeedbackDocument | null> {
     return this.feedbackModel.findOne({
       reclamo: reclamoId,
       cliente: clienteId,

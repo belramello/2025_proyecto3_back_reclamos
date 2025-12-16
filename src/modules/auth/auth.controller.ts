@@ -4,7 +4,7 @@ import { Post, Body } from '@nestjs/common';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
-import { ActivarCuentaDto } from './dto/activar-cuenta.dto'; // Importamos el DTO
+import { ActivarCuentaDto } from './dto/activar-cuenta.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +15,7 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 
+  //ver si sigue estando o tendría que desaparecer
   @Post('register')
   async register(
     @Body() createUsuarioDto: CreateUsuarioDto,
@@ -29,7 +30,6 @@ export class AuthController {
     return await this.authService.refresh(refreshToken);
   }
 
-  // --- NUEVO ENDPOINT ---
   @Post('activar-cuenta')
   async activarCuenta(@Body() activarCuentaDto: ActivarCuentaDto) {
     return await this.authService.activarCuenta(activarCuentaDto);

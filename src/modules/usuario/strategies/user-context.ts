@@ -12,14 +12,15 @@ export class UserContext {
     [RolesEnum.CLIENTE]: new ClienteCreationStrategy(),
     [RolesEnum.EMPLEADO]: new EmpleadoCreationStrategy(),
     [RolesEnum.ADMINISTRADOR]: new AdminCreationStrategy(),
-    // Nota: Si implementas Encargado, agrégalo aquí igual que Empleado
-    [RolesEnum.ENCARGADO_DE_AREA]: new EncargadoCreationStrategy(), // Uso temporal de estrategia empleado
+    [RolesEnum.ENCARGADO_DE_AREA]: new EncargadoCreationStrategy(),
   };
 
   getStrategy(rolNombre: string): UserCreationStrategy {
     const strategy = this.strategies[rolNombre];
     if (!strategy) {
-      throw new BadRequestException(`No hay estrategia definida para el rol: ${rolNombre}`);
+      throw new BadRequestException(
+        `No hay estrategia definida para el rol: ${rolNombre}`,
+      );
     }
     return strategy;
   }

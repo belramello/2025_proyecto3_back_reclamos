@@ -13,10 +13,6 @@ export class HistorialEstadosMapper {
   }
 
   toHistorialEstadoDto(historialEstado: any): HistorialEstadoDto {
-    console.log(
-      'historial Estado en mapper de historial estado',
-      historialEstado,
-    );
     return {
       id: String(historialEstado._id),
       fechaHoraInicio: historialEstado.fechaHoraInicio,

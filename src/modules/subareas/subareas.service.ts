@@ -9,7 +9,6 @@ import type { ISubareasRepository } from './repositories/subareas-repository.int
 import { SubareasValidator } from './helpers/subareas-validator';
 import { SubareaDto } from './dto/subarea-de-usuario.dto';
 import { SubareasMapper } from './helpers/subareas-mapper';
-import { Area } from '../areas/schemas/area.schema';
 
 @Injectable()
 export class SubareasService {

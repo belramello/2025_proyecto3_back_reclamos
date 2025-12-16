@@ -14,4 +14,5 @@ export class ReclamoEnMovimientoDto {
   nombreEstado: EstadosEnum;
   tipoAsignacion: TipoAsignacionesEnum;
   subAreaAsignada?: string | null;
+  imagenUrl: string[];
 }

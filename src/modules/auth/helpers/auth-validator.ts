@@ -51,4 +51,20 @@ export class AuthValidator {
     }
     return user;
   }
+
+  async findUsuarioByToken(token: string): Promise<UsuarioDocumentType> {
+    const usuario = await this.usuarioservice.findByToken(token);
+    if (!usuario) {
+      throw new NotFoundException('Token inválido o usuario no encontrado.');
+    }
+    return usuario;
+  }
+
+  async validateTokenNoExpirado(usuario: UsuarioDocumentType): Promise<void> {
+    if (usuario.tokenExpiracion && new Date() > usuario.tokenExpiracion) {
+      throw new BadRequestException(
+        'El token ha expirado. Solicite uno nuevo.',
+      );
+    }
+  }
 }

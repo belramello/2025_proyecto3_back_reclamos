@@ -13,6 +13,7 @@ import { ProyectosModule } from '../proyectos/proyectos.module';
 import { SubareasModule } from '../subareas/subareas.module';
 import { ReclamosModule } from '../reclamos/reclamos.module';
 import { JwtModule } from '../jwt/jwt.module';
+import { UsuariosHelper } from './helpers/usuarios-helper';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { JwtModule } from '../jwt/jwt.module';
     },
     UsersMapper,
     UserContext,
+    UsuariosHelper,
   ],
   exports: [UsuarioService, UsuariosValidator, UsersMapper],
 })

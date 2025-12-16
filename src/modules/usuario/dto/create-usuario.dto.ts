@@ -33,7 +33,7 @@ export class CreateUsuarioDto {
   readonly nombre?: string;
 
   @IsString({ message: 'El apellido debe ser una cadena de texto.' })
-  @IsOptional() // O @IsNotEmpty() si quieres que sea obligatorio
+  @IsOptional()
   apellido?: string;
 
   @IsString({ message: 'La dirección debe ser una cadena de texto.' })
@@ -51,7 +51,7 @@ export class CreateUsuarioDto {
   @IsString({ message: 'El área debe ser una cadena de texto.' })
   @IsOptional()
   readonly area?: string;
-  
+
   @IsOptional()
   @ValidateNested()
   @Type(() => CreateProyectoDto)

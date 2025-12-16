@@ -21,16 +21,9 @@ import { Area } from '../../../modules/areas/schemas/area.schema';
 import { AreasService } from 'src/modules/areas/areas.service';
 import { EstadosEnum } from 'src/modules/estados/enums/estados-enum';
 import { CreateReclamoDto } from '../dto/create-reclamo.dto';
-import {
-  TipoReclamo,
-  TipoReclamoDocumentType,
-} from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
-import {
-  Proyecto,
-  ProyectoDocument,
-} from 'src/modules/proyectos/schemas/proyecto.schema';
-import { Estado } from 'src/modules/estados/schemas/estado.schema';
-import { ReclamosDelClienteDto } from '../dto/reclamos-del-cliente.dto';
+import { TipoReclamoDocumentType } from 'src/modules/tipo-reclamo/schemas/tipo-reclamo.schema';
+import { ProyectoDocument } from 'src/modules/proyectos/schemas/proyecto.schema';
+import { SubareasService } from 'src/modules/subareas/subareas.service';
 
 export class ReclamosRepository implements IReclamosRepository {
   constructor(
@@ -40,6 +33,7 @@ export class ReclamosRepository implements IReclamosRepository {
     @Inject(forwardRef(() => HistorialEstadoService))
     private readonly historialEstadoService: HistorialEstadoService,
     private readonly areaService: AreasService,
+    private readonly subAreaService: SubareasService,
   ) {}
 
   async crearReclamo(
@@ -154,10 +148,7 @@ export class ReclamosRepository implements IReclamosRepository {
         })
         .populate({
           path: 'proyecto',
-          populate: [
-            //Agregué esta parte para que mi herno juan pueda enviar notifiaciones
-            { path: 'cliente', select: 'email nombre' },
-          ],
+          populate: [{ path: 'cliente', select: 'email nombre' }],
         })
         .exec();
       return reclamo;
@@ -419,7 +410,6 @@ export class ReclamosRepository implements IReclamosRepository {
       const objectId = new Types.ObjectId(empleadoId);
 
       return await this.reclamoModel.aggregate([
-        // 1) Join historial_asignaciones
         {
           $lookup: {
             from: 'historial_asignaciones',
@@ -594,8 +584,6 @@ export class ReclamosRepository implements IReclamosRepository {
     }
   }
 
-  //ME FALTA HACER ESTO @MARTIN
-  //async registrarResolucion()
   async actualizarHistorialAsignacionActual(
     historialId: string,
     reclamo: ReclamoDocumentType,
@@ -684,12 +672,105 @@ export class ReclamosRepository implements IReclamosRepository {
             { path: 'haciaEmpleado' },
           ],
         })
-
         .exec();
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al obtener los reclamos del cliente: ${error.message}`,
       );
+    }
+  }
+
+  async obtenerReclamosAsignadosAUnSubArea(
+    nombreSubArea: string,
+  ): Promise<any[]> {
+    try {
+      const sub = await this.subAreaService.findOneByNombre(nombreSubArea);
+      console.log('Subarea encontrada:', sub);
+      if (!sub) {
+        throw new NotFoundException(`No se encontró el área ${nombreSubArea}`);
+      }
+      const objectId = new Types.ObjectId(sub._id);
+      console.log('ObjectId de la subarea:', objectId);
+      return await this.reclamoModel.aggregate([
+        // 1) Join historial_asignaciones
+        {
+          $lookup: {
+            from: 'historial_asignaciones',
+            localField: 'ultimoHistorialAsignacion',
+            foreignField: '_id',
+            as: 'asig',
+          },
+        },
+        { $unwind: '$asig' },
+        {
+          $lookup: {
+            from: 'historial_estado',
+            localField: 'ultimoHistorialEstado',
+            foreignField: '_id',
+            as: 'estado',
+          },
+        },
+        { $unwind: '$estado' },
+        {
+          $lookup: {
+            from: 'estados',
+            localField: 'estado.estado',
+            foreignField: '_id',
+            as: 'estadoDetalle',
+          },
+        },
+        { $unwind: '$estadoDetalle' },
+        {
+          $lookup: {
+            from: 'proyectos',
+            localField: 'proyecto',
+            foreignField: '_id',
+            as: 'proyectoDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$proyectoDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'cliente',
+            foreignField: '_id',
+            as: 'clienteDetalle',
+          },
+        },
+        {
+          $unwind: {
+            path: '$clienteDetalle',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            'asig.haciaEmpleado': null,
+            'asig.haciaSubarea': objectId,
+            'asig.fechaHoraFin': null,
+            'asig.tipoAsignacion': {
+              $in: [
+                'Inicial',
+                'AsignacionDeAreaASubarea',
+                'AsignacionDeEmpleadoASubarea',
+              ],
+            },
+          },
+        },
+        {
+          $match: {
+            'estadoDetalle.nombre': { $ne: 'Resuelto' },
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error('Error al obtener reclamos asignados a subarea:', error);
+      throw error;
     }
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -7,6 +15,8 @@ import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { RespuestaFindAllPaginatedFeedbackDTO } from './dto/respuesta-find-all-paginated-dto';
+import { RespuestaCreateFeedbackDto } from './dto/respuesta-create-feedback.dto';
 
 @Controller('feedback')
 export class FeedbackController {
@@ -18,14 +28,15 @@ export class FeedbackController {
   async create(
     @Body() createReclamoDto: CreateFeedbackDto,
     @Req() req: RequestWithUsuario,
-  ) {
-    console.log('Usuario que crea el feedback:', req.usuario);
-    console.log('Datos del feedback a crear:', createReclamoDto);
+  ): Promise<RespuestaCreateFeedbackDto> {
     return await this.feedbackService.create(createReclamoDto, req.usuario);
   }
 
+  //VER SI SE TERMINA USANDO, AGREGAR PERMISOS SI CORRESPONDE.
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
+  findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedFeedbackDTO> {
     return this.feedbackService.findAll(paginationDto);
   }
 }
