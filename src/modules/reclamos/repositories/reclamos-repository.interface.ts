@@ -78,4 +78,5 @@ export interface IReclamosRepository {
     resumenResolucion: string,
     empleado: Usuario,
   ): Promise<void>;
+  obtenerReclamosAsignadosAUnSubArea(nombreSubArea: string): Promise<any[]>;
 }
