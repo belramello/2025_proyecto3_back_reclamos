@@ -685,14 +685,11 @@ export class ReclamosRepository implements IReclamosRepository {
   ): Promise<any[]> {
     try {
       const sub = await this.subAreaService.findOneByNombre(nombreSubArea);
-      console.log('Subarea encontrada:', sub);
       if (!sub) {
         throw new NotFoundException(`No se encontró el área ${nombreSubArea}`);
       }
       const objectId = new Types.ObjectId(sub._id);
-      console.log('ObjectId de la subarea:', objectId);
       return await this.reclamoModel.aggregate([
-        // 1) Join historial_asignaciones
         {
           $lookup: {
             from: 'historial_asignaciones',
