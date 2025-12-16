@@ -12,7 +12,6 @@ export class AuthMapper {
     refreshToken: string,
     usuario: LoginUsuario,
   ) {
-    console.log(usuario);
     return {
       accessToken,
       refreshToken,
