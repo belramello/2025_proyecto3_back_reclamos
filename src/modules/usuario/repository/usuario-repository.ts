@@ -28,6 +28,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const userDoc = new this.userModel({
         ...userData,
         rol: rol,
+        area: userData.area ? new Types.ObjectId(userData.area) : null,
         subarea: userData.subarea ? new Types.ObjectId(userData.subarea) : null,
       });
       const created = await userDoc.save();

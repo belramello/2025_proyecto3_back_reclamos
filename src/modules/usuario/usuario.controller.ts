@@ -51,6 +51,8 @@ export class UsuarioController {
     @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
     const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
+    console.log('DTO Cliente:', dtoCliente);
+    console.log('Usuario que registra:', req.usuario);
     return this.usuarioService.create(dtoCliente, req.usuario);}
 
   @Delete('gestion-empleados/:id')

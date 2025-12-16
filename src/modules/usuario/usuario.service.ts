@@ -57,6 +57,7 @@ export class UsuarioService {
         createUsuarioDto.subarea,
       );
     }
+    console.log("Actor in service:", actor);
     const strategy = this.userContext.getStrategy(rolEncontrado.nombre);
     await strategy.validate(createUsuarioDto, {
       actor: actor,
