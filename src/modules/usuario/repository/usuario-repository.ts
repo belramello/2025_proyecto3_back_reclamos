@@ -65,6 +65,12 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
 
       const queryData = this.userModel
         .find(filters)
+        .populate({
+          path: 'subarea',
+          populate: {
+            path: 'area',
+          },
+        })
         .populate('area', 'nombre')
         .populate('rol')
         .limit(limit)

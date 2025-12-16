@@ -56,7 +56,8 @@ export class UsersMapper {
       nombre: usuario.nombre,
       direccion: usuario.direccion,
       telefono: usuario.telefono,
-      area: usuario.area?.nombre,
+      subarea:usuario.subarea?.nombre,
+      area: usuario.area?.nombre || usuario.subarea?.area?.nombre,
       // Enviamos el campo calculado al frontend
       estado: estadoCalculado, 
 
