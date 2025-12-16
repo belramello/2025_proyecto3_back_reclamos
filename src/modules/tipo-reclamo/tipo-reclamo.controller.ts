@@ -12,4 +12,8 @@ export class TipoReclamoController {
   ): Promise<TipoReclamoDocumentType | null> {
     return await this.tipoReclamoService.findOne(id);
   }
+  @Get()
+  async findAll(): Promise<TipoReclamoDocumentType[]> {
+    return this.tipoReclamoService.findAll();
+  }
 }

@@ -23,6 +23,7 @@ import { ReclamosService } from '../reclamos/reclamos.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsuariosHelper } from './helpers/usuarios-helper';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class UsuarioService {
@@ -40,6 +41,7 @@ export class UsuarioService {
     private readonly reclamosService: ReclamosService,
     private readonly configService: ConfigService,
     private readonly usuarioHelper: UsuariosHelper,
+    private readonly rolesService: RolesService,
   ) {}
 
   async create(
@@ -133,14 +135,43 @@ export class UsuarioService {
       contraseña: hashContraseña,
       tokenActivacion: null,
       tokenExpiracion: null,
+      estado: 'Activo',
     } as any);
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<RespuestaUsuarioDto[]> {
-    const usuarios = await this.usuariosRepository.findAll(paginationDto);
-    return usuarios.map((usuario) =>
+  async findAll(paginationDto: PaginationDto): Promise<any> {
+    if (!paginationDto.busqueda || paginationDto.busqueda.trim() === '') {
+      delete paginationDto.busqueda;
+    }
+
+    if (paginationDto.rol) {
+      const rolEntity = await this.rolesService.findByName(
+        paginationDto.rol as any,
+      );
+      if (rolEntity) {
+        paginationDto.rol = rolEntity._id.toString();
+      } else {
+        paginationDto.rol = '000000000000000000000000';
+      }
+    }
+
+    const { data, total } =
+      await this.usuariosRepository.findAll(paginationDto);
+
+    const dataMapped = data.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
+
+    const limit = paginationDto.limit || 10;
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: dataMapped,
+      total,
+      page: paginationDto.page || 1,
+      limit,
+      totalPages,
+    };
   }
 
   async findOne(id: string): Promise<RespuestaUsuarioDto> {

@@ -1,4 +1,9 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  NotFoundException,
+} from '@nestjs/common';
 import type { ProyectosRepositoryInterface } from './repositories/proyectos-repository.interface';
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { UsuariosValidator } from '../usuario/helpers/usuarios-validator';
@@ -29,7 +34,23 @@ export class ProyectosService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    return await this.proyectosRepository.findAll(paginationDto);
+    if (!paginationDto.busqueda || paginationDto.busqueda.trim() === '') {
+      delete paginationDto.busqueda;
+
+      const { data, total } =
+        await this.proyectosRepository.findAll(paginationDto);
+
+      const limit = paginationDto.limit || 5;
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        data,
+        total,
+        page: paginationDto.page || 1,
+        limit,
+        totalPages,
+      };
+    }
   }
 
   async findOne(id: string): Promise<ProyectoDocument | null> {
@@ -38,5 +59,8 @@ export class ProyectosService {
 
   async findAllByCliente(clienteId: string): Promise<Proyecto[]> {
     return await this.proyectosRepository.findByCliente(clienteId);
+  }
+  async remove(id: string): Promise<void> {
+    await this.proyectosRepository.remove(id);
   }
 }

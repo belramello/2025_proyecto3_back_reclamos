@@ -51,7 +51,16 @@ export class UsuarioController {
     @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
     const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
-    return this.usuarioService.create(dtoCliente, req.usuario);
+    return this.usuarioService.create(dtoCliente, req.usuario);}
+
+  @Delete('gestion-empleados/:id')
+  @UseGuards(AuthGuard, PermisosGuard)
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeEmpleado(
+    @Param('id', ParseMongoIdPipe) id: string,
+  ): Promise<void> {
+    await this.usuarioService.removeEmpleado(id);
   }
 
   @Get('empleados-subarea')
@@ -76,6 +85,13 @@ export class UsuarioController {
     );
   }
 
+  @Post()
+  async create(
+    @Body() createUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioService.create(createUsuarioDto);
+  }
+
   @Get()
   async findAll(
     @Query() paginationDto: PaginationDto,
@@ -84,23 +100,11 @@ export class UsuarioController {
   }
 
   @Patch('gestion-empleados/:id')
-  @UseGuards(AuthGuard, PermisosGuard)
-  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   async updateEmpleado(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
     return this.usuarioService.updateEmpleado(id, updateUsuarioDto);
-  }
-
-  @Delete('gestion-empleados/:id')
-  @UseGuards(AuthGuard, PermisosGuard)
-  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async removeEmpleado(
-    @Param('id', ParseMongoIdPipe) id: string,
-  ): Promise<void> {
-    await this.usuarioService.removeEmpleado(id);
   }
 
   @Get(':id')

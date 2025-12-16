@@ -7,6 +7,9 @@ import {
   UseGuards,
   Req,
   Query,
+  Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ProyectosService } from './proyectos.service';
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
@@ -17,6 +20,7 @@ import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decora
 import { PermisosEnum } from '../permisos/enums/permisos-enum';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { Proyecto } from './schemas/proyecto.schema';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe'; // Necesario para validar el ID
 
 @Controller('proyectos')
 export class ProyectosController {
@@ -44,5 +48,12 @@ export class ProyectosController {
   @PermisoRequerido(PermisosEnum.VER_RECLAMO)
   findByCliente(@Param('clienteId') clienteId: string): Promise<Proyecto[]> {
     return this.proyectosService.findAllByCliente(clienteId);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
+    await this.proyectosService.remove(id);
   }
 }

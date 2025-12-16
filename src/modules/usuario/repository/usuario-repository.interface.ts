@@ -8,7 +8,9 @@ export interface IUsuarioRepository {
     usuario: CreateUsuarioDto,
     rol: RolDocumentType,
   ): Promise<UsuarioDocumentType>;
-  findAll(paginationDto: PaginationDto): Promise<UsuarioDocumentType[]>;
+  findAll(
+    paginationDto: PaginationDto,
+  ): Promise<{ data: UsuarioDocumentType[]; total: number }>;
   findAllEmpleadosBySubareaId(
     subareaIds: string,
   ): Promise<UsuarioDocumentType[]>;

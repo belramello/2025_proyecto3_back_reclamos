@@ -44,21 +44,49 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     }
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<UsuarioDocumentType[]> {
+  async findAll(paginationDto: PaginationDto): Promise<any> {
     try {
-      const { limit = 5, page = 1 } = paginationDto;
+      const { limit = 5, page = 1, rol, busqueda } = paginationDto;
       const skip = (page - 1) * limit;
 
-      const docs = await this.userModel
-        .find()
-        .populate('subarea')
+      const filters: any = {};
+
+      if (rol) {
+        filters.rol = new Types.ObjectId(rol);
+      }
+
+      if (busqueda) {
+        filters.$or = [
+          { nombre: { $regex: busqueda, $options: 'i' } },
+          { email: { $regex: busqueda, $options: 'i' } },
+        ];
+      }
+
+      const queryData = this.userModel
+        .find(filters)
+        .populate({
+          path: 'subarea',
+          populate: {
+            path: 'area',
+          },
+        })
+        .populate('rol')
         .limit(limit)
         .skip(skip)
-        .exec();
-      return docs;
+        .sort({ createdAt: -1 });
+
+      const queryCount = this.userModel.countDocuments(filters);
+
+      const [data, total] = await Promise.all([
+        queryData.exec(),
+        queryCount.exec(),
+      ]);
+
+      return { data, total };
     } catch (error) {
+      console.error('Error en findAll repositorio:', error);
       throw new InternalServerErrorException(
-        `Error al buscar todos los usuarios paginados.`,
+        `Error al buscar usuarios paginados: ${error.message}`,
       );
     }
   }
@@ -70,7 +98,7 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
       const subareaObjectId = new Types.ObjectId(subareaId);
       const docs = await this.userModel
         .find({ subarea: subareaObjectId })
-        .populate('subarea') // <--- ESTO ARREGLA LA TABLA DEL FRONTEND
+        .populate('subarea')
         .exec();
       return docs;
     } catch (error) {
