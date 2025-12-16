@@ -5,7 +5,8 @@ import { PaginationDto } from 'src/common/dto/pagination.dto'; // Asegúrate de 
 export interface ProyectosRepositoryInterface {
   create(createProyectoDto: CreateProyectoDto): Promise<Proyecto>;
   // Actualizamos findAll para recibir paginación
-  findAll(paginationDto: PaginationDto): Promise<Proyecto[]>;
+  findAll(paginationDto: PaginationDto): Promise<{ data: Proyecto[]; total: number }>;
   findOne(id: string): Promise<ProyectoDocument | null>;
   findByCliente(clienteId: string): Promise<Proyecto[]>;
+  remove(id: string): Promise<void>;
 }

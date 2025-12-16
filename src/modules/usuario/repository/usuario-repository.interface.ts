@@ -9,7 +9,7 @@ export interface IUsuarioRepository {
   create(usuario: CreateUsuarioDto, rol: RolDocumentType): Promise<UsuarioDocumentType>;
   
   // 2. ACTUALIZAR ESTE MÉTODO
-  findAll(paginationDto: PaginationDto): Promise<UsuarioDocumentType[]>;
+  findAll(paginationDto: PaginationDto): Promise<{ data: UsuarioDocumentType[]; total: number }>;
   
   findAllEmpleadosBySubareaId(
     subareaIds: string,
