@@ -51,9 +51,8 @@ export class UsuarioController {
     @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
     const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
-    console.log('DTO Cliente:', dtoCliente);
-    console.log('Usuario que registra:', req.usuario);
-    return this.usuarioService.create(dtoCliente, req.usuario);}
+    return this.usuarioService.create(dtoCliente, req.usuario);
+  }
 
   @Delete('gestion-empleados/:id')
   @UseGuards(AuthGuard, PermisosGuard)
@@ -85,13 +84,6 @@ export class UsuarioController {
     return this.usuarioService.findAllEmpleadosDeAreaDelUsuario(
       String(req.usuario._id),
     );
-  }
-
-  @Post()
-  async create(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-  ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioService.create(createUsuarioDto);
   }
 
   @Get()
