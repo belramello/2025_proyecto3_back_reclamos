@@ -13,4 +13,5 @@ export class ReclamoEnMovimientoDto {
   prioridad: Prioridad;
   nombreEstado: EstadosEnum;
   tipoAsignacion: TipoAsignacionesEnum;
+  subAreaAsignada?: string | null;
 }

@@ -13,10 +13,11 @@ export class UsersMapper {
       email: dto.email,
       contraseña: dto.contraseña,
       nombre: dto.nombre,
+      //apellido: dto.apellido, // Agregamos apellido al guardar también
       direccion: dto.direccion,
       telefono: dto.telefono,
-      //subarea: dto.subarea,
-      //area: dto.area,
+      // Nota: Si quieres guardar subarea aquí, deberías descomentarlo, 
+      // pero el repositorio ya lo maneja manualmente en el create.
     };
   }
 
@@ -24,6 +25,9 @@ export class UsersMapper {
     return {
       id: String(usuario._id),
       nombre: usuario.nombre,
+      //apellido: usuario.apellido, // ¡Dejamos pasar el apellido!
+      email: usuario.email,       // ¡Dejamos pasar el email!
+      subarea: usuario.subarea,   // ¡Dejamos pasar el objeto subarea completo!
     };
   }
 
@@ -41,6 +45,9 @@ export class UsersMapper {
   }
 
   public toResponseDto(usuario: UsuarioDocumentType): RespuestaUsuarioDto {
+    
+    const estadoCalculado = usuario.tokenActivacion ? "Pendiente" : "Activo";
+
     return new RespuestaUsuarioDto({
       id: String(usuario._id),
       nombreUsuario: usuario.nombreUsuario,
@@ -49,18 +56,22 @@ export class UsersMapper {
       nombre: usuario.nombre,
       direccion: usuario.direccion,
       telefono: usuario.telefono,
-      //subarea?: usuario.subarea?.nombre,
-      //area: usuario.area,
+      
+      // Enviamos el campo calculado al frontend
+      estado: estadoCalculado, 
+
+      // Si alguna vez usas este DTO para ver detalles, descomenta esto:
+      // subarea: usuario.subarea, 
     });
   }
+  // ------------------------------------------------
+
   public toPartialEntity(dto: UpdateUsuarioDto): Partial<Usuario> {
     return {
       nombreUsuario: dto.nombreUsuario,
       nombre: dto.nombre,
       direccion: dto.direccion,
       telefono: dto.telefono,
-      //subarea?: dto.subarea,
-      //area?: dto.area,
     };
   }
 }

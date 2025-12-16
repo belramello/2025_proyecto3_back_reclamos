@@ -32,7 +32,7 @@ export class CreateUsuarioDto {
   @IsOptional()
   readonly nombre?: string;
 
-  @IsString()
+  @IsString({ message: 'El apellido debe ser una cadena de texto.' })
   @IsOptional() // O @IsNotEmpty() si quieres que sea obligatorio
   apellido?: string;
 

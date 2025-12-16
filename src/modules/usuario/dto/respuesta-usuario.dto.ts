@@ -48,6 +48,9 @@ export class RespuestaUsuarioDto {
   @IsString()
   @IsOptional()
   readonly area?: string;
+  
+  @Expose()
+  estado: string;
 
   constructor(partial: Partial<RespuestaUsuarioDto>) {
     Object.assign(this, partial);

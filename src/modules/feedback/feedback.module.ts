@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { FeedbackController } from './feedback.controller';
 import { FeedbackRepository } from './repository/feedback-repository';
@@ -8,14 +8,15 @@ import { Feedback, FeedbackSchema } from './schemas/feedback.schema';
 import { FeedbackMapper } from './mappers/feedback-mapper';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { ReclamosModule } from '../reclamos/reclamos.module';
-
+import { JwtModule } from '../jwt/jwt.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Feedback.name, schema: FeedbackSchema },
     ]),
     UsuarioModule,
-    ReclamosModule,
+    forwardRef(() => ReclamosModule),
+    JwtModule
   ],
   controllers: [FeedbackController],
   providers: [
@@ -25,7 +26,7 @@ import { ReclamosModule } from '../reclamos/reclamos.module';
       useClass: FeedbackRepository,
     },
     FeedbackValidator,
-    FeedbackMapper,
+    FeedbackMapper
   ],
 })
 export class FeedbackModule {}
