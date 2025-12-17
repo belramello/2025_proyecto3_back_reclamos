@@ -39,13 +39,15 @@ export class ProyectosController {
   @UseGuards(AuthGuard, PermisosGuard)
   @Get()
   @PermisoRequerido(PermisosEnum.CREAR_PROYECTOS)
+  @PermisoRequerido(PermisosEnum.REGISTRAR_RECLAMO)
   findAll(@Query() paginationDto: PaginationDto) {
     return this.proyectosService.findAll(paginationDto);
   }
 
-  @UseGuards(AuthGuard, PermisosGuard)
+  @UseGuards(AuthGuard)
   @Get('cliente/:clienteId')
-  @PermisoRequerido(PermisosEnum.VER_RECLAMO)
+  //@PermisoRequerido(PermisosEnum.VER_RECLAMO)
+  //@PermisoRequerido(PermisosEnum.REGISTRAR_RECLAMO)
   findByCliente(@Param('clienteId') clienteId: string): Promise<Proyecto[]> {
     return this.proyectosService.findAllByCliente(clienteId);
   }
