@@ -734,7 +734,7 @@ export class ReclamosRepository implements IReclamosRepository {
         {
           $lookup: {
             from: 'usuarios',
-            localField: 'cliente',
+            localField: 'usuario',
             foreignField: '_id',
             as: 'clienteDetalle',
           },
