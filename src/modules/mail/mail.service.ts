@@ -18,7 +18,7 @@ export class MailService {
   }
 
   async sendUserActivation(email: string, token: string, rol: string) {
-    const url = `http://localhost:5173/auth/activar-cuenta?token=${token}`;
+    const url = `${this.configService.get<string>('FRONTEND_URL')}/auth/activar-cuenta?token=${token}`;
     const { getWelcomeTemplate } = require('./templates/user-welcome.template');
     const html = getWelcomeTemplate(rol, url);
 
@@ -41,7 +41,9 @@ export class MailService {
     nuevoEstado: string,
     mensaje: string,
   ) {
-    const { getNotificacionReclamoTemplate } = require('./templates/notificacion-reclamo.template');
+    const {
+      getNotificacionReclamoTemplate,
+    } = require('./templates/notificacion-reclamo.template');
     const html = getNotificacionReclamoTemplate(
       nroTicket,
       titulo,
@@ -69,7 +71,9 @@ export class MailService {
     titulo: string,
     fechaCreacion: Date,
   ) {
-    const { getTicketCreationTemplate } = require('./templates/creacion-reclamo.template');
+    const {
+      getTicketCreationTemplate,
+    } = require('./templates/creacion-reclamo.template');
 
     const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -96,7 +100,9 @@ export class MailService {
   }
 
   async sendAsignacionEmpleado(email: string, nroTicket: string) {
-    const { getAsignaciionEmpleadoTemplate } = require('./templates/asignacion-empleado.template');
+    const {
+      getAsignaciionEmpleadoTemplate,
+    } = require('./templates/asignacion-empleado.template');
     const html = getAsignaciionEmpleadoTemplate(nroTicket);
 
     try {
@@ -130,5 +136,4 @@ export class MailService {
       );
     }
   }
-
 }

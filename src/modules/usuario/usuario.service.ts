@@ -307,7 +307,6 @@ export class UsuarioService {
     const resetUrl = `${this.configService.get(
       'FRONTEND_URL',
     )}/reset-password?token=${token}`;
-
     await this.mailService.sendPasswordReset(email, user.nombre, resetUrl);
   }
 
