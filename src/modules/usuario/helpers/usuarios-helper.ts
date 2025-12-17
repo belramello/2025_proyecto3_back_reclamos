@@ -30,4 +30,18 @@ export class UsuariosHelper {
     }
     return rol;
   }
+
+  generarNombreUsuario(nombre?: string): string {
+    if (!nombre || !nombre.trim()) {
+      throw new Error('El nombre no puede estar vacío');
+    }
+    const partes = nombre.trim().toLowerCase().split(/\s+/);
+    const primeraParte = partes[0].slice(0, 4);
+    const restoPartes = partes
+      .slice(1)
+      .map((p) => p.slice(0, 4))
+      .join('');
+    const numeroAleatorio = Math.floor(100 + Math.random() * 900);
+    return `${primeraParte}${restoPartes}${numeroAleatorio}`;
+  }
 }

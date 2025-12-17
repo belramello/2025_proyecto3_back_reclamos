@@ -54,7 +54,7 @@ export class SubareasService {
     return await this.subareasRepository.findAllSubareasDeArea(areaId);
   }
 
-  async findOne(id: string): Promise<Subarea | null> {
+  async findOne(id: string): Promise<SubareaDocumentType | null> {
     return await this.subareasRepository.findOne(id);
   }
 

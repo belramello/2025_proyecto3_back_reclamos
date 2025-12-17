@@ -17,7 +17,6 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
-import { RolesEnum } from '../roles/enums/roles-enum';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -34,24 +33,12 @@ export class UsuarioController {
 
   @UseGuards(AuthGuard, PermisosGuard)
   @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-  @Post('gestion-empleados')
+  @Post('create-usuario')
   async createEmpleado(
     @Body() createUsuarioDto: CreateUsuarioDto,
     @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
-    const dtoEmpleado = { ...createUsuarioDto, rol: RolesEnum.EMPLEADO };
-    return this.usuarioService.create(dtoEmpleado, req.usuario);
-  }
-
-  @Post('registrar-cliente')
-  @UseGuards(AuthGuard, PermisosGuard)
-  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-  async createCliente(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-    @Req() req: RequestWithUsuario,
-  ): Promise<RespuestaUsuarioDto> {
-    const dtoCliente = { ...createUsuarioDto, rol: RolesEnum.CLIENTE };
-    return this.usuarioService.create(dtoCliente, req.usuario);
+    return this.usuarioService.create(createUsuarioDto, req.usuario);
   }
 
   @Delete('gestion-empleados/:id')
@@ -120,19 +107,6 @@ export class UsuarioController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
     await this.usuarioService.remove(id);
-  }
-
-  @UseGuards(AuthGuard, PermisosGuard)
-  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
-  @Post('encargados')
-  async createEncargado(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-  ): Promise<RespuestaUsuarioDto> {
-    const dtoEncargado = {
-      ...createUsuarioDto,
-      rol: RolesEnum.ENCARGADO_DE_AREA,
-    };
-    return this.usuarioService.create(dtoEncargado);
   }
 
   @UseGuards(AuthGuard, PermisosGuard)

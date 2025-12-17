@@ -11,6 +11,7 @@ import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
 import { SubareasService } from 'src/modules/subareas/subareas.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CreacionUsuarioDto } from '../dto/creacion-usuario.dto';
 
 @Injectable()
 export class UsuarioMongoRepository implements IUsuarioRepository {
@@ -20,19 +21,10 @@ export class UsuarioMongoRepository implements IUsuarioRepository {
     private readonly subareaService: SubareasService,
   ) {}
 
-  async create(
-    userData: CreateUsuarioDto,
-    rol: RolDocumentType,
-  ): Promise<UsuarioDocumentType> {
+  async create(userData: CreacionUsuarioDto): Promise<UsuarioDocumentType> {
     try {
-      const userDoc = new this.userModel({
-        ...userData,
-        rol: rol,
-        area: userData.area ? new Types.ObjectId(userData.area) : null,
-        subarea: userData.subarea ? new Types.ObjectId(userData.subarea) : null,
-      });
+      const userDoc = new this.userModel(userData);
       const created = await userDoc.save();
-
       const user = await this.findOne(created._id.toString());
       if (!user) {
         throw new InternalServerErrorException(`Error al crear el usuario`);

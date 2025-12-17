@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { Post, Body } from '@nestjs/common';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
-import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { ActivarCuentaDto } from './dto/activar-cuenta.dto';
 
 @Controller('auth')
@@ -13,14 +12,6 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return await this.authService.login(loginDto);
-  }
-
-  //ver si sigue estando o tendría que desaparecer
-  @Post('register')
-  async register(
-    @Body() createUsuarioDto: CreateUsuarioDto,
-  ): Promise<LoginResponseDto> {
-    return await this.authService.register(createUsuarioDto);
   }
 
   @Post('refresh')

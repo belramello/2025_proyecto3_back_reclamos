@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AreasService } from '../areas.service';
-import { Area } from '../schemas/area.schema';
+import { Area, AreaDocumentType } from '../schemas/area.schema';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 
@@ -18,7 +18,7 @@ export class AreasValidator {
     private readonly usuarioValidator: UsuariosValidator,
   ) {}
 
-  async validateAreaExistente(areaId: string): Promise<Area> {
+  async validateAreaExistente(areaId: string): Promise<AreaDocumentType> {
     const area = await this.areasService.findOne(areaId);
     if (!area) {
       throw new NotFoundException(`La área con ID ${areaId} no existe`);

@@ -11,13 +11,17 @@ import { UsuarioService } from '../usuario.service';
 import { Usuario, UsuarioDocumentType } from '../schema/usuario.schema';
 import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
 import { Types } from 'mongoose';
-import { Subarea } from 'src/modules/subareas/schemas/subarea.schema';
-import { Area } from 'src/modules/areas/schemas/area.schema';
+import {
+  Subarea,
+  SubareaDocumentType,
+} from 'src/modules/subareas/schemas/subarea.schema';
+import { Area, AreaDocumentType } from 'src/modules/areas/schemas/area.schema';
 import { SubareasValidator } from 'src/modules/subareas/helpers/subareas-validator';
 import { ReclamosService } from 'src/modules/reclamos/reclamos.service';
 import { RolesValidator } from 'src/modules/roles/helpers/roles-validator';
 import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
 import { UsuariosHelper } from './usuarios-helper';
+import { AreasValidator } from 'src/modules/areas/helpers/areas-validator';
 @Injectable()
 export class UsuariosValidator {
   constructor(
@@ -27,6 +31,7 @@ export class UsuariosValidator {
     private readonly reclamosService: ReclamosService,
     private readonly rolesValidator: RolesValidator,
     private readonly usuariosHelper: UsuariosHelper,
+    private readonly areaValidator: AreasValidator,
   ) {}
 
   async validateUsuarioExistente(
@@ -102,9 +107,8 @@ export class UsuariosValidator {
   async validateSubareaDeEncargado(
     subareaId: string,
     encargado: Usuario,
-  ): Promise<void> {
-    const subarea =
-      await this.subareaValidator.validateSubareaExistente(subareaId);
+  ): Promise<SubareaDocumentType> {
+    const subarea = await this.validateSubareaExistente(subareaId);
     await this.validateAreaAsignadaAEncargado(encargado);
     type DocWithId = { _id: Types.ObjectId; nombre?: string };
     const areaSubareaObj = subarea.area as unknown as DocWithId;
@@ -121,6 +125,7 @@ export class UsuariosValidator {
         `La subárea '${subarea.nombre}' no pertenece al área '${nombreArea}' del Encargado. No tienes permiso para asignar empleados aquí.`,
       );
     }
+    return subarea;
   }
 
   async validateNoCliente(usuarioId: string): Promise<Usuario> {
@@ -152,7 +157,9 @@ export class UsuariosValidator {
     return await this.rolesValidator.validateRolExistente(rol);
   }
 
-  async validateSubareaExistente(subareaId: string): Promise<Subarea> {
+  async validateSubareaExistente(
+    subareaId: string,
+  ): Promise<SubareaDocumentType> {
     return await this.subareaValidator.validateSubareaExistente(subareaId);
   }
 
@@ -174,5 +181,23 @@ export class UsuariosValidator {
         'No se puede eliminar al encargado porque es el único en su área.',
       );
     }
+  }
+
+  async validateAreaExistente(areaId: string): Promise<AreaDocumentType> {
+    return await this.areaValidator.validateAreaExistente(areaId);
+  }
+
+  async validateTokenExistente(token: string): Promise<UsuarioDocumentType> {
+    const user = await this.usuariosService.findOneByResetToken(token);
+    if (!user) {
+      throw new NotFoundException('Token inválido o usuario no encontrado.');
+    }
+    if (
+      !user.passwordResetExpiration ||
+      user.passwordResetExpiration < new Date()
+    ) {
+      throw new BadRequestException('Token inválido o expirado');
+    }
+    return user;
   }
 }

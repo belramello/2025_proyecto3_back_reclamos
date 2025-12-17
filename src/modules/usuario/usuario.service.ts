@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -14,8 +13,6 @@ import type { IUsuarioRepository } from './repository/usuario-repository.interfa
 import { UsersMapper } from './mappers/usuario.mapper';
 import { UsuarioDocumentType } from './schema/usuario.schema';
 import { MailService } from '../mail/mail.service';
-import { UserContext } from './strategies/user-context';
-import { ProyectosService } from '../proyectos/proyectos.service';
 import { RolesEnum } from '../roles/enums/roles-enum';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { EmpleadoDto } from './dto/empleado-de-subarea.dto';
@@ -24,6 +21,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsuariosHelper } from './helpers/usuarios-helper';
 import { RolesService } from '../roles/roles.service';
+import { UsuarioCreacionStrategy } from './strategies/usuario-creacion.strategy.interface';
 
 @Injectable()
 export class UsuarioService {
@@ -34,58 +32,40 @@ export class UsuarioService {
     @Inject(forwardRef(() => UsuariosValidator))
     private readonly usuariosValidator: UsuariosValidator,
     private readonly mailService: MailService,
-    private readonly userContext: UserContext,
-    @Inject(forwardRef(() => ProyectosService))
-    private readonly proyectosService: ProyectosService,
     @Inject(forwardRef(() => ReclamosService))
     private readonly reclamosService: ReclamosService,
     private readonly configService: ConfigService,
     private readonly usuarioHelper: UsuariosHelper,
     private readonly rolesService: RolesService,
+    @Inject('USUARIO_STRATEGIES')
+    private readonly strategies: UsuarioCreacionStrategy[],
   ) {}
 
   async create(
     createUsuarioDto: CreateUsuarioDto,
-    actor?: UsuarioDocumentType,
+    actor: UsuarioDocumentType,
   ): Promise<RespuestaUsuarioDto> {
     await this.usuariosValidator.validateEmailNoUsado(createUsuarioDto.email);
     const rolEncontrado = await this.usuariosValidator.validateRolExistente(
       createUsuarioDto.rol,
     );
-    if (createUsuarioDto.subarea) {
-      await this.usuariosValidator.validateSubareaExistente(
-        createUsuarioDto.subarea,
-      );
+    const estrategia = this.strategies.find(
+      (s) => s.tipo === rolEncontrado.nombre,
+    );
+    if (!estrategia) {
+      throw new Error(`No hay strategy para el tipo: ${rolEncontrado.nombre}`);
     }
-    const strategy = this.userContext.getStrategy(rolEncontrado.nombre);
-    await strategy.validate(createUsuarioDto, {
-      actor: actor,
-      validators: {
-        usuarios: this.usuariosValidator,
-      },
-    });
-    const usuarioData = await strategy.prepareData(createUsuarioDto);
-    const nuevoUsuario = await this.usuariosRepository.create(
-      usuarioData,
+    const usuarioData = await estrategia.crear(
+      actor,
+      createUsuarioDto,
       rolEncontrado,
     );
+    const nuevoUsuario = await this.usuariosRepository.create(usuarioData);
     if (usuarioData.tokenActivacion) {
       await this.mailService.sendUserActivation(
         nuevoUsuario.email,
         usuarioData.tokenActivacion,
         rolEncontrado.nombre,
-      );
-    }
-    if (
-      createUsuarioDto.proyecto &&
-      rolEncontrado.nombre === RolesEnum.CLIENTE
-    ) {
-      await this.proyectosService.create(
-        {
-          ...createUsuarioDto.proyecto,
-          cliente: String(nuevoUsuario._id),
-        },
-        actor,
       );
     }
     return this.usuarioMappers.toResponseDto(nuevoUsuario);
@@ -161,10 +141,8 @@ export class UsuarioService {
     const dataMapped = data.map((usuario) =>
       this.usuarioMappers.toResponseDto(usuario),
     );
-    console.log(dataMapped);
     const limit = paginationDto.limit || 10;
     const totalPages = Math.ceil(total / limit);
-
     return {
       data: dataMapped,
       total,
@@ -311,19 +289,16 @@ export class UsuarioService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const user = await this.usuariosRepository.findOneByResetToken(token);
-    if (!user) {
-      throw new BadRequestException('Usuario no encontrado');
-    }
-    if (
-      !user.passwordResetExpiration ||
-      user.passwordResetExpiration < new Date()
-    ) {
-      throw new BadRequestException('Token inválido o expirado');
-    }
+    const user = await this.usuariosValidator.validateTokenExistente(token);
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     await this.usuariosRepository.updatePassword(user.id, hashedPassword);
+  }
+
+  async findOneByResetToken(
+    token: string,
+  ): Promise<UsuarioDocumentType | null> {
+    return await this.usuariosRepository.findOneByResetToken(token);
   }
 
   async contarReclamoPorAreaYRol(

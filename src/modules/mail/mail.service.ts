@@ -21,7 +21,6 @@ export class MailService {
     const url = `${this.configService.get<string>('FRONTEND_URL')}/auth/activar-cuenta?token=${token}`;
     const { getWelcomeTemplate } = require('./templates/user-welcome.template');
     const html = getWelcomeTemplate(rol, url);
-
     try {
       await this.transporter.sendMail({
         from: `"Gestión de Reclamos" <${this.configService.get<string>('MAIL_USER')}>`,

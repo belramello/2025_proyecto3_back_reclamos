@@ -1,13 +1,10 @@
 import { RolDocumentType } from 'src/modules/roles/schema/rol.schema';
-import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { UsuarioDocumentType } from '../schema/usuario.schema';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CreacionUsuarioDto } from '../dto/creacion-usuario.dto';
 
 export interface IUsuarioRepository {
-  create(
-    usuario: CreateUsuarioDto,
-    rol: RolDocumentType,
-  ): Promise<UsuarioDocumentType>;
+  create(usuario: CreacionUsuarioDto): Promise<UsuarioDocumentType>;
   findAll(
     paginationDto: PaginationDto,
   ): Promise<{ data: UsuarioDocumentType[]; total: number }>;

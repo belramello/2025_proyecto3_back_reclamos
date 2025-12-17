@@ -3,7 +3,6 @@ import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
-import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
 import { UsuarioDocumentType } from '../usuario/schema/usuario.schema';
@@ -40,21 +39,6 @@ export class AuthService {
         .catch(() => null);
       throw error;
     }
-  }
-
-  async register(createUserDto: CreateUsuarioDto): Promise<LoginResponseDto> {
-    const nuevoUsuario = await this.userService.create(createUserDto);
-    const payload = {
-      email: nuevoUsuario.email,
-      sub: nuevoUsuario.id,
-    };
-    const accessToken = this.jwtService.generateToken(payload, 'auth');
-    const refreshToken = this.jwtService.generateToken(payload, 'refresh');
-    return this.authMapper.toLoginResponseDto(
-      accessToken,
-      refreshToken,
-      nuevoUsuario,
-    );
   }
 
   async refresh(refreshToken: string): Promise<LoginResponseDto> {

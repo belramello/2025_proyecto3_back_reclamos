@@ -37,7 +37,7 @@ export class AreasService {
     return this.areasMapper.toAreaDtos(areasFiltradas);
   }
 
-  async findOne(id: string): Promise<Area | null> {
+  async findOne(id: string): Promise<AreaDocumentType | null> {
     return await this.areasRepository.findOne(id);
   }
 

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SubareasService } from '../subareas.service';
-import { Subarea } from '../schemas/subarea.schema';
+import { Subarea, SubareaDocumentType } from '../schemas/subarea.schema';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 
@@ -19,7 +19,7 @@ export class SubareasValidator {
     private readonly usuariosValidator: UsuariosValidator,
   ) {}
 
-  async validateSubareaExistente(id: string): Promise<Subarea> {
+  async validateSubareaExistente(id: string): Promise<SubareaDocumentType> {
     const subarea = await this.subareasService.findOne(id);
     if (!subarea) {
       throw new NotFoundException(`El subarea con ID ${id} no existe`);
