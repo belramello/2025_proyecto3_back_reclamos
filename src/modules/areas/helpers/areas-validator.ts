@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AreasService } from '../areas.service';
-import { Area, AreaDocumentType } from '../schemas/area.schema';
+import { AreaDocumentType } from '../schemas/area.schema';
 import { UsuariosValidator } from 'src/modules/usuario/helpers/usuarios-validator';
 import { Usuario } from 'src/modules/usuario/schema/usuario.schema';
 

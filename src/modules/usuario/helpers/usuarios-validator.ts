@@ -200,4 +200,12 @@ export class UsuariosValidator {
     }
     return user;
   }
+
+  async validateUsuarioConMail(email: string): Promise<UsuarioDocumentType> {
+    const user = await this.usuariosService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return user;
+  }
 }

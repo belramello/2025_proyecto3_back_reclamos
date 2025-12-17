@@ -119,11 +119,11 @@ export class UsuarioService {
     } as any);
   }
 
+  //Deuda técnica
   async findAll(paginationDto: PaginationDto): Promise<any> {
     if (!paginationDto.busqueda || paginationDto.busqueda.trim() === '') {
       delete paginationDto.busqueda;
     }
-
     if (paginationDto.rol) {
       const rolEntity = await this.rolesService.findByName(
         paginationDto.rol as any,
@@ -134,7 +134,6 @@ export class UsuarioService {
         paginationDto.rol = '000000000000000000000000';
       }
     }
-
     const { data, total } =
       await this.usuariosRepository.findAll(paginationDto);
     console.log(data);
@@ -275,13 +274,9 @@ export class UsuarioService {
   }
 
   async forgotPassword(email: string): Promise<void> {
-    const user = await this.usuariosRepository.findByEmail(email);
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiration = new Date(Date.now() + 3600000); //1 hora.
-    await this.usuariosRepository.guardarTokenReset(email, token, expiration);
+    const user = await this.usuariosValidator.validateUsuarioConMail(email);
+    const { token, expiracion } = await this.usuarioHelper.generarToken();
+    await this.usuariosRepository.guardarTokenReset(email, token, expiracion);
     const resetUrl = `${this.configService.get(
       'FRONTEND_URL',
     )}/reset-password?token=${token}`;

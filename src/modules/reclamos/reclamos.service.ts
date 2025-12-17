@@ -67,7 +67,7 @@ export class ReclamosService {
       cerrarReclamo.resumenResolucion,
       usuario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'Reclamo Cerrado',
       `El reclamo fue resuelto con éxito, el resumen de resolución es: ${reclamo.resumenResolucion}`,
@@ -110,7 +110,7 @@ export class ReclamosService {
       subarea,
       estadoActual,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'En Proceso',
       `El reclamo fue tomado por ${empleado.nombre}`,
@@ -139,7 +139,7 @@ export class ReclamosService {
       subarea,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
       `Derivado a subárea: ${subarea.nombre}`,
@@ -172,7 +172,7 @@ export class ReclamosService {
       estadoActual,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'En Proceso',
       `Asignado a responsable: ${empleado.nombre}`,
@@ -201,7 +201,7 @@ export class ReclamosService {
       areaDestino,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       estadoActual,
       `Transferido al Área: ${areaDestino.nombre}`,
@@ -229,7 +229,7 @@ export class ReclamosService {
       subarea,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'En Proceso',
       `Reasignado a: ${empleadoDestino.nombre}`,
@@ -259,7 +259,7 @@ export class ReclamosService {
       subareaDestino,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
       `Movido a subárea: ${subareaDestino.nombre}`,
@@ -286,7 +286,7 @@ export class ReclamosService {
       areaDestino,
       comentario,
     );
-    await this.notificarCliente(
+    await this.reclamosHelper.notificarCliente(
       reclamo,
       'Pendiente de Asignación',
       `Transferido al Área: ${areaDestino.nombre}`,
@@ -313,41 +313,6 @@ export class ReclamosService {
         area.nombre,
       );
     return this.reclamosMapper.toReclamoEnMovimientoDtos(reclamos);
-  }
-
-  //helper para el envío de mail.
-  private async notificarCliente(
-    reclamo: ReclamoDocumentType,
-    nuevoEstado: string,
-    mensaje: string,
-  ): Promise<void> {
-    try {
-      let emailCliente: string | null = null;
-      const usuario: any = reclamo.usuario;
-      if (usuario && usuario.email) {
-        emailCliente = usuario.email;
-      }
-      if (!emailCliente) {
-        const proyecto: any = reclamo.proyecto;
-        if (proyecto && proyecto.cliente && proyecto.cliente.email) {
-          emailCliente = proyecto.cliente.email;
-        }
-      }
-      if (emailCliente) {
-        await this.mailService.sendReclamoNotification(
-          emailCliente,
-          reclamo.nroTicket,
-          reclamo.titulo,
-          nuevoEstado,
-          mensaje,
-        );
-      }
-    } catch (error) {
-      console.error(
-        `Error no bloqueante enviando notificación reclamo ${reclamo.nroTicket}:`,
-        error,
-      );
-    }
   }
 
   async obtenerReclamosAsignadosAUnSubArea(
