@@ -8,10 +8,10 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "node dist/main.js",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/main.js",
     "seed:estados": "ts-node src/seeds/seed-estados.ts",
     "seed:areas": "ts-node src/seeds/seed-areas-subareas.ts",
     "seed:roles": "ts-node src/seeds/seed-roles-permisos.ts",
