@@ -31,7 +31,6 @@ import { RespuestaHistorialReclamoDto } from './dto/respuesta-historial-reclamo.
 export class ReclamosController {
   constructor(private readonly reclamosService: ReclamosService) {}
 
-  
   @PermisoRequerido(PermisosEnum.AUTO_ASIGNAR_RECLAMO)
   @Get('reclamos-subarea')
   obtenerReclamosAsignadosAUnSubArea(
@@ -137,6 +136,7 @@ export class ReclamosController {
       id,
       req.usuario,
       empleadoAAsignarDto.empleadoId,
+      empleadoAAsignarDto.comentario,
     );
   }
 
@@ -151,6 +151,7 @@ export class ReclamosController {
       id,
       req.usuario,
       areaAAsignarDto.areaId,
+      areaAAsignarDto.comentario,
     );
   }
 
@@ -165,6 +166,7 @@ export class ReclamosController {
       id,
       req.usuario,
       empleadoAAsignarDto.empleadoId,
+      empleadoAAsignarDto.comentario,
     );
   }
 
@@ -179,6 +181,7 @@ export class ReclamosController {
       id,
       req.usuario,
       subareaAAsignarDto.subareaId,
+      subareaAAsignarDto.comentario,
     );
   }
 
@@ -193,7 +196,7 @@ export class ReclamosController {
       id,
       req.usuario,
       areaAAsignarDto.areaId,
+      areaAAsignarDto.comentario,
     );
   }
-
 }
